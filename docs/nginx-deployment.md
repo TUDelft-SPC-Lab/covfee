@@ -4,7 +4,7 @@
 - Install all the dependencies including gunicorn: `pip install gunicorn`
 - Create a systemd service to start the app with several workers and fault tolerance at `/etc/systemd/system/covfee.service`
 
-```toml
+```
 [Unit]
 Description=Gunicorn instance to serve covfee
 After=network.target
@@ -24,7 +24,7 @@ WantedBy=multi-user.target
 - Install nginx: `sudo apt install nginx`
 - Add a nginx config file for covfee in `/etc/nginx/sites-available/covfee`
 
-```toml
+```
 server {
     listen 80;
     server_name your_domain www.your_domain;
