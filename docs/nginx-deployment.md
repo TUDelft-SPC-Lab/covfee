@@ -22,7 +22,7 @@ WantedBy=multi-user.target
 
 - Start the service: `sudo systemctl start covfee`
 - Install nginx: `sudo apt install nginx`
-- Add a nginx config file for covfee in `/etc/nginx/sites-available/covfee`
+- Add an nginx config file for covfee in `/etc/nginx/sites-available/covfee`
 
 ```
 server {
@@ -44,7 +44,7 @@ server{
         index index.nginx-debian.html;
     }
 
-    # Show the the app at www.your_domain/covfee
+    # Show the app at www.your_domain/covfee
     location /covfee {
         rewrite ^/covfee/(.*)$ /$1 break; # Remove the /covfee from the URL before passing it to the proxy_pass below
         include proxy_params; # Add the proxy configuration from the proxy_params file from the parent folder
