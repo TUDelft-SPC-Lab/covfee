@@ -6,8 +6,8 @@ import sys
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-if not (sys.version_info >= (3, 8) and sys.version_info < (3, 11)):
-    sys.exit("Python version must be >=3.8 and < 3.11")
+if not (sys.version_info >= (3, 8) and sys.version_info < (3, 10)):
+    sys.exit("Python version must be >=3.8 and < 3.10")
 
 setup(
     name="covfee",
@@ -34,7 +34,7 @@ setup(
     install_requires=[
         "Flask == 2.3.2",
         "werkzeug==2.3.4",
-        "eventlet==0.33.3",
+        "eventlet==0.30.2", # Eventlet 0.33.3 causes a crash when running via gunicorn
         "Flask-Session == 0.5.*",
         "sqlalchemy == 2.*",
         "flask_cors == 3.*",
