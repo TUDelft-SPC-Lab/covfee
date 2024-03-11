@@ -183,13 +183,16 @@ def make(
 
         launcher = Launcher(mode, projects, Path(project_spec_file).parent)
         launcher.make_database(force, with_spinner=True)
+        launcher.prepare_server(unsafe)
         if not no_launch:
             print(
                 get_start_message(
                     url=config["ADMIN_URL"] if unsafe else config["LOGIN_URL"]
                 )
             )
-            launcher.launch(unsafe)
+            launcher.start_server()
+        else:
+            return launcher.app
     except FileNotFoundError:
         pass
     except JavascriptError as err:

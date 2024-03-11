@@ -49,6 +49,8 @@ class Launcher:
             in_memory=(environment == "dev"), db_path=self.config["DATABASE_PATH"]
         )
         self.session_local = get_session_local(self.engine)
+        self.socketio = None
+        self.app = None
 
     def make_database(self, force=False, with_spinner=False):
         self.init_folder()
@@ -68,39 +70,47 @@ class Launcher:
         self.commit()
 
     def launch(self, unsafe=None):
+        self.prepare_server(unsafe)
+        self.start_server()
+
+    def prepare_server(self, unsafe=None):
         if self.environment != "dev":
             self.link_bundles()
         if unsafe is None:
             unsafe = False if self.environment == "deploy" else True
-        self.start_server(unsafe)
+        self._prepare_server(unsafe)
 
     def create_tables(self):
         orm.Base.metadata.create_all(self.engine)
 
-    def start_server(self, unsafe=False):
-        socketio, app = create_app(self.environment, self.session_local)
-        with app.app_context():
-            app.config["UNSAFE_MODE_ON"] = unsafe
-            self._start_server(socketio, app)
+    def _prepare_server(self, unsafe=False):
+        self.socketio, self.app = create_app(self.environment, self.session_local)
+        with self.app.app_context():
+            self.app.config["UNSAFE_MODE_ON"] = unsafe
 
-    def _start_server(self, socketio, app, host="0.0.0.0"):
-        if app.config["SSL_ENABLED"]:
-            ssl_options = {
-                "keyfile": self.config["SSL_KEY_FILE"],
-                "certfile": self.config["SSL_CERT_FILE"],
-            }
-        else:
-            ssl_options = {}
+    def start_server(self,  host="0.0.0.0"):
+        if self.app is None or self.socketio is None:
+            raise RuntimeError("prepare_server() needs to be called before calling start_server()")
+        
+        with self.app.app_context():
 
-        print(f"Running covfee at {host}:{5000} with environment={self.environment}")
-        if self.environment == "local":
-            socketio.run(app, host=host, port=5000, **ssl_options)
-        elif self.environment == "dev":
-            socketio.run(app, host=host, port=5000, debug=True, **ssl_options)
-        elif self.environment == "deploy":
-            socketio.run(app, host=host, **ssl_options)
-        else:
-            raise f"unrecognized self.environment {self.environment}"
+            if self.app.config["SSL_ENABLED"]:
+                ssl_options = {
+                    "keyfile": self.config["SSL_KEY_FILE"],
+                    "certfile": self.config["SSL_CERT_FILE"],
+                }
+            else:
+                ssl_options = {}
+
+            print(f"Running covfee at {host}:{5000} with environment={self.environment}")
+            if self.environment == "local":
+                self.socketio.run(self.app, host=host, port=5000, **ssl_options)
+            elif self.environment == "dev":
+                self.socketio.run(self.app, host=host, port=5000, debug=True, **ssl_options)
+            elif self.environment == "deploy":
+                self.socketio.run(self.app, host=host, **ssl_options)
+            else:
+                raise f"unrecognized self.environment {self.environment}"
 
     def launch_browser(self, unsafe=False):
         target_url = self.config["ADMIN_URL"] if unsafe else self.config["LOGIN_URL"]
