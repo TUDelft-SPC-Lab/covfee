@@ -5,7 +5,7 @@ from pathlib import Path
 os.chdir(Path(__file__).parent)
 
 
-def create_app(no_launch: bool = True, dev: bool = False):
+def create_app(no_launch: bool = True, dev: bool = True):
     if dev:
         # Dev mode
         return make.callback(
