@@ -104,8 +104,8 @@ export const Form: React.FC<React.PropsWithChildren<Props>> = (props) => {
               field.input.defaultValue !== undefined
                 ? field.input.defaultValue
                 : field.input.defaultChecked !== undefined
-                  ? field.input.defaultChecked
-                  : null
+                ? field.input.defaultChecked
+                : null
             return [field.name, defaultValue]
           })
         )
@@ -224,7 +224,10 @@ export const Form: React.FC<React.PropsWithChildren<Props>> = (props) => {
 
       {args.renderSubmitButton && (
         <AntdForm.Item>
-          {args.renderSubmitButton({ disabled: args.disabled })}
+          {args.renderSubmitButton({
+            disabled:
+              args.disabled || (args.fields != null && args.values === null), // Don't allow submitting empty forms
+          })}
           {/* <Button type="primary" htmlType="submit" disabled={this.props.disabled}>
                   {this.props.submitButtonText}
               </Button>     */}
