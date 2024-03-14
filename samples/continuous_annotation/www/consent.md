@@ -9,7 +9,7 @@ To participate in the following study, you must read and declare your agreement 
    You may withdraw from the study at any time by closing the browser window.
    Incomplete data will be automatically deleted.
 5. Your data will be handled in accordance with the General Data Protection Regulation (GDPR). We will take measures to ensure the security and confidentiality of your information.
-6. If you have any questions or concerns about the study or your participation, you can contact
-   > The SPCLab team at TU Delft via email
+6. If you have any questions or concerns about the study or your participation, you can contact:
+   > The SPCLab team
    >
    > <SPCLab@tudelft.nl>
