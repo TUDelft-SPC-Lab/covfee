@@ -13,3 +13,5 @@ To participate in the following study, you must read and declare your agreement 
    > The SPCLab team
    >
    > <SPCLab@tudelft.nl>
+
+By clicking submit you are agreing to the terms above.

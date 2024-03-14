@@ -15,25 +15,11 @@ spec_consent_form = {
                 "required": True,
                 "input": {"inputType": "Input"},
             },
-            {
-                "name": "consent",
-                "label": "To proceed, you must expressly provide consent per the terms above.",
-                "required": True,
-                "input": {
-                    "inputType": "Checkbox.Group",
-                    "options": [
-                        {
-                            "label": "I consent to the sharing of my personal data.",
-                            "value": "yes",
-                        }
-                    ],
-                },
-            },
         ]
     },
 }
 
-consent_form = tasks.InstructionsTaskSpec(**spec_consent_form)
+consent_form = tasks.InstructionsTaskSpec(**spec_consent_form, prerequisite=True, required=True)
 
 my_task_1 = tasks.ContinuousAnnotationTaskSpec(
     name="My Task 1",
