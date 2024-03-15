@@ -6,12 +6,18 @@ config.load_environment("local")
 
 spec_consent_form = {
     "name": "Consent",
-    "content": {"type": "link", "url": "$$www$$/consent.md"},
+    "content": {"type": "link", "url": "$$www$$/consent.html"},
     "form": {
         "fields": [
             {
                 "name": "name",
                 "label": "Full name:",
+                "required": True,
+                "input": {"inputType": "Input"},
+            },
+            {
+                "name": "email",
+                "label": "email:",
                 "required": True,
                 "input": {"inputType": "Input"},
             },
