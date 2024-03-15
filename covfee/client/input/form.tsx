@@ -1,11 +1,7 @@
-import * as React from "react"
+import { FormSpec, InputSpec } from "@covfee-shared/spec/form"
 import {
-  /*
-    Supported input elements
-    */
-  Cascader,
+  Form as AntdForm,
   Checkbox,
-  DatePicker,
   Input,
   InputNumber,
   Radio,
@@ -13,20 +9,10 @@ import {
   Select,
   Slider,
   Switch,
-  TimePicker,
-  TreeSelect,
-  /**
-   * Other
-   */
-  List,
-  Form as AntdForm,
-  Button,
 } from "antd"
-import { log } from "../utils"
-import { FormSpec, InputSpec } from "@covfee-shared/spec/form"
-import { FormInstance } from "antd/lib/form"
-import { StarOutlined, ThunderboltFilled } from "@ant-design/icons"
+import * as React from "react"
 import { AllPropsRequired } from "../types/utils"
+import { log } from "../utils"
 
 const antd_components: { [key: string]: any } = {
   // 'Cascader': Cascader,
@@ -113,6 +99,27 @@ export const Form: React.FC<React.PropsWithChildren<Props>> = (props) => {
     }
     return initialValues
   }, [args.fields, args.values])
+
+  const required_fields_filled = () => {
+    if (args.fields) {
+      if (args.values === null || args.values === undefined) {
+        return false
+      }
+      for (const field of args.fields) {
+        if (
+          field.required &&
+          (args.values[field.name] === null ||
+            args.values[field.name] === undefined ||
+            !args.values[field.name])
+        ) {
+          return false
+        }
+      }
+      return true
+    } else {
+      return true // if no fields or no fields are required, then the form is always valid
+    }
+  }
 
   const renderInputElement = (
     inputType: string,
@@ -225,8 +232,7 @@ export const Form: React.FC<React.PropsWithChildren<Props>> = (props) => {
       {args.renderSubmitButton && (
         <AntdForm.Item>
           {args.renderSubmitButton({
-            disabled:
-              args.disabled || (args.fields != null && args.values === null), // Don't allow submitting empty forms
+            disabled: args.disabled || !required_fields_filled(),
           })}
           {/* <Button type="primary" htmlType="submit" disabled={this.props.disabled}>
                   {this.props.submitButtonText}
