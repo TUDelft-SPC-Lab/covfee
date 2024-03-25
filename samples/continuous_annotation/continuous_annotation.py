@@ -10,14 +10,8 @@ spec_consent_form = {
     "form": {
         "fields": [
             {
-                "name": "name",
-                "label": "Full name:",
-                "required": True,
-                "input": {"inputType": "Input"},
-            },
-            {
-                "name": "email",
-                "label": "email:",
+                "name": "agreement_code",
+                "label": "Agreement code:",
                 "required": True,
                 "input": {"inputType": "Input"},
             },
