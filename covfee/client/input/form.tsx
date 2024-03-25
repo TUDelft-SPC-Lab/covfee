@@ -121,6 +121,29 @@ export const Form: React.FC<React.PropsWithChildren<Props>> = (props) => {
     }
   }
 
+  const agreement_signed = () => {
+    if (args.fields) {
+      if (args.values === null || args.values === undefined) {
+        return false
+      }
+      for (const field of args.fields) {
+        if (
+          field.required &&
+          field.name === "agreement_code" &&
+          (args.values[field.name] === null ||
+            args.values[field.name] === undefined ||
+            !args.values[field.name] ||
+            args.values[field.name] !== "06F2w4adS9Zu")
+        ) {
+          return false
+        }
+      }
+      return true
+    } else {
+      return true // if no fields or no fields are required, then the form is always valid
+    }
+  }
+
   const renderInputElement = (
     inputType: string,
     elementProps: any,
@@ -232,7 +255,7 @@ export const Form: React.FC<React.PropsWithChildren<Props>> = (props) => {
       {args.renderSubmitButton && (
         <AntdForm.Item>
           {args.renderSubmitButton({
-            disabled: args.disabled || !required_fields_filled(),
+            disabled: args.disabled || !required_fields_filled() || !agreement_signed(),
           })}
           {/* <Button type="primary" htmlType="submit" disabled={this.props.disabled}>
                   {this.props.submitButtonText}
