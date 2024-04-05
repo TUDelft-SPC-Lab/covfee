@@ -22,12 +22,18 @@ const getDimensions = (nodes: SimulationNode[], nodeRadius: number) => {
 }
 
 const createNodes = (nodes: NodeType[], focusedNode: number) => {
-  const res = nodes.map((n, index) => ({
-    id: n.id,
-    name: n.name,
-    focused: focusedNode == index,
-    color: NodeStatusToColor[getNodeStatus(n)],
-  }))
+  const res = nodes.map((n, index) => {
+    let name = n.name
+    if (n.progress !== null && n.progress !== undefined) {
+      name += ` (${n.progress}%)`
+    }
+    return {
+      id: n.id,
+      name: name,
+      focused: focusedNode === index,
+      color: NodeStatusToColor[getNodeStatus(n)],
+    }
+  })
 
   return res
 }

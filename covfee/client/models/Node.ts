@@ -30,6 +30,15 @@ export function useNodeFns(node: NodeType) {
     [node.url]
   )
 
+  const submitProgress = useCallback(
+    (progress: number) => {
+      const url = node.url + "/progress/" + progress
+
+      return fetcher(url).then(throwBadResponse)
+    },
+    [node.url]
+  )
+
   const restart = useCallback(() => {
     const url = node.url + "/restart"
 
@@ -91,6 +100,7 @@ export function useNodeFns(node: NodeType) {
     setManualStatus,
     restart,
     setReady,
+    submitProgress,
   }
 }
 
@@ -115,6 +125,7 @@ export function useNode(data: NodeType, socket: MainSocket = null) {
     makeResponse,
     submitResponse: submitResponseFn,
     setReady,
+    submitProgress,
   } = useNodeFns(node)
 
   const numOnlineJourneys: number = React.useMemo(() => {
@@ -129,6 +140,13 @@ export function useNode(data: NodeType, socket: MainSocket = null) {
     setNode((node) => ({
       ...node,
       status: status,
+    }))
+  }
+
+  const setProgress = (progress: number) => {
+    setNode((node) => ({
+      ...node,
+      progress: progress,
     }))
   }
 
@@ -159,6 +177,7 @@ export function useNode(data: NodeType, socket: MainSocket = null) {
         dt_count: data.dt_count,
         dt_finish: data.dt_finish,
         t_elapsed: data.t_elapsed,
+        progress: data.progress,
       }))
     }
 
@@ -190,10 +209,12 @@ export function useNode(data: NodeType, socket: MainSocket = null) {
     response,
     setResponse,
     setStatus,
+    setProgress,
     fetchResponse,
     submitResponse,
     makeResponse,
     setReady,
+    submitProgress,
   }
 }
 

@@ -63,6 +63,7 @@ export interface ServerToClientEvents {
     dt_count: string
     dt_finish: string
     t_elapsed: number
+    progress: number | null
   }) => void
 
   // for tasks with shared state

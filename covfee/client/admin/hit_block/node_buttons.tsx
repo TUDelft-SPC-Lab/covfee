@@ -46,6 +46,7 @@ export const NodeRow = ({
           <StatusIcon color={NodeStatusToColor[getNodeStatus(node)]} />
         </span>
         {node.name}[{node.id}] - {node.status}
+        {node.progress ? "(" + node.progress + "%)" : ""}
       </a>
       <NodeButtons node={node} />
     </Row>

@@ -85,6 +85,7 @@ export const useHitInstances = (
         dt_count: data.dt_count,
         dt_finish: data.dt_finish,
         t_elapsed: data.t_elapsed,
+        progress: data.progress,
       })
     }
 

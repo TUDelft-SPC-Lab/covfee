@@ -101,6 +101,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   var isEntireTaskCompleted = false
   var numberOfAnnotationsCompleted = 0
   var numberOfAnnotations = 0
+  var taskCompletionPercentage = 0
   if (annotationsDataMirror !== undefined) {
     isEntireTaskCompleted = annotationsDataMirror.every(
       (annotationData: AnnotationData) => annotationData.data_json !== null
@@ -109,6 +110,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     numberOfAnnotationsCompleted = annotationsDataMirror.filter(
       (annotationData: AnnotationData) => annotationData.data_json !== null
     ).length
+    taskCompletionPercentage = Math.round(
+      (100 * numberOfAnnotationsCompleted) / numberOfAnnotations
+    )
   }
   const [isMarkParticipantModalOpen, setIsMarkParticipantModalOpen] =
     useState(false)
@@ -166,6 +170,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       ...annotationsDataMirror[selectedAnnotationIndex],
       data_json: activeAnnotationDataArray.buffer,
     }
+
     try {
       const url =
         Constants.base_url +
@@ -212,6 +217,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       dispatch(actions.setSelectedAnnotationIndex(0))
     }
   }, [selectedAnnotationIndex, annotationsDataMirror])
+
+  useEffect(() => {
+    props.onUpdateProgress(taskCompletionPercentage)
+  }, [annotationsDataMirror])
 
   //*************************************************************//
   //----------- Video playback fuctionality -------------------- //
@@ -705,9 +714,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               Task progress
             </h3>
             <Progress
-              percent={Math.round(
-                (100 * numberOfAnnotationsCompleted) / numberOfAnnotations
-              )}
+              percent={taskCompletionPercentage}
               className={styles["action-task-progress-bar"]}
             />
             {isEntireTaskCompleted && (
