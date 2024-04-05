@@ -86,7 +86,7 @@ export const submitJourney = (id: string) => {
   return fetcher(url, requestOptions).then(throwBadResponse)
 }
 
-export const fetch_annotator_data = (id: string) => {
-  const url = Constants.api_url + "/journeys/" + id + "/annotator_data"
+export const fetchAnnotator = (id: string) => {
+  const url = Constants.api_url + "/journeys/" + id + "/annotator"
   return fetcher(url).then(throwBadResponse)
 }

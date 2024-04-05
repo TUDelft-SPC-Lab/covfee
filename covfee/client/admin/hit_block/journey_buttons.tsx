@@ -10,7 +10,7 @@ import classNames from "classnames"
 import * as React from "react"
 import { styled } from "styled-components"
 import { chatContext } from "../../chat_context"
-import { fetch_annotator_data, useJourneyFns } from "../../models/Journey"
+import { fetchAnnotator, useJourneyFns } from "../../models/Journey"
 import { Annotator, JourneyType } from "../../types/journey"
 import { JourneyStatusToColor, StatusIcon, getJourneyStatus } from "../utils"
 import { ButtonsContainer } from "./utils"
@@ -33,7 +33,7 @@ export const JourneyRow = ({
   const [annotator, setAnnotator] = React.useState<Annotator>(null)
 
   React.useEffect(() => {
-    fetch_annotator_data(journey.id).then((payload) => {
+    fetchAnnotator(journey.id).then((payload) => {
       if (
         payload == null ||
         payload.prolific_pid == null ||
