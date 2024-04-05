@@ -35,7 +35,7 @@ export const JourneyRow = ({
   React.useEffect(() => {
     fetchAnnotator(journey.id).then((payload) => {
       if (
-        payload == null ||
+        Object.keys(payload).length === 0 ||
         payload.prolific_pid == null ||
         payload.created_at == null
       ) {
