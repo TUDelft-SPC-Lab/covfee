@@ -1,7 +1,3 @@
-import * as React from "react"
-import { JourneyType } from "../../types/journey"
-import { Modal } from "antd"
-const { confirm } = Modal
 import {
   ApiOutlined,
   DeleteOutlined,
@@ -9,12 +5,16 @@ import {
   PauseOutlined,
   WechatOutlined,
 } from "@ant-design/icons"
-import { useJourneyFns } from "../../models/Journey"
-import { JourneyStatusToColor, StatusIcon, getJourneyStatus } from "../utils"
+import { Modal } from "antd"
 import classNames from "classnames"
-import { chatContext } from "../../chat_context"
-import { ButtonsContainer } from "./utils"
+import * as React from "react"
 import { styled } from "styled-components"
+import { chatContext } from "../../chat_context"
+import { fetch_annotator_data, useJourneyFns } from "../../models/Journey"
+import { Annotator, JourneyType } from "../../types/journey"
+import { JourneyStatusToColor, StatusIcon, getJourneyStatus } from "../utils"
+import { ButtonsContainer } from "./utils"
+const { confirm } = Modal
 
 type JourneyRowProps = {
   journey: JourneyType
@@ -30,6 +30,32 @@ export const JourneyRow = ({
 }: JourneyRowProps) => {
   const { addChats } = React.useContext(chatContext)
   const { getUrl } = useJourneyFns(journey)
+  const [annotator_data, setAnnotatorData] = React.useState<Annotator>(null)
+  const [show_annotator_data, setShowAnnotatorData] =
+    React.useState<boolean>(false)
+
+  React.useEffect(() => {
+    fetch_annotator_data(journey.id).then((payload) => {
+      if (
+        payload == null ||
+        payload.prolific_pid == null ||
+        payload.created_at == null
+      ) {
+        setShowAnnotatorData(false)
+        return
+      }
+      console.log(
+        `loaded prolific id ${payload.prolific_pid}, created_at ${payload.created_at}`
+      )
+      var date = new Date(payload.created_at)
+      date.setMilliseconds(0) // Ignore milliseconds
+      setAnnotatorData({
+        prolific_id: payload.prolific_pid,
+        created_at: date,
+      } as Annotator)
+      setShowAnnotatorData(true)
+    })
+  }, [journey])
 
   return (
     <li
@@ -47,16 +73,22 @@ export const JourneyRow = ({
                 journey.num_connections == 0
                   ? "gray"
                   : journey.num_connections == 1
-                    ? "green"
-                    : "red",
+                  ? "green"
+                  : "red",
             }}
           >
             <ApiOutlined />
           </span>
         </LinkContainer>
         <span> </span>
-        <span>{journey.id.substring(0, 10)}</span> <LinkOutlined />
+        <span>{journey.id.substring(0, 10)} </span> <LinkOutlined />
       </a>
+      {show_annotator_data && (
+        <ul>
+          <li>Prolific PID: &quot;{annotator_data.prolific_id}&quot;</li>
+          <li>Start date: {annotator_data.created_at.toLocaleString()}</li>
+        </ul>
+      )}
       <ButtonsContainer>
         <li>
           <button
