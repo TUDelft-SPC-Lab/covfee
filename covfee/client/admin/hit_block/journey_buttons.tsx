@@ -30,9 +30,7 @@ export const JourneyRow = ({
 }: JourneyRowProps) => {
   const { addChats } = React.useContext(chatContext)
   const { getUrl } = useJourneyFns(journey)
-  const [annotator_data, setAnnotatorData] = React.useState<Annotator>(null)
-  const [show_annotator_data, setShowAnnotatorData] =
-    React.useState<boolean>(false)
+  const [annotator, setAnnotator] = React.useState<Annotator>(null)
 
   React.useEffect(() => {
     fetch_annotator_data(journey.id).then((payload) => {
@@ -41,7 +39,6 @@ export const JourneyRow = ({
         payload.prolific_pid == null ||
         payload.created_at == null
       ) {
-        setShowAnnotatorData(false)
         return
       }
       console.log(
@@ -49,11 +46,10 @@ export const JourneyRow = ({
       )
       var date = new Date(payload.created_at)
       date.setMilliseconds(0) // Ignore milliseconds
-      setAnnotatorData({
+      setAnnotator({
         prolific_id: payload.prolific_pid,
         created_at: date,
       } as Annotator)
-      setShowAnnotatorData(true)
     })
   }, [journey])
 
@@ -83,10 +79,10 @@ export const JourneyRow = ({
         <span> </span>
         <span>{journey.id.substring(0, 10)} </span> <LinkOutlined />
       </a>
-      {show_annotator_data && (
+      {annotator != null && (
         <ul>
-          <li>Prolific PID: &quot;{annotator_data.prolific_id}&quot;</li>
-          <li>Start date: {annotator_data.created_at.toLocaleString()}</li>
+          <li>Prolific PID: &quot;{annotator.prolific_id}&quot;</li>
+          <li>Start date: {annotator.created_at.toLocaleString()}</li>
         </ul>
       )}
       <ButtonsContainer>
