@@ -25,7 +25,7 @@ const createNodes = (nodes: NodeType[], focusedNode: number) => {
   const res = nodes.map((n, index) => {
     let name = n.name
     if (n.progress !== null && n.progress !== undefined) {
-      name += ` (${n.progress}%)`
+      name += ` (${n.progress.toFixed(1)}%)`
     }
     return {
       id: n.id,

@@ -110,9 +110,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     numberOfAnnotationsCompleted = annotationsDataMirror.filter(
       (annotationData: AnnotationData) => annotationData.data_json !== null
     ).length
-    taskCompletionPercentage = Math.round(
+    taskCompletionPercentage =
       (100 * numberOfAnnotationsCompleted) / numberOfAnnotations
-    )
   }
   const [isMarkParticipantModalOpen, setIsMarkParticipantModalOpen] =
     useState(false)
@@ -716,6 +715,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             <Progress
               percent={taskCompletionPercentage}
               className={styles["action-task-progress-bar"]}
+              format={(percent) => percent.toFixed(1) + "%"}
             />
             {isEntireTaskCompleted && (
               <>
