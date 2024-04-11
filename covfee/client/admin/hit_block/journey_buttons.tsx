@@ -11,8 +11,8 @@ import * as React from "react"
 import { styled } from "styled-components"
 import { chatContext } from "../../chat_context"
 import { fetchAnnotator, useJourneyFns } from "../../models/Journey"
-import { HitInstanceType } from "../../types/hit"
 import { JourneyType } from "../../types/journey"
+import { NodeType } from "../../types/node"
 import { JourneyStatusToColor, StatusIcon, getJourneyStatus } from "../utils"
 import { ButtonsContainer } from "./utils"
 const { confirm } = Modal
@@ -23,14 +23,14 @@ interface Annotator {
 }
 
 type JourneyRowProps = {
-  hit: HitInstanceType
   journey: JourneyType
+  journeyNodes: NodeType[]
   focus: boolean
   onFocus: () => void
   onBlur: () => void
 }
 export const JourneyRow = ({
-  hit,
+  journeyNodes,
   journey,
   focus,
   onFocus,
@@ -61,8 +61,7 @@ export const JourneyRow = ({
   React.useEffect(() => {
     let progressSum: number = 0.0
 
-    for (const node_idx of journey.nodes) {
-      const node = hit.nodes[node_idx - 1]
+    for (const node of journeyNodes) {
       if (node.progress !== null) {
         progressSum += node.progress
       } else {
@@ -72,8 +71,8 @@ export const JourneyRow = ({
       }
     }
 
-    setProgress(progressSum / journey.nodes.length)
-  }, [journey, hit])
+    setProgress(progressSum / journeyNodes.length)
+  }, [journey, journeyNodes])
 
   return (
     <li
