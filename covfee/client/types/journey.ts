@@ -27,5 +27,5 @@ export interface JourneyType extends Omit<JourneySpec, "nodes"> {
   num_connections: number
   curr_node_id: number
   status: JourneyApiStatus
-  annotator?: Annotator
+  annotator?: Annotator | null
 }
