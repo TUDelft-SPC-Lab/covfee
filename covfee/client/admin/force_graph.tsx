@@ -1,10 +1,10 @@
-import * as React from "react"
+import type { SimulationNodeDatum } from "d3"
 import * as d3 from "d3"
-import type { SimulationNodeDatum, Simulation } from "d3"
-import { NodeStatusToColor, getNodeStatus } from "./utils"
-import { NodeType } from "../types/node"
+import * as React from "react"
+import { ReducedJourney } from "../models/Journey"
 import { HitInstanceType } from "../types/hit"
-import { JourneyType, ReducedJourney } from "../models/Journey"
+import { NodeType } from "../types/node"
+import { NodeStatusToColor, getNodeStatus } from "./utils"
 
 const getDimensions = (nodes: SimulationNode[], nodeRadius: number) => {
   let minX = Infinity,
@@ -124,6 +124,9 @@ export const ForceGraph = ({
       .attr("stroke-opacity", ({ index }) =>
         nodes[index].focused ? "0.1" : "0.01"
       )
+    nodesRefs.current
+      .selectChildren("text")
+      .text(({ index }) => nodes[index].name)
   }
 
   React.useEffect(() => {
@@ -262,6 +265,7 @@ export const ForceGraph = ({
         .attr("fill", "#000")
         .attr("stroke", "#fff")
         .attr("stroke-width", "5px")
+        .attr("text-anchor", "middle")
         .attr("x", (d) => d.x)
         .attr("y", (d) => d.y)
         .text(({ index }) => nodes[index].name)
