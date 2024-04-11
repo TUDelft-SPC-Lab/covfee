@@ -11,10 +11,15 @@ import * as React from "react"
 import { styled } from "styled-components"
 import { chatContext } from "../../chat_context"
 import { fetchAnnotator, useJourneyFns } from "../../models/Journey"
-import { Annotator, JourneyType } from "../../types/journey"
+import { JourneyType } from "../../types/journey"
 import { JourneyStatusToColor, StatusIcon, getJourneyStatus } from "../utils"
 import { ButtonsContainer } from "./utils"
 const { confirm } = Modal
+
+interface Annotator {
+  prolific_id: string
+  created_at: Date
+}
 
 type JourneyRowProps = {
   journey: JourneyType

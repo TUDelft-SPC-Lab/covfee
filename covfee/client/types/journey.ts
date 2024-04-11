@@ -2,11 +2,6 @@ import { JourneySpec } from "@covfee-spec/journey"
 import { MarkdownContentSpec } from "@covfee-spec/tasks/utils"
 import { NodeType } from "./node"
 
-export interface Annotator {
-  prolific_id: string
-  created_at: Date
-}
-
 export const JourneyApiStatuses = [
   "INIT",
   "RUNNING",
@@ -27,5 +22,4 @@ export interface JourneyType extends Omit<JourneySpec, "nodes"> {
   num_connections: number
   curr_node_id: number
   status: JourneyApiStatus
-  annotator?: Annotator | null
 }
