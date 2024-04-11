@@ -179,6 +179,7 @@ export const HitBlock = (props: Props) => {
                 {props.hit.journeys.map((journey, index) => {
                   return (
                     <JourneyRow
+                      hit={props.hit}
                       key={index}
                       focus={focusedJourney == index}
                       onFocus={() => {
