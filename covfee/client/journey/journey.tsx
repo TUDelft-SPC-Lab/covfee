@@ -66,13 +66,6 @@ export const _JourneyPage: React.FC<Props> = (props) => {
     [props]
   )
 
-  let ContentContainer = null
-  if (args.showSideBar) {
-    ContentContainer = ContentContainerWithSideBar
-  } else {
-    ContentContainer = ContentContainerWithoutSidebar
-  }
-
   const routeParams = useParams()
   const { socket, chocket } = useContext(appContext)
   const { addChats, removeChats, hasChat } = useContext(chatContext)
@@ -281,7 +274,10 @@ export const _JourneyPage: React.FC<Props> = (props) => {
         </SidebarContainer>
       )}
 
-      <ContentContainer height={window.innerHeight}>
+      <ContentContainer
+        showSideBar={args.showSideBar}
+        height={window.innerHeight}
+      >
         {hitExtra && (
           <></>
           // <Collapsible open={extraOpen}>
@@ -333,25 +329,19 @@ const SidebarContainer = styled.div<any>`
   overflow: auto;
 `
 
-const ContentContainerWithSideBar = styled.div<any>`
-  position: fixed;
-  top: 46px;
-  right: 0;
-  display: inline-block;
-  vertical-align: top;
-  height: calc(100vh - 46px);
-  width: calc(100% - 25%);
-  overflow: auto;
-`
+interface ContentContainerProps {
+  showSideBar: boolean
+  height?: number
+}
 
-const ContentContainerWithoutSidebar = styled.div<any>`
+const ContentContainer = styled.div<ContentContainerProps>`
   position: fixed;
   top: 46px;
   right: 0;
   display: inline-block;
   vertical-align: top;
-  height: calc(100vh - 46px);
-  width: calc(100%);
+  height: ${(props) => (props.height ? props.height : "calc(100vh - 46px)")};
+  width: ${(props) => (props.showSideBar ? "calc(100% - 25%)" : "100%")};
   overflow: auto;
 `
 
