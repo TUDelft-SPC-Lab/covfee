@@ -629,7 +629,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               props.onSubmit(response)
               setSubmitted(true)
             }}
-            submitBottonDisabled={submitted}
+            submitButtonDisabled={submitted}
           />
 
           <InstructionsSidebar

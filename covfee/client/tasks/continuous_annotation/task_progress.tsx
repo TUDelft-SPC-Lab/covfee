@@ -8,7 +8,7 @@ type Props = {
   percent: number
   completionCode: string
   submittButtonCallback: (extraProps?: any) => void
-  submitBottonDisabled: boolean
+  submitButtonDisabled: boolean
 }
 
 const TaskProgress: React.FC<Props> = (props) => {
@@ -35,7 +35,7 @@ const TaskProgress: React.FC<Props> = (props) => {
             onClick={props.submittButtonCallback}
             type="primary"
             className={styles["gallery-button"]}
-            disabled={props.submitBottonDisabled}
+            disabled={props.submitButtonDisabled}
           >
             Submit
           </Button>
