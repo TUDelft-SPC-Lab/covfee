@@ -447,6 +447,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         return
       }
       startVideoPlayback(0.0)
+      setPlaybackStatusOnCamViewChangeEvent({
+        paused: false,
+        currentTime: 0.0,
+      })
       setActiveAnnotationDataArray({
         buffer: Array.from({ length: numberOfVideoFrames() }, () => 0),
         needs_upload: false,
