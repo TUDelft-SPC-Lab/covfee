@@ -28,7 +28,6 @@ const TaskProgress: React.FC<Props> = (props) => {
           if (props.redirectUrl) {
             window.location.href = props.redirectUrl
           }
-          //
         },
         onCancel: () => {
           setCheckWhetherToSubmitTask(false)
