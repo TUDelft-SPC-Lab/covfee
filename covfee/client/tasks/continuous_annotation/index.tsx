@@ -696,7 +696,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                 <Checkbox
                   style={{
                     color: "white",
-                    fontSize: "18px",
+                    fontSize: "1rem",
                     position: "absolute",
                     bottom: 0,
                     right: 0,

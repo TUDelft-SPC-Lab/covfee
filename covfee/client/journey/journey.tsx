@@ -242,7 +242,13 @@ export const _JourneyPage: React.FC<Props> = (props) => {
         onClick={handleMenuClick}
         mode="horizontal"
         theme="dark"
-        style={{ position: "sticky", top: 0, width: "100%", zIndex: 1000 }}
+        style={{
+          position: "sticky",
+          top: 0,
+          width: "100%",
+          zIndex: 1000,
+          display: "none",
+        }}
       >
         <Menu.Item key="logo" disabled>
           <CovfeeMenuItem />
@@ -335,8 +341,8 @@ const SidebarContainer = styled.div<any>`
   position: sticky;
   display: inline-block;
   vertical-align: top;
-  top: 46px;
-  height: calc(100vh - 46px);
+  // top: 46px;
+  height: calc(100vh);
   width: 25%;
   overflow: auto;
 `
@@ -348,11 +354,11 @@ interface ContentContainerProps {
 
 const ContentContainer = styled.div<ContentContainerProps>`
   position: fixed;
-  top: 46px;
+  // top: 46px;
   right: 0;
   display: inline-block;
   vertical-align: top;
-  height: ${(props) => (props.height ? props.height : "calc(100vh - 46px)")};
+  height: ${(props) => (props.height ? props.height : "calc(100vh)")};
   width: ${(props) => (props.showSideBar ? "calc(100% - 25%)" : "100%")};
   overflow: auto;
 `
