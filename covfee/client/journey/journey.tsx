@@ -286,6 +286,7 @@ export const _JourneyPage: React.FC<Props> = (props) => {
       )}
 
       <ContentContainer
+        id="JourneyContentContainer"
         showSideBar={args.showSideBar}
         /*height={window.innerHeight}*/
       >

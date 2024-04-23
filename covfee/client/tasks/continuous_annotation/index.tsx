@@ -446,11 +446,19 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       if (!validAnnotationsDataAndSelection) {
         return
       }
+      // Scroll to the top of the page,
+      // on 1080p resolution it doesn't do anything, as the page is as big as the screen,
+      // on 720p or lower, the page is bigger than the screen, so it scrolls to the top.
+      const parentElement = document.getElementById("JourneyContentContainer")
+      parentElement.scrollTo({ top: 0, left: 0, behavior: "instant" })
+
       startVideoPlayback(0.0)
+
       setPlaybackStatusOnCamViewChangeEvent({
         paused: false,
         currentTime: 0.0,
       })
+
       setActiveAnnotationDataArray({
         buffer: Array.from({ length: numberOfVideoFrames() }, () => 0),
         needs_upload: false,
