@@ -144,13 +144,12 @@ class TaskInstance(NodeInstance):
                 if annotation.data_json is not None
             ]
 
-            if (
-                self.journey_associations is not None
-                and len(self.journey_associations) > 0
-            ):
-                annotator = self.journey_associations[0].journey.annotator
+            prolific_ids = []
+            for journey in self.journeys:
+                annotator = journey.annotator
                 if annotator is not None and annotator.prolific_id is not None:
-                    result_dict["prolific_id"] = [annotator.prolific_id]
+                    prolific_ids.append(annotator.prolific_id)
+            result_dict["prolific_id"] = prolific_ids
 
             results_list.append(result_dict)
 
