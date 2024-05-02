@@ -36,6 +36,18 @@ class NoIndentJSON(object):
 
 # JSON encoder that avoids indenting any object of type NoIndentList.
 # See https://stackoverflow.com/a/13252112
+# The list of annotations could be very long when formatted in a single column, like so:
+# annotations: { [
+#  0,
+#  0,
+#  ...
+#  0,
+#  0
+# ] }
+#
+# Instead this class allows skipping indentations of any entry that is a
+# subclass of NoIndentJSON, like so:
+# annotations: { [0, 0, ..., 0, 0] }
 class NoIndentJSONEncoder(json.JSONEncoder):
     FORMAT_SPEC = "@@{}@@"
     regex = re.compile(FORMAT_SPEC.format(r"(\d+)"))
