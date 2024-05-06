@@ -734,6 +734,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             onOpenParticipantSelectionClick={() => {
               setShowingGallery(true)
             }}
+            onWatchTutorialVideoClick={() => {
+              setshowInitialTaskIntructions(true)
+            }}
           />
         </div>
         <div style={{ backgroundColor: "blue" }} /> {/* <--- Filler div */}
