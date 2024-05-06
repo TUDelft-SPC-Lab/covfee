@@ -22,7 +22,6 @@ covfee/server/tmp
 covfee/build-storybook.log
 *.DS_Store
 *.wav
-.vscode*
 *package-lock.json
 *nohup.out
 .ipynb_checkpoints*
@@ -41,3 +40,5 @@ samples/conflab/media/*
 samples/memory/media/*
 samples/memory/media.zip
 
+# FIXME: #CONFLAB ignore the deployment files that now live in the private gitlab repo
+samples/continuous_annotation/*

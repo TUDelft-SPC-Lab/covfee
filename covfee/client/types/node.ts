@@ -1,10 +1,9 @@
-import { RateSpec } from "@covfee-spec/form"
 import { BaseNodeSpec } from "@covfee-spec/node"
-import { BaseTaskSpec, NodeSpec, TaskSpec } from "@covfee-spec/task"
-import React, { Reducer } from "react"
-import { AllPropsRequired } from "./utils"
-import { BaseTaskProps } from "../tasks/base"
+import { BaseTaskSpec, NodeSpec } from "@covfee-spec/task"
 import { Slice } from "@reduxjs/toolkit"
+import React from "react"
+import { BaseTaskProps } from "../tasks/base"
+import { AllPropsRequired } from "./utils"
 
 export const NodeStatuses = [
   "INIT",
@@ -46,6 +45,7 @@ export interface NodeType extends AllPropsRequired<BaseNodeSpec> {
    * Status of the node
    */
   status: NodeStatus
+  progress: number | null
   manual: ManualStatus
   taskData: any
   journeys: JourneyAssoc[]
@@ -58,6 +58,7 @@ export interface NodeType extends AllPropsRequired<BaseNodeSpec> {
   dt_empty: string
   dt_finish: string
   t_elapsed: number
+  customApiBase: string
 }
 
 export interface TaskResponseType {

@@ -1,23 +1,18 @@
 from __future__ import annotations
-import json
-import os
-import sys
-from io import BytesIO
+
 from pprint import pformat
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import Any, Dict, List
 
-import numpy as np
-from flask import current_app as app
-from sqlalchemy import JSON
-from sqlalchemy.orm import backref, relationship, Mapped
+from sqlalchemy import event
+from sqlalchemy.orm import Mapped, object_session, relationship
 
-from .response import TaskResponse
+from covfee.shared.schemata import schemata
+
 from .. import tasks
 from ..tasks.base import BaseCovfeeTask
 from . import utils
-
-from .node import NodeInstanceStatus, NodeSpec, NodeInstance
-from covfee.shared.schemata import schemata
+from .node import NodeInstance, NodeInstanceStatus, NodeSpec
+from .response import TaskResponse
 
 
 class TaskSpec(NodeSpec):
@@ -46,6 +41,12 @@ class TaskSpec(NodeSpec):
 
     def validate(str):
         pass
+
+    def to_dict(self):
+        res = super().to_dict()
+        # url of the custom API of this task type (if any)
+        res["customApiBase"] = f'/custom/{self.spec["type"]}'
+        return res
 
     def __repr__(self):
         pass
@@ -81,9 +82,13 @@ class TaskInstance(NodeInstance):
             return NotImplemented
         return hash(self) == hash(other)
 
+    def reset_annotated_data(self):
+        for annotation in self.annotations:
+            annotation.reset_data()
+
     def get_task_object(self):
         task_class = getattr(tasks, self.spec.spec["type"], BaseCovfeeTask)
-        task_object = task_class(task=self)
+        task_object = task_class(task=self, session=object_session(self))
         return task_object
 
     def to_dict(self):
@@ -120,6 +125,7 @@ class TaskInstance(NodeInstance):
             "dt_count": utils.datetime_to_str(self.dt_count),
             "dt_pause": utils.datetime_to_str(self.dt_pause),
             "t_elapsed": self.t_elapsed,
+            "progress": self.progress,
         }
 
     def pause(self, pause: bool):
@@ -128,6 +134,30 @@ class TaskInstance(NodeInstance):
         self.get_task_object().on_admin_pause()
 
     def make_results_dict(self):
-        return {
-            "responses": [response.make_results_dict() for response in self.responses]
-        }
+        results_list = []
+        for response in self.responses:
+            result_dict = response.make_results_dict()
+
+            result_dict["annotations"] = [
+                utils.NoIndentJSON(annotation.data_json)
+                for annotation in self.annotations
+                if annotation.data_json is not None
+            ]
+
+            prolific_ids = []
+            for journey in self.journeys:
+                annotator = journey.annotator
+                if annotator is not None and annotator.prolific_id is not None:
+                    prolific_ids.append(annotator.prolific_id)
+            result_dict["prolific_id"] = prolific_ids
+
+            results_list.append(result_dict)
+
+        return {"responses": results_list}
+
+
+# after a TaskInstance is inserted, we attach its
+@event.listens_for(TaskInstance, "after_insert")
+def create_permissions(mapper, connection, instance: TaskInstance):
+    obj = instance.get_task_object()
+    obj.on_create()

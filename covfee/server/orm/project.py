@@ -1,16 +1,16 @@
 from __future__ import annotations
-import os
+
 import json
 from pprint import pformat
 from typing import TYPE_CHECKING, List
 
 import pandas as pd
 from sqlalchemy import select
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # from ..db import Base
 from .base import Base
-import covfee.launcher as launcher
 
 if TYPE_CHECKING:
     from .hit import HITSpec
@@ -34,10 +34,6 @@ class Project(Base):
         self.email = email
         self.hitspecs = hitspecs
 
-        # to keep track of info at launch time
-        self._conflicts = False
-        self._filename = None
-
     def get_dataframe(self):
         rows = list()
         for hit in self.hitspecs:
@@ -47,9 +43,11 @@ class Project(Base):
                         {
                             "hit_name": hit.name,
                             "hit_id": instance.id.hex(),
-                            "journey_name": journey.spec.name
-                            if journey.spec.name is not None
-                            else "unnamed",
+                            "journey_name": (
+                                journey.spec.name
+                                if journey.spec.name is not None
+                                else "unnamed"
+                            ),
                             "journey_id": journey.id,
                             "url": journey.get_url(),
                             "completion_code": journey.get_completion_code(),
@@ -63,7 +61,7 @@ class Project(Base):
         return df
 
     @staticmethod
-    def from_name(session, name: str):
+    def by_name(session, name: str):
         return (
             session.execute(select(Project).where(Project.name == name))
             .scalars()

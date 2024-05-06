@@ -1,14 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit"
 
 export interface State {
-  annotations: Record<string, boolean[]>;
-  active_annotation?: string; 
-  mediaPaused: boolean;
+  selectedAnnotationIndex?: number | null
+  mediaPaused: boolean
 }
 
 export const initialState: State = {
-  annotations: null,
-  active_annotation: null,
+  selectedAnnotationIndex: null,
   mediaPaused: null,
 }
 
@@ -19,12 +17,9 @@ export const slice = createSlice({
     setMediaPaused: (state, action) => {
       state.mediaPaused = action.payload
     },
-    setAnnotations: (state, action) => {
-      state.annotations = action.payload
+    setSelectedAnnotationIndex: (state, action) => {
+      state.selectedAnnotationIndex = action.payload
     },
-    setActiveAnnotation: (state, action) => {
-      state.active_annotation = action.payload
-    }
   },
 })
 

@@ -1,32 +1,40 @@
 from __future__ import annotations
-import enum
-import os
+
 import datetime
-import hmac
-import secrets
+import enum
 import hashlib
-from typing import List, Dict, Any, TYPE_CHECKING, Optional, Tuple
-from typing_extensions import Annotated
+import hmac
+import os
+import secrets
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+
+from flask import current_app as app
 
 # from ..db import Base
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship, Mapped, mapped_column
-from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
-from flask import current_app as app
+from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .chat import Chat, ChatJourney
 from .node import JourneyNode, JourneySpecNodeSpec
+from .annotator import Annotator
 
 if TYPE_CHECKING:
-    from .hit import HITSpec, HITInstance
-    from .node import NodeSpec, NodeInstance
+    from .hit import HITInstance, HITSpec
+    from .node import NodeInstance, NodeSpec
 
 
 class JourneySpec(Base):
     __tablename__ = "journeyspecs"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[Optional[str]]
+
+    # An optional id that the study administrator can attach to this Journey
+    # making it identifiable through multiple launches of "covfee make"
+    # and thus being able to add more hits/journeys without destroying
+    # the database. It's a string as it is intended to be human-readable
+    global_unique_id: Mapped[Optional[str]] = mapped_column(unique=True)
 
     # spec relationships
     # up
@@ -35,7 +43,9 @@ class JourneySpec(Base):
 
     # down
     nodespec_associations: Mapped[List[JourneySpecNodeSpec]] = relationship(
-        back_populates="journeyspec", order_by=JourneySpecNodeSpec.order
+        back_populates="journeyspec",
+        order_by=JourneySpecNodeSpec.order,
+        cascade="all,delete",
     )
     nodespecs: AssociationProxy[List[NodeSpec]] = association_proxy(
         "nodespec_associations",
@@ -82,7 +92,12 @@ class JourneyInstanceStatus(enum.Enum):
 
 
 class JourneyInstance(Base):
-    """Represents an instance of a HIT, to be solved by one user"""
+    """Represents an instance of a journey, to be solved by one user
+    - one Journey instance maps to one URL that can be sent to a participant to access and solve the HIT.
+    - a Journey instance is specified by the abstract JourneySpec it is an instance of.
+    - a Journey instance is linked to a list of tasks (instantiated task specifications),
+    which hold the responses for the Journey
+    """
 
     __tablename__ = "journeyinstances"
 
@@ -101,12 +116,17 @@ class JourneyInstance(Base):
     # journey association (many-to-many)
     # used to store info associated to (chat, journey) like read status
     chat_associations: Mapped[List[ChatJourney]] = relationship(
-        back_populates="journey"
+        back_populates="journey", cascade="all,delete"
+    )
+
+    # annotator associated to this journey
+    annotator: Mapped[Optional[Annotator]] = relationship(
+        back_populates="journey_instance", cascade="all,delete"
     )
 
     # down
     node_associations: Mapped[List[JourneyNode]] = relationship(
-        back_populates="journey", order_by=JourneyNode.order
+        back_populates="journey", order_by=JourneyNode.order, cascade="all,delete"
     )
     nodes: AssociationProxy[List[NodeInstance]] = association_proxy(
         "node_associations",
@@ -147,7 +167,7 @@ class JourneyInstance(Base):
     )
 
     @staticmethod
-    def get_id():
+    def generate_new_id():
         if os.environ.get("COVFEE_ENV") == "dev":
             # return predictable id in dev mode
             # so that URLs don't change on every run
@@ -161,13 +181,17 @@ class JourneyInstance(Base):
 
     def __init__(self):
         super().init()
-        self.id = JourneyInstance.get_id()
+        self.id = JourneyInstance.generate_new_id()
         self.preview_id = hashlib.sha256((self.id + "preview".encode())).digest()
         self.submitted = False
         self.interface = {}
         self.aux = {}
         self.config = {}
         self.chat = Chat(self)
+
+    def reset_nodes_annotated_data(self):
+        for node in self.nodes:
+            node.reset_annotated_data()
 
     def get_url(self):
         return f'{app.config["APP_URL"]}/journeys/{self.id.hex():s}'
