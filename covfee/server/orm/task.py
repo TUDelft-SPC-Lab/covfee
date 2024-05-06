@@ -141,22 +141,26 @@ class TaskInstance(NodeInstance):
             # FIXME: #CONFLAB: do this loop for the getattr in the annotations class
             result_dict["annotations"] = {}
             for annotation in self.annotations:
+                annotation_dict = {
+                    "participant": annotation.participant,
+                    "category": annotation.category,
+                }
                 if annotation.data_json is not None:
-                    result_dict["annotations"][annotation.id] = {
-                        "participant": annotation.participant,
-                        "category": annotation.category,
-                        "data": utils.NoIndentJSON(annotation.data_json),
-                    }
+                    annotation_dict["data"] = utils.NoIndentJSON(annotation.data_json)
+                else:
+                    annotation_dict["data"] = None
 
-            prolific_ids = []
-            journeys_global_unique_id = []
+                result_dict["annotations"][annotation.id] = annotation_dict
+
+            result_dict["journeys"] = []
             for journey in self.journeys:
+                journey_dict = {"global_unique_id": journey.spec.global_unique_id}
                 annotator = journey.annotator
                 if annotator is not None and annotator.prolific_id is not None:
-                    prolific_ids.append(annotator.prolific_id)
-                journeys_global_unique_id.append(journey.spec.global_unique_id)
-            result_dict["prolific_id"] = prolific_ids
-            result_dict["journeys_global_unique_id"] = journeys_global_unique_id
+                    journey_dict["prolific_id"] = annotator.prolific_id
+                else:
+                    journey_dict["prolific_id"] = None
+                result_dict["journeys"].append(journey_dict)
 
             results_list.append(result_dict)
 
