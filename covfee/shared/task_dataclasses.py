@@ -27,7 +27,7 @@ class ContinuousAnnotationTaskSpec(CovfeeTask):
     prolificCompletionCode: str
     # If true, this node must have a valid submission before the HIT can be submitted
     required: bool
-    taskIntroInstructions: List[str]
+    taskVariantPopupBulletPoints: List[str]
     # Time to complete the task
     timer: float
     # Empty timer is started everytime the task is empty (no journeys online)
@@ -45,7 +45,7 @@ class ContinuousAnnotationTaskSpec(CovfeeTask):
     videoTutorialUrl: str
     # If true, all journeys must click ready to start the task
     wait_for_ready: bool
-    def __init__(self, annotations, media, name, userCanAdd, audioRequirement = None, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, prolificCompletionCode = None, required = True, taskIntroInstructions = None, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, videoTutorialUrl = None, wait_for_ready = None):
+    def __init__(self, annotations, media, name, userCanAdd, audioRequirement = None, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, prolificCompletionCode = None, required = True, taskVariantPopupBulletPoints = None, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, videoTutorialUrl = None, wait_for_ready = None):
         """
         ### Parameters
         0. annotations : List[Any]
@@ -72,7 +72,7 @@ Prerrequisite nodes must be completed before the rests of the nodes in the HIT a
         12. prolificCompletionCode : str
         13. required : bool
             - If true, this node must have a valid submission before the HIT can be submitted
-        14. taskIntroInstructions : List[str]
+        14. taskVariantPopupBulletPoints : List[str]
         15. timer : float
             - Time to complete the task
         16. timer_empty : float
@@ -108,7 +108,7 @@ Internally covfee uses socketio to synchronize task state.
         self.prerequisite = prerequisite
         self.prolificCompletionCode = prolificCompletionCode
         self.required = required
-        self.taskIntroInstructions = taskIntroInstructions
+        self.taskVariantPopupBulletPoints = taskVariantPopupBulletPoints
         self.timer = timer
         self.timer_empty = timer_empty
         self.timer_pausable = timer_pausable

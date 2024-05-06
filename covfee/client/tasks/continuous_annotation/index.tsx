@@ -99,9 +99,12 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       needs_upload: false,
     })
 
-  const [showInitialTaskIntructions, setshowInitialTaskIntructions] = useState(
-    props.spec.taskIntroInstructions &&
-      props.spec.taskIntroInstructions.length > 0
+  const [
+    showTaskVariantPopupBulletPoints,
+    setShowTaskVariantPopupBulletPoints,
+  ] = useState(
+    props.spec.taskVariantPopupBulletPoints &&
+      props.spec.taskVariantPopupBulletPoints.length > 0
   )
 
   const validAnnotationsDataAndSelection: boolean =
@@ -650,25 +653,25 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   return (
     <form>
-      {showInitialTaskIntructions && (
+      {showTaskVariantPopupBulletPoints && (
         <Modal
-          title={"Task instructions"}
-          open={showInitialTaskIntructions}
+          title={"Task overview"}
+          open={showTaskVariantPopupBulletPoints}
           footer={[
             <Button
               key="submit"
               type="primary"
               onClick={() => {
-                setshowInitialTaskIntructions(false)
+                setShowTaskVariantPopupBulletPoints(false)
               }}
             >
               Ok
             </Button>,
           ]}
         >
-          {props.spec.taskIntroInstructions && (
+          {props.spec.taskVariantPopupBulletPoints && (
             <ul>
-              {props.spec.taskIntroInstructions.map(
+              {props.spec.taskVariantPopupBulletPoints.map(
                 (instruction: string, index: number) => (
                   <li key={index}>{instruction}</li>
                 )
@@ -735,7 +738,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               setShowingGallery(true)
             }}
             onWatchTutorialVideoClick={() => {
-              setshowInitialTaskIntructions(true)
+              setShowTaskVariantPopupBulletPoints(true)
             }}
           />
         </div>
