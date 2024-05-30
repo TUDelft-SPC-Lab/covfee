@@ -168,6 +168,12 @@ def prolific():
                 prolific_study_id, app.config["PROLIFIC_API_TOKEN"]
             )
         )
+
+        # For this study we had faulty annotations for this participant.
+        # The participant is marked as having completed the task.
+        # We manually mark them as invalid so that we can assign the task to someone else.
+        if prolific_study_id == "66474a48c4b17b20ae2328f8":
+            prolific_ids_for_invalid_participants.append("63d41011fab0a09264f61e6c")
     except ProlificAPIRequestError as err:
         # This error would be raised whenever:
         # - Prolific academic API is down, or timedout
