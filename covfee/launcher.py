@@ -61,7 +61,7 @@ class Launcher:
         self.folder = folder
         self.auth_enabled = auth_enabled
 
-        if environment != "dev":
+        if environment != "dev" or True:
             self._database_engine_config = DatabaseEngineConfig(
                 database_file=self.config["DATABASE_PATH"],
             )

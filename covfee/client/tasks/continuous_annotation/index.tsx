@@ -29,7 +29,7 @@ import {
 } from "./instructions_sidebar"
 import { slice } from "./slice"
 import type { AnnotationDataSpec, ContinuousAnnotationTaskSpec } from "./spec"
-import TaskProgress, { TaskAlreadyCompleted } from "./task_progress"
+import TaskProgress from "./task_progress"
 
 interface Props extends CovfeeTaskProps<ContinuousAnnotationTaskSpec> {}
 
@@ -683,9 +683,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     "https://app.prolific.com/submissions/complete?cc=" +
     props.spec.prolificCompletionCode
 
-  if (args.response.submitted && isEntireTaskCompleted) {
-    return <TaskAlreadyCompleted redirectUrl={redirectUrl} />
-  }
+  // if (args.response.submitted && isEntireTaskCompleted) {
+  //   return <TaskAlreadyCompleted redirectUrl={redirectUrl} />
+  // }
 
   return (
     <form>
