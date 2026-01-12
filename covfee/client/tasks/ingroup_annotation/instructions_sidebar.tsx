@@ -18,7 +18,7 @@ import {
   TIP_EMOJI,
 } from "./constants"
 
-import styles from "./continous_annotation.module.css"
+import styles from "./ingroup_annotation.module.css"
 
 type ParticipantOption = {
   name: string

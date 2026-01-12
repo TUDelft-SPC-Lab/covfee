@@ -13,7 +13,7 @@ const CONFLAB_SVG_ORIGINAL_SIZE = { width: 1427.578, height: 1496.532 }
 const grid_size_x = 6
 const grid_size_y = 8
 
-import styles from "./continous_annotation.module.css"
+import styles from "./ingroup_annotation.module.css"
 
 type ParticipantImageProps = {
   participant: string

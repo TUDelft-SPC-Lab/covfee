@@ -12,11 +12,11 @@ export interface MediaSpec {
   src: string
 }
 
-export interface ContinuousAnnotationTaskSpec extends BaseTaskSpec {
+export interface IngroupAnnotationTaskSpec extends BaseTaskSpec {
   /**
-   * @default "ContinuousAnnotationTask"
+   * @default "IngroupAnnotationTask"
    */
-  type: "ContinuousAnnotationTask"
+  type: "IngroupAnnotationTask"
   media: MediaSpec[]
   annotations: AnnotationDataSpec[]
   prolificCompletionCode?: string

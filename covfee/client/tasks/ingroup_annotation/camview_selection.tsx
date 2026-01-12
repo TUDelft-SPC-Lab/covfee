@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react"
 // @covfee.ewi.tudelft.nl:/home/kfunesmora/conflab-media/
 // Do not commit to the repo for confidentiality reasons.
 import SvgCamMultiview from "../../art/cam-multiview.svg"
-import styles from "./continous_annotation.module.css"
+import styles from "./ingroup_annotation.module.css"
 
 type Props = {
   selectedView: number

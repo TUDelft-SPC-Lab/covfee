@@ -1,6 +1,6 @@
 import React from "react"
 import { REGISTER_ACTION_ANNOTATION_KEY } from "./constants"
-import styles from "./continous_annotation.module.css"
+import styles from "./ingroup_annotation.module.css"
 
 type Props = {
   active: boolean

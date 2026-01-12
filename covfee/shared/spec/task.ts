@@ -3,6 +3,7 @@
 // This could cause bugs when creating the schemata.
 import { ContinuousAnnotationTaskSpec } from "@covfee-client/tasks/continuous_annotation/spec"
 import { IncrementCounterTaskSpec } from "@covfee-client/tasks/increment_counter/spec"
+import { IngroupAnnotationTaskSpec } from "@covfee-client/tasks/ingroup_annotation/spec"
 import { InstructionsTaskSpec } from "@covfee-client/tasks/instructions/spec"
 import { QuestionnaireTaskSpec } from "@covfee-client/tasks/questionnaire/spec"
 import { TutorialTaskSpec } from "@covfee-client/tasks/tutorial/spec"
@@ -24,5 +25,6 @@ export type TaskSpec =
   | VideocallTaskSpec
   | TutorialTaskSpec
   | ContinuousAnnotationTaskSpec
+  | IngroupAnnotationTaskSpec
 
 export type NodeSpec = TaskSpec

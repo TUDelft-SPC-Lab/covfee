@@ -21,17 +21,17 @@ import {
   REGISTER_ACTION_ANNOTATION_KEY,
   TIP_EMOJI,
 } from "./constants"
-import styles from "./continous_annotation.module.css"
+import styles from "./ingroup_annotation.module.css"
 import {
   AnnotationOption,
   InstructionsSidebar,
   ParticipantOption,
 } from "./instructions_sidebar"
 import { slice } from "./slice"
-import type { AnnotationDataSpec, ContinuousAnnotationTaskSpec } from "./spec"
+import type { AnnotationDataSpec, IngroupAnnotationTaskSpec } from "./spec"
 import TaskProgress, { TaskAlreadyCompleted } from "./task_progress"
 
-interface Props extends CovfeeTaskProps<ContinuousAnnotationTaskSpec> {}
+interface Props extends CovfeeTaskProps<IngroupAnnotationTaskSpec> {}
 
 const UNINITIALIZED_ACTION_ANNOTATION_START_TIME: null = null
 const CAMVIEW_SELECTION_LAYOUT_IS_VERTICAL: boolean = true
@@ -51,7 +51,7 @@ type ActionAnnotationDataArray = {
   needs_upload: boolean
 }
 
-const ContinuousAnnotationTask: React.FC<Props> = (props) => {
+const IngroupAnnotationTask: React.FC<Props> = (props) => {
   const args: AllPropsRequired<Props> = React.useMemo(() => {
     return {
       ...props,
@@ -866,7 +866,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 }
 
 export default {
-  taskComponent: ContinuousAnnotationTask,
+  taskComponent: IngroupAnnotationTask,
   taskSlice: slice,
   useSharedState: false,
 } as TaskExport

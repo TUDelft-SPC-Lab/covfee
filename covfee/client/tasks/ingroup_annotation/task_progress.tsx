@@ -1,7 +1,7 @@
 import { Button, Modal, Progress } from "antd"
 import React, { useEffect, useState } from "react"
 
-import styles from "./continous_annotation.module.css"
+import styles from "./ingroup_annotation.module.css"
 
 type Props = {
   finished: boolean
