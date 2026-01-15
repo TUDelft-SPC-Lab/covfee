@@ -93,14 +93,13 @@
 
 .main-content {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   flex: 1;
-  flex-direction: row;
+  flex-direction: column;
 }
 
 .main-content-video-and-guide {
-  padding-top: 2px;
-  flex-grow: 1;
+  padding-top: 20px;
   max-width: 85vw;
   max-height: "50px";
 }

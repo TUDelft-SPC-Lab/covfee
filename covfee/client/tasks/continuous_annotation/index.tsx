@@ -10,9 +10,11 @@ import { TaskExport } from "../../types/node"
 import { AllPropsRequired } from "../../types/utils"
 import { fetcher } from "../../utils"
 import { CovfeeTaskProps } from "../base"
-import ActionAnnotationFlashscreen from "./action_annotation_flashscreen"
 import CamViewSelection from "./camview_selection"
 import { ModalParticipantSelectionGallery } from "./conflab_participant_selection"
+
+import { Button as ButtonChakra, ChakraProvider, Checkbox as CheckboxChakra, Stack, Text, Textarea } from "@chakra-ui/react"
+
 
 import {
   ABORT_ONGOING_ANNOTATION_KEY,
@@ -67,6 +69,60 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //*************************************************************//
   //------------------ States definition -------------------- //
   //*************************************************************//
+  
+  const [freeTextAnswer1, setFreeTextAnswer1] = useState("")
+  const [freeTextAnswer2, setFreeTextAnswer2] = useState("")
+
+  const submitFreeTextToServer = async () => {
+    postFreetextAnswerToServer()
+    notification.open({
+      message: "Annotation Saved",
+      description: "Please continue with the next one.",
+      icon: <InfoCircleFilled style={{ color: "green" }} />,
+    })
+  }
+
+  const PARTICIPANT_AUDIO_SRC = ["https://www.w3schools.com/html/mov_bbb.mp4", "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"]
+  const conversationFloorParticipants = PARTICIPANT_AUDIO_SRC.map((_, index) => index)
+  const [audioToggles, setAudioToggles] = useState<boolean[]>(conversationFloorParticipants.map(() => true))
+  const allChecked = audioToggles.every(Boolean)
+  const isIndeterminate = audioToggles.some(Boolean) && !allChecked
+
+  const postFreetextAnswerToServer = async () => {
+    if (!validAnnotationsDataAndSelection) {
+      return
+    }
+    console.log("Posting new data to server", freeTextAnswer1, freeTextAnswer2)
+    const freeText_answer_data_to_post = {
+      ...annotationsDataMirror[selectedAnnotationIndex],
+      data_json: [freeTextAnswer1, freeTextAnswer2],
+    }
+
+    try {
+      const url =
+        Constants.base_url +
+        node.customApiBase +
+        "/annotations/" +
+        freeText_answer_data_to_post.id
+      const res = await fetcher(url, {
+        method: "UPDATE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(freeText_answer_data_to_post),
+      })
+      if (res.ok) {
+        fetchAnnotationsServerData()
+      } else {
+        console.error("Error posting new data:", res.status)
+      }
+    } catch (error) {
+      console.error("Error posting new data:", error)
+    }
+  }
+
+  //Original state definitions below, new INGroup state definitions above.
+  
   const [submitted, setSubmitted] = useState(args.response.submitted)
 
   React.useEffect(() => {
@@ -248,6 +304,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   // We get a reference to the VideoJS player and assign event
   // listeners to it.
   const videoPlayerRef = useRef<VideoJsPlayer>(null)
+  const audioPlayerRef = useRef
   const [, setIsVideoPlayerReady] = useState(false)
   // We keep track of the loadstart event to make React respond to it
   // based on useEffect calls, because the execution of the loadstart
@@ -331,6 +388,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       controls: true,
       responsive: true,
       fluid: true,
+      muted: true,
       sources: [source],
     }
   }, [props.spec, selectedCamViewIndex, selectedAnnotationIndex])
@@ -387,12 +445,12 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         videoPlayerRef.current.muted()
       ) {
         videoPlayerRef.current.volume(1)
-        videoPlayerRef.current.muted(false)
+        videoPlayerRef.current.muted(true) //remember to change this back to false and mute video in the specs instead
       }
     } else {
       if (videoPlayerRef.current.volume() !== 0) {
         videoPlayerRef.current.volume(0)
-        videoPlayerRef.current.muted(true)
+        videoPlayerRef.current.muted(true) 
       }
     }
   }
@@ -688,6 +746,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   }
 
   return (
+    <ChakraProvider>
     <form>
       {showTaskVariantPopupBulletPoints && (
         <Modal
@@ -783,8 +842,11 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           <div className={styles["main-content-video-and-guide"]}>
             <VideoJSFC
               options={videoPlayerOptions}
+              audioSrc={PARTICIPANT_AUDIO_SRC}
+              audioToggles={audioToggles}
               onReady={handleVideoPlayerReady}
             />
+            
             {showingAnnotationTips && (
               <div className={styles["instructions-box-overlay"]}>
                 {/* These are the tips we want to make sure the annotator sees while the annotation process is ongoing */}
@@ -823,6 +885,14 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               </div>
             )}
           </div>
+          <div>
+            <Text marginTop="10px" marginLeft="10px">What intention do you see in the video:</Text>
+            <Textarea onChange={(e) => setFreeTextAnswer1(e.target.value)} onBlur={() => postFreetextAnswerToServer()}/>
+            <Text marginTop="20px" marginLeft="10px">Explain why you believe it to be their intention:</Text>
+            <Textarea onChange={(e) => setFreeTextAnswer2(e.target.value)} onBlur={() => postFreetextAnswerToServer()}/>
+            <ButtonChakra onClick={submitFreeTextToServer} marginTop="10px" colorScheme="blue">Submit Annotation</ButtonChakra>
+
+          </div>
           {/* <>
             <h3>Node data:</h3>
             <p>{JSON.stringify(node)}</p>
@@ -849,7 +919,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             />
           </div>
           <div className={styles["sidebar-block"]}>
-            <ActionAnnotationFlashscreen
+            {/* <ActionAnnotationFlashscreen
               active={
                 actionAnnotationStartTime !==
                 UNINITIALIZED_ACTION_ANNOTATION_START_TIME
@@ -857,11 +927,37 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               annotation_category={
                 annotationsDataMirror[selectedAnnotationIndex].category
               }
-            />
+            /> */}
+            <Text>Toggle individual audio:</Text>
+            <CheckboxChakra
+              isChecked={allChecked}
+              isIndeterminate={isIndeterminate}
+              onChange={(e) => setAudioToggles(audioToggles.map(() => e.target.checked))}
+            >
+              All Participants
+            </CheckboxChakra>
+            <Stack pl={6} mt={1} spacing={1}>
+              {conversationFloorParticipants.map((participantIndex) => (
+              <CheckboxChakra
+                key={participantIndex}
+                isChecked={audioToggles[participantIndex]}
+                onChange={(e) =>
+                  setAudioToggles(prev =>
+                    prev.map((value, index) =>
+                      index === participantIndex ? e.target.checked : value
+                    )
+                  )
+                }
+              >
+                Participant {participantIndex + 1}
+              </CheckboxChakra>
+                ))}     
+            </Stack>
           </div>
         </div>
       </div>
     </form>
+    </ChakraProvider>
   )
 }
 
