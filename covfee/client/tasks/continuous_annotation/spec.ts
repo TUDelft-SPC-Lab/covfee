@@ -11,6 +11,10 @@ export interface MediaSpec {
   type: "video/mp4"
   src: string
 }
+export interface AudioMediaSpec {
+  type: "audio/mp3"
+  src: string
+}
 
 export interface ContinuousAnnotationTaskSpec extends BaseTaskSpec {
   /**
@@ -18,6 +22,7 @@ export interface ContinuousAnnotationTaskSpec extends BaseTaskSpec {
    */
   type: "ContinuousAnnotationTask"
   media: MediaSpec[]
+  audioMedia: AudioMediaSpec[]
   annotations: AnnotationDataSpec[]
   prolificCompletionCode?: string
   taskVariantPopupBulletPoints?: string[]

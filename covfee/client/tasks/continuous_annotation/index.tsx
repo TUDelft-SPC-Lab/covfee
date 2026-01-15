@@ -82,7 +82,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     })
   }
 
-  const PARTICIPANT_AUDIO_SRC = ["https://www.w3schools.com/html/mov_bbb.mp4", "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"]
+  // const PARTICIPANT_AUDIO_SRC = ["https://www.w3schools.com/html/mov_bbb.mp4", "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"]
+  const PARTICIPANT_AUDIO_SRC = props.spec.audioMedia
   const conversationFloorParticipants = PARTICIPANT_AUDIO_SRC.map((_, index) => index)
   const [audioToggles, setAudioToggles] = useState<boolean[]>(conversationFloorParticipants.map(() => true))
   const allChecked = audioToggles.every(Boolean)

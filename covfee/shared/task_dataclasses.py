@@ -4,6 +4,7 @@ from .dataclass import CovfeeTask
 class ContinuousAnnotationTaskSpec(CovfeeTask):
     type: str = "ContinuousAnnotationTask"
     annotations: List[Any]
+    audioMedia: List[Any]
     media: List[Any]
     name: str
     userCanAdd: bool
@@ -45,56 +46,58 @@ class ContinuousAnnotationTaskSpec(CovfeeTask):
     videoTutorialUrl: str
     # If true, all journeys must click ready to start the task
     wait_for_ready: bool
-    def __init__(self, annotations, media, name, userCanAdd, audioRequirement = None, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, prolificCompletionCode = None, required = True, taskVariantPopupBulletPoints = None, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, videoTutorialUrl = None, wait_for_ready = None):
+    def __init__(self, annotations, audioMedia, media, name, userCanAdd, audioRequirement = None, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, prolificCompletionCode = None, required = True, taskVariantPopupBulletPoints = None, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, videoTutorialUrl = None, wait_for_ready = None):
         """
         ### Parameters
         0. annotations : List[Any]
-        1. media : List[Any]
-        2. name : str
-        3. userCanAdd : bool
-        4. audioRequirement : bool
+        1. audioMedia : List[Any]
+        2. media : List[Any]
+        3. name : str
+        4. userCanAdd : bool
+        5. audioRequirement : bool
             - When specified: True, means audio on is mandatory, False means audio off (muted) is mandatory.
-        5. countdown : float
+        6. countdown : float
             - Seconds countdown after start condition met.
-        6. instructions : str
+        7. instructions : str
             - Instructions to be displayed for the node
-        7. instructions_type : str
+        8. instructions_type : str
             - How the instructions will be displayed
-        8. max_submissions : float
+        9. max_submissions : float
             - Maximum number of submissions a user can make for the task.
-        9. n_pause : float
+        10. n_pause : float
             - If the number of subjects is n_pause or less, the task will be paused
-        10. n_start : float
+        11. n_start : float
             - Number of jorneys required to start task
-        11. prerequisite : bool
+        12. prerequisite : bool
             - Node is marked as a prerrequisite
 Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
-        12. prolificCompletionCode : str
-        13. required : bool
+        13. prolificCompletionCode : str
+        14. required : bool
             - If true, this node must have a valid submission before the HIT can be submitted
-        14. taskVariantPopupBulletPoints : List[str]
-        15. timer : float
+        15. taskVariantPopupBulletPoints : List[str]
+        16. timer : float
             - Time to complete the task
-        16. timer_empty : float
+        17. timer_empty : float
             - Empty timer is started everytime the task is empty (no journeys online)
 If the timer reaches zero, the task is set to finished state.
-        17. timer_pausable : bool
+        18. timer_pausable : bool
             - If true, the timer will pause when the task is paused.
-        18. timer_pause : float
+        19. timer_pause : float
             - Pause timer is started every time the task enters paused state
 If timer reaches zero, the task is set to finished state.
-        19. useSharedState : bool
+        20. useSharedState : bool
             - If true, the task state will be synced between clients.
 This applies both to multiple clients in the same journey and across journeys.
 Internally covfee uses socketio to synchronize task state.
-        20. videoTutorialUrl : str
-        21. wait_for_ready : bool
+        21. videoTutorialUrl : str
+        22. wait_for_ready : bool
             - If true, all journeys must click ready to start the task
         """
 
 
         super().__init__()
         self.annotations = annotations
+        self.audioMedia = audioMedia
         self.media = media
         self.name = name
         self.userCanAdd = userCanAdd
