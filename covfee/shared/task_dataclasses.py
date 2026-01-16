@@ -1,7 +1,5 @@
-from typing import Any, List, Union
-
+from typing import Union, Any, List, Tuple, Dict
 from .dataclass import CovfeeTask
-
 
 class ContinuousAnnotationTaskSpec(CovfeeTask):
     type: str = "ContinuousAnnotationTask"
@@ -48,79 +46,54 @@ class ContinuousAnnotationTaskSpec(CovfeeTask):
     videoTutorialUrl: str
     # If true, all journeys must click ready to start the task
     wait_for_ready: bool
+    def __init__(self, annotations, audioMedia, media, name, userCanAdd, audioRequirement = None, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, prolificCompletionCode = None, required = True, taskVariantPopupBulletPoints = None, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, videoTutorialUrl = None, wait_for_ready = None):
+        """
+        ### Parameters
+        0. annotations : List[Any]
+        1. audioMedia : List[Any]
+        2. media : List[Any]
+        3. name : str
+        4. userCanAdd : bool
+        5. audioRequirement : bool
+            - When specified: True, means audio on is mandatory, False means audio off (muted) is mandatory.
+        6. countdown : float
+            - Seconds countdown after start condition met.
+        7. instructions : str
+            - Instructions to be displayed for the node
+        8. instructions_type : str
+            - How the instructions will be displayed
+        9. max_submissions : float
+            - Maximum number of submissions a user can make for the task.
+        10. n_pause : float
+            - If the number of subjects is n_pause or less, the task will be paused
+        11. n_start : float
+            - Number of jorneys required to start task
+        12. prerequisite : bool
+            - Node is marked as a prerrequisite
+Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
+        13. prolificCompletionCode : str
+        14. required : bool
+            - If true, this node must have a valid submission before the HIT can be submitted
+        15. taskVariantPopupBulletPoints : List[str]
+        16. timer : float
+            - Time to complete the task
+        17. timer_empty : float
+            - Empty timer is started everytime the task is empty (no journeys online)
+If the timer reaches zero, the task is set to finished state.
+        18. timer_pausable : bool
+            - If true, the timer will pause when the task is paused.
+        19. timer_pause : float
+            - Pause timer is started every time the task enters paused state
+If timer reaches zero, the task is set to finished state.
+        20. useSharedState : bool
+            - If true, the task state will be synced between clients.
+This applies both to multiple clients in the same journey and across journeys.
+Internally covfee uses socketio to synchronize task state.
+        21. videoTutorialUrl : str
+        22. wait_for_ready : bool
+            - If true, all journeys must click ready to start the task
+        """
 
-    def __init__(
-        self,
-        annotations,
-        audioMedia,
-        media,
-        name,
-        userCanAdd,
-        audioRequirement=None,
-        countdown=0,
-        instructions=None,
-        instructions_type="default",
-        max_submissions=0,
-        n_pause=None,
-        n_start=None,
-        prerequisite=False,
-        prolificCompletionCode=None,
-        required=True,
-        taskVariantPopupBulletPoints=None,
-        timer=None,
-        timer_empty=None,
-        timer_pausable=None,
-        timer_pause=None,
-        useSharedState=None,
-        videoTutorialUrl=None,
-        wait_for_ready=None,
-    ):
-        """
-                ### Parameters
-                0. annotations : List[Any]
-                1. audioMedia : List[Any]
-                2. media : List[Any]
-                3. name : str
-                4. userCanAdd : bool
-                5. audioRequirement : bool
-                    - When specified: True, means audio on is mandatory, False means audio off (muted) is mandatory.
-                6. countdown : float
-                    - Seconds countdown after start condition met.
-                7. instructions : str
-                    - Instructions to be displayed for the node
-                8. instructions_type : str
-                    - How the instructions will be displayed
-                9. max_submissions : float
-                    - Maximum number of submissions a user can make for the task.
-                10. n_pause : float
-                    - If the number of subjects is n_pause or less, the task will be paused
-                11. n_start : float
-                    - Number of jorneys required to start task
-                12. prerequisite : bool
-                    - Node is marked as a prerrequisite
-        Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
-                13. prolificCompletionCode : str
-                14. required : bool
-                    - If true, this node must have a valid submission before the HIT can be submitted
-                15. taskVariantPopupBulletPoints : List[str]
-                16. timer : float
-                    - Time to complete the task
-                17. timer_empty : float
-                    - Empty timer is started everytime the task is empty (no journeys online)
-        If the timer reaches zero, the task is set to finished state.
-                18. timer_pausable : bool
-                    - If true, the timer will pause when the task is paused.
-                19. timer_pause : float
-                    - Pause timer is started every time the task enters paused state
-        If timer reaches zero, the task is set to finished state.
-                20. useSharedState : bool
-                    - If true, the task state will be synced between clients.
-        This applies both to multiple clients in the same journey and across journeys.
-        Internally covfee uses socketio to synchronize task state.
-                21. videoTutorialUrl : str
-                22. wait_for_ready : bool
-                    - If true, all journeys must click ready to start the task
-        """
 
         super().__init__()
         self.annotations = annotations
@@ -184,62 +157,45 @@ class IncrementCounterTaskSpec(CovfeeTask):
     useSharedState: bool
     # If true, all journeys must click ready to start the task
     wait_for_ready: bool
+    def __init__(self, name, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, required = True, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, wait_for_ready = None):
+        """
+        ### Parameters
+        0. name : str
+        1. countdown : float
+            - Seconds countdown after start condition met.
+        2. instructions : str
+            - Instructions to be displayed for the node
+        3. instructions_type : str
+            - How the instructions will be displayed
+        4. max_submissions : float
+            - Maximum number of submissions a user can make for the task.
+        5. n_pause : float
+            - If the number of subjects is n_pause or less, the task will be paused
+        6. n_start : float
+            - Number of jorneys required to start task
+        7. prerequisite : bool
+            - Node is marked as a prerrequisite
+Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
+        8. required : bool
+            - If true, this node must have a valid submission before the HIT can be submitted
+        9. timer : float
+            - Time to complete the task
+        10. timer_empty : float
+            - Empty timer is started everytime the task is empty (no journeys online)
+If the timer reaches zero, the task is set to finished state.
+        11. timer_pausable : bool
+            - If true, the timer will pause when the task is paused.
+        12. timer_pause : float
+            - Pause timer is started every time the task enters paused state
+If timer reaches zero, the task is set to finished state.
+        13. useSharedState : bool
+            - If true, the task state will be synced between clients.
+This applies both to multiple clients in the same journey and across journeys.
+Internally covfee uses socketio to synchronize task state.
+        14. wait_for_ready : bool
+            - If true, all journeys must click ready to start the task
+        """
 
-    def __init__(
-        self,
-        name,
-        countdown=0,
-        instructions=None,
-        instructions_type="default",
-        max_submissions=0,
-        n_pause=None,
-        n_start=None,
-        prerequisite=False,
-        required=True,
-        timer=None,
-        timer_empty=None,
-        timer_pausable=None,
-        timer_pause=None,
-        useSharedState=None,
-        wait_for_ready=None,
-    ):
-        """
-                ### Parameters
-                0. name : str
-                1. countdown : float
-                    - Seconds countdown after start condition met.
-                2. instructions : str
-                    - Instructions to be displayed for the node
-                3. instructions_type : str
-                    - How the instructions will be displayed
-                4. max_submissions : float
-                    - Maximum number of submissions a user can make for the task.
-                5. n_pause : float
-                    - If the number of subjects is n_pause or less, the task will be paused
-                6. n_start : float
-                    - Number of jorneys required to start task
-                7. prerequisite : bool
-                    - Node is marked as a prerrequisite
-        Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
-                8. required : bool
-                    - If true, this node must have a valid submission before the HIT can be submitted
-                9. timer : float
-                    - Time to complete the task
-                10. timer_empty : float
-                    - Empty timer is started everytime the task is empty (no journeys online)
-        If the timer reaches zero, the task is set to finished state.
-                11. timer_pausable : bool
-                    - If true, the timer will pause when the task is paused.
-                12. timer_pause : float
-                    - Pause timer is started every time the task enters paused state
-        If timer reaches zero, the task is set to finished state.
-                13. useSharedState : bool
-                    - If true, the task state will be synced between clients.
-        This applies both to multiple clients in the same journey and across journeys.
-        Internally covfee uses socketio to synchronize task state.
-                14. wait_for_ready : bool
-                    - If true, all journeys must click ready to start the task
-        """
 
         super().__init__()
         self.name = name
@@ -262,7 +218,7 @@ class IncrementCounterTaskSpec(CovfeeTask):
 class InstructionsTaskSpec(CovfeeTask):
     type: str = "InstructionsTask"
     # Main static content of the page (eg. consent terms, instructions)
-    content: Union[Any, Any]
+    content: Union[Any,Any]
     name: str
     # Seconds countdown after start condition met.
     countdown: float
@@ -299,68 +255,49 @@ class InstructionsTaskSpec(CovfeeTask):
     useSharedState: bool
     # If true, all journeys must click ready to start the task
     wait_for_ready: bool
+    def __init__(self, content, name, countdown = 0, form = None, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, required = True, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, wait_for_ready = None):
+        """
+        ### Parameters
+        0. content : Union[Any,Any]
+            - Main static content of the page (eg. consent terms, instructions)
+        1. name : str
+        2. countdown : float
+            - Seconds countdown after start condition met.
+        3. form : Any
+            - a form to display after the content.
+        4. instructions : str
+            - Instructions to be displayed for the node
+        5. instructions_type : str
+            - How the instructions will be displayed
+        6. max_submissions : float
+            - Maximum number of submissions a user can make for the task.
+        7. n_pause : float
+            - If the number of subjects is n_pause or less, the task will be paused
+        8. n_start : float
+            - Number of jorneys required to start task
+        9. prerequisite : bool
+            - Node is marked as a prerrequisite
+Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
+        10. required : bool
+            - If true, this node must have a valid submission before the HIT can be submitted
+        11. timer : float
+            - Time to complete the task
+        12. timer_empty : float
+            - Empty timer is started everytime the task is empty (no journeys online)
+If the timer reaches zero, the task is set to finished state.
+        13. timer_pausable : bool
+            - If true, the timer will pause when the task is paused.
+        14. timer_pause : float
+            - Pause timer is started every time the task enters paused state
+If timer reaches zero, the task is set to finished state.
+        15. useSharedState : bool
+            - If true, the task state will be synced between clients.
+This applies both to multiple clients in the same journey and across journeys.
+Internally covfee uses socketio to synchronize task state.
+        16. wait_for_ready : bool
+            - If true, all journeys must click ready to start the task
+        """
 
-    def __init__(
-        self,
-        content,
-        name,
-        countdown=0,
-        form=None,
-        instructions=None,
-        instructions_type="default",
-        max_submissions=0,
-        n_pause=None,
-        n_start=None,
-        prerequisite=False,
-        required=True,
-        timer=None,
-        timer_empty=None,
-        timer_pausable=None,
-        timer_pause=None,
-        useSharedState=None,
-        wait_for_ready=None,
-    ):
-        """
-                ### Parameters
-                0. content : Union[Any,Any]
-                    - Main static content of the page (eg. consent terms, instructions)
-                1. name : str
-                2. countdown : float
-                    - Seconds countdown after start condition met.
-                3. form : Any
-                    - a form to display after the content.
-                4. instructions : str
-                    - Instructions to be displayed for the node
-                5. instructions_type : str
-                    - How the instructions will be displayed
-                6. max_submissions : float
-                    - Maximum number of submissions a user can make for the task.
-                7. n_pause : float
-                    - If the number of subjects is n_pause or less, the task will be paused
-                8. n_start : float
-                    - Number of jorneys required to start task
-                9. prerequisite : bool
-                    - Node is marked as a prerrequisite
-        Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
-                10. required : bool
-                    - If true, this node must have a valid submission before the HIT can be submitted
-                11. timer : float
-                    - Time to complete the task
-                12. timer_empty : float
-                    - Empty timer is started everytime the task is empty (no journeys online)
-        If the timer reaches zero, the task is set to finished state.
-                13. timer_pausable : bool
-                    - If true, the timer will pause when the task is paused.
-                14. timer_pause : float
-                    - Pause timer is started every time the task enters paused state
-        If timer reaches zero, the task is set to finished state.
-                15. useSharedState : bool
-                    - If true, the task state will be synced between clients.
-        This applies both to multiple clients in the same journey and across journeys.
-        Internally covfee uses socketio to synchronize task state.
-                16. wait_for_ready : bool
-                    - If true, all journeys must click ready to start the task
-        """
 
         super().__init__()
         self.content = content
@@ -398,7 +335,7 @@ class QuestionnaireTaskSpec(CovfeeTask):
     # Maximum number of submissions a user can make for the task.
     max_submissions: float
     # Media file to be displayed.
-    media: Union[Any, Any]
+    media: Union[Any,Any]
     # If the number of subjects is n_pause or less, the task will be paused
     n_pause: float
     # Number of jorneys required to start task
@@ -424,71 +361,51 @@ class QuestionnaireTaskSpec(CovfeeTask):
     useSharedState: bool
     # If true, all journeys must click ready to start the task
     wait_for_ready: bool
+    def __init__(self, form, name, countdown = 0, disabledUntilEnd = None, instructions = None, instructions_type = 'default', max_submissions = 0, media = None, n_pause = None, n_start = None, prerequisite = False, required = True, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, wait_for_ready = None):
+        """
+        ### Parameters
+        0. form : Any
+            - Specification of the form to be created.
+        1. name : str
+        2. countdown : float
+            - Seconds countdown after start condition met.
+        3. disabledUntilEnd : bool
+            - If true, the form will only become active after the media playback ends
+        4. instructions : str
+            - Instructions to be displayed for the node
+        5. instructions_type : str
+            - How the instructions will be displayed
+        6. max_submissions : float
+            - Maximum number of submissions a user can make for the task.
+        7. media : Union[Any,Any]
+            - Media file to be displayed.
+        8. n_pause : float
+            - If the number of subjects is n_pause or less, the task will be paused
+        9. n_start : float
+            - Number of jorneys required to start task
+        10. prerequisite : bool
+            - Node is marked as a prerrequisite
+Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
+        11. required : bool
+            - If true, this node must have a valid submission before the HIT can be submitted
+        12. timer : float
+            - Time to complete the task
+        13. timer_empty : float
+            - Empty timer is started everytime the task is empty (no journeys online)
+If the timer reaches zero, the task is set to finished state.
+        14. timer_pausable : bool
+            - If true, the timer will pause when the task is paused.
+        15. timer_pause : float
+            - Pause timer is started every time the task enters paused state
+If timer reaches zero, the task is set to finished state.
+        16. useSharedState : bool
+            - If true, the task state will be synced between clients.
+This applies both to multiple clients in the same journey and across journeys.
+Internally covfee uses socketio to synchronize task state.
+        17. wait_for_ready : bool
+            - If true, all journeys must click ready to start the task
+        """
 
-    def __init__(
-        self,
-        form,
-        name,
-        countdown=0,
-        disabledUntilEnd=None,
-        instructions=None,
-        instructions_type="default",
-        max_submissions=0,
-        media=None,
-        n_pause=None,
-        n_start=None,
-        prerequisite=False,
-        required=True,
-        timer=None,
-        timer_empty=None,
-        timer_pausable=None,
-        timer_pause=None,
-        useSharedState=None,
-        wait_for_ready=None,
-    ):
-        """
-                ### Parameters
-                0. form : Any
-                    - Specification of the form to be created.
-                1. name : str
-                2. countdown : float
-                    - Seconds countdown after start condition met.
-                3. disabledUntilEnd : bool
-                    - If true, the form will only become active after the media playback ends
-                4. instructions : str
-                    - Instructions to be displayed for the node
-                5. instructions_type : str
-                    - How the instructions will be displayed
-                6. max_submissions : float
-                    - Maximum number of submissions a user can make for the task.
-                7. media : Union[Any,Any]
-                    - Media file to be displayed.
-                8. n_pause : float
-                    - If the number of subjects is n_pause or less, the task will be paused
-                9. n_start : float
-                    - Number of jorneys required to start task
-                10. prerequisite : bool
-                    - Node is marked as a prerrequisite
-        Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
-                11. required : bool
-                    - If true, this node must have a valid submission before the HIT can be submitted
-                12. timer : float
-                    - Time to complete the task
-                13. timer_empty : float
-                    - Empty timer is started everytime the task is empty (no journeys online)
-        If the timer reaches zero, the task is set to finished state.
-                14. timer_pausable : bool
-                    - If true, the timer will pause when the task is paused.
-                15. timer_pause : float
-                    - Pause timer is started every time the task enters paused state
-        If timer reaches zero, the task is set to finished state.
-                16. useSharedState : bool
-                    - If true, the task state will be synced between clients.
-        This applies both to multiple clients in the same journey and across journeys.
-        Internally covfee uses socketio to synchronize task state.
-                17. wait_for_ready : bool
-                    - If true, all journeys must click ready to start the task
-        """
 
         super().__init__()
         self.form = form
@@ -549,65 +466,47 @@ class TutorialTaskSpec(CovfeeTask):
     useSharedState: bool
     # If true, all journeys must click ready to start the task
     wait_for_ready: bool
+    def __init__(self, name, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, required = True, showPhoneField = None, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, wait_for_ready = None):
+        """
+        ### Parameters
+        0. name : str
+        1. countdown : float
+            - Seconds countdown after start condition met.
+        2. instructions : str
+            - Instructions to be displayed for the node
+        3. instructions_type : str
+            - How the instructions will be displayed
+        4. max_submissions : float
+            - Maximum number of submissions a user can make for the task.
+        5. n_pause : float
+            - If the number of subjects is n_pause or less, the task will be paused
+        6. n_start : float
+            - Number of jorneys required to start task
+        7. prerequisite : bool
+            - Node is marked as a prerrequisite
+Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
+        8. required : bool
+            - If true, this node must have a valid submission before the HIT can be submitted
+        9. showPhoneField : bool
+            - Media file to be displayed.
+        10. timer : float
+            - Time to complete the task
+        11. timer_empty : float
+            - Empty timer is started everytime the task is empty (no journeys online)
+If the timer reaches zero, the task is set to finished state.
+        12. timer_pausable : bool
+            - If true, the timer will pause when the task is paused.
+        13. timer_pause : float
+            - Pause timer is started every time the task enters paused state
+If timer reaches zero, the task is set to finished state.
+        14. useSharedState : bool
+            - If true, the task state will be synced between clients.
+This applies both to multiple clients in the same journey and across journeys.
+Internally covfee uses socketio to synchronize task state.
+        15. wait_for_ready : bool
+            - If true, all journeys must click ready to start the task
+        """
 
-    def __init__(
-        self,
-        name,
-        countdown=0,
-        instructions=None,
-        instructions_type="default",
-        max_submissions=0,
-        n_pause=None,
-        n_start=None,
-        prerequisite=False,
-        required=True,
-        showPhoneField=None,
-        timer=None,
-        timer_empty=None,
-        timer_pausable=None,
-        timer_pause=None,
-        useSharedState=None,
-        wait_for_ready=None,
-    ):
-        """
-                ### Parameters
-                0. name : str
-                1. countdown : float
-                    - Seconds countdown after start condition met.
-                2. instructions : str
-                    - Instructions to be displayed for the node
-                3. instructions_type : str
-                    - How the instructions will be displayed
-                4. max_submissions : float
-                    - Maximum number of submissions a user can make for the task.
-                5. n_pause : float
-                    - If the number of subjects is n_pause or less, the task will be paused
-                6. n_start : float
-                    - Number of jorneys required to start task
-                7. prerequisite : bool
-                    - Node is marked as a prerrequisite
-        Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
-                8. required : bool
-                    - If true, this node must have a valid submission before the HIT can be submitted
-                9. showPhoneField : bool
-                    - Media file to be displayed.
-                10. timer : float
-                    - Time to complete the task
-                11. timer_empty : float
-                    - Empty timer is started everytime the task is empty (no journeys online)
-        If the timer reaches zero, the task is set to finished state.
-                12. timer_pausable : bool
-                    - If true, the timer will pause when the task is paused.
-                13. timer_pause : float
-                    - Pause timer is started every time the task enters paused state
-        If timer reaches zero, the task is set to finished state.
-                14. useSharedState : bool
-                    - If true, the task state will be synced between clients.
-        This applies both to multiple clients in the same journey and across journeys.
-        Internally covfee uses socketio to synchronize task state.
-                15. wait_for_ready : bool
-                    - If true, all journeys must click ready to start the task
-        """
 
         super().__init__()
         self.name = name
@@ -679,81 +578,58 @@ class VideocallTaskSpec(CovfeeTask):
     videoOff: bool
     # If true, all journeys must click ready to start the task
     wait_for_ready: bool
+    def __init__(self, name, allowMute = True, allowScreenShare = True, allowStopVideo = True, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, muted = False, n_pause = None, n_start = None, prerequisite = False, required = True, serverRecording = None, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, videoOff = False, wait_for_ready = None):
+        """
+        ### Parameters
+        0. name : str
+        1. allowMute : bool
+            - Allow the user to mute their own audio
+        2. allowScreenShare : bool
+            - Allow the user to share their screen
+        3. allowStopVideo : bool
+            - Allow the user to stop their own video
+        4. countdown : float
+            - Seconds countdown after start condition met.
+        5. instructions : str
+            - Instructions to be displayed for the node
+        6. instructions_type : str
+            - How the instructions will be displayed
+        7. max_submissions : float
+            - Maximum number of submissions a user can make for the task.
+        8. muted : bool
+            - Videocall is muted
+        9. n_pause : float
+            - If the number of subjects is n_pause or less, the task will be paused
+        10. n_start : float
+            - Number of jorneys required to start task
+        11. prerequisite : bool
+            - Node is marked as a prerrequisite
+Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
+        12. required : bool
+            - If true, this node must have a valid submission before the HIT can be submitted
+        13. serverRecording : Any
+            - Recording options for OpenVIDU
+        14. timer : float
+            - Time to complete the task
+        15. timer_empty : float
+            - Empty timer is started everytime the task is empty (no journeys online)
+If the timer reaches zero, the task is set to finished state.
+        16. timer_pausable : bool
+            - If true, the timer will pause when the task is paused.
+        17. timer_pause : float
+            - Pause timer is started every time the task enters paused state
+If timer reaches zero, the task is set to finished state.
+        18. useSharedState : bool
+            - If true, the task state will be synced between clients.
+This applies both to multiple clients in the same journey and across journeys.
+Internally covfee uses socketio to synchronize task state.
+        19. videoOff : bool
+            - Call is audio only
+video is always off
+        20. wait_for_ready : bool
+            - If true, all journeys must click ready to start the task
+        """
 
-    def __init__(
-        self,
-        name,
-        allowMute=True,
-        allowScreenShare=True,
-        allowStopVideo=True,
-        countdown=0,
-        instructions=None,
-        instructions_type="default",
-        max_submissions=0,
-        muted=False,
-        n_pause=None,
-        n_start=None,
-        prerequisite=False,
-        required=True,
-        serverRecording=None,
-        timer=None,
-        timer_empty=None,
-        timer_pausable=None,
-        timer_pause=None,
-        useSharedState=None,
-        videoOff=False,
-        wait_for_ready=None,
-    ):
-        """
-                ### Parameters
-                0. name : str
-                1. allowMute : bool
-                    - Allow the user to mute their own audio
-                2. allowScreenShare : bool
-                    - Allow the user to share their screen
-                3. allowStopVideo : bool
-                    - Allow the user to stop their own video
-                4. countdown : float
-                    - Seconds countdown after start condition met.
-                5. instructions : str
-                    - Instructions to be displayed for the node
-                6. instructions_type : str
-                    - How the instructions will be displayed
-                7. max_submissions : float
-                    - Maximum number of submissions a user can make for the task.
-                8. muted : bool
-                    - Videocall is muted
-                9. n_pause : float
-                    - If the number of subjects is n_pause or less, the task will be paused
-                10. n_start : float
-                    - Number of jorneys required to start task
-                11. prerequisite : bool
-                    - Node is marked as a prerrequisite
-        Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
-                12. required : bool
-                    - If true, this node must have a valid submission before the HIT can be submitted
-                13. serverRecording : Any
-                    - Recording options for OpenVIDU
-                14. timer : float
-                    - Time to complete the task
-                15. timer_empty : float
-                    - Empty timer is started everytime the task is empty (no journeys online)
-        If the timer reaches zero, the task is set to finished state.
-                16. timer_pausable : bool
-                    - If true, the timer will pause when the task is paused.
-                17. timer_pause : float
-                    - Pause timer is started every time the task enters paused state
-        If timer reaches zero, the task is set to finished state.
-                18. useSharedState : bool
-                    - If true, the task state will be synced between clients.
-        This applies both to multiple clients in the same journey and across journeys.
-        Internally covfee uses socketio to synchronize task state.
-                19. videoOff : bool
-                    - Call is audio only
-        video is always off
-                20. wait_for_ready : bool
-                    - If true, all journeys must click ready to start the task
-        """
 
         super().__init__()
         self.name = name
@@ -777,3 +653,4 @@ class VideocallTaskSpec(CovfeeTask):
         self.useSharedState = useSharedState
         self.videoOff = videoOff
         self.wait_for_ready = wait_for_ready
+
