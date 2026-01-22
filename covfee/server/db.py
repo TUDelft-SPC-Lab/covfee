@@ -1,7 +1,7 @@
-from sqlalchemy import create_engine, Engine
-from sqlalchemy.orm import sessionmaker
+from typing import NamedTuple, Optional, Union
 
-from typing import Optional, NamedTuple, Union
+from sqlalchemy import Engine, create_engine
+from sqlalchemy.orm import sessionmaker
 
 
 class DatabaseEngineConfig(NamedTuple):
@@ -16,21 +16,15 @@ def create_database_engine(config: DatabaseEngineConfig) -> Engine:
     """
     Creates an SQLAlchemy engine attached to the database file specified in the config
     """
-    if config.database_file:
-        print(f"Creating file system engine at {config.database_file}")
-        return create_engine(
-            f"sqlite:///{config.database_file}", echo=config.echo_sql_commands
-        )
-    else:
-        print(f"Creating in-memory engine")
-        return create_engine(
-            "sqlite:///file:test?mode=memory&cache=shared&uri=true",
-            connect_args={"check_same_thread": False},
-            echo=config.echo_sql_commands,
-        )
+    print(f"Creating file system engine at {config.database_file}")
+    return create_engine(
+        f"sqlite:///{config.database_file}", echo=config.echo_sql_commands
+    )
 
 
-def create_database_sessionmaker(engine: Union[Engine, DatabaseEngineConfig]) -> sessionmaker:
+def create_database_sessionmaker(
+    engine: Union[Engine, DatabaseEngineConfig],
+) -> sessionmaker:
     """
     Generates the SQLAlchemy sessionmaker for to generate sessions
 

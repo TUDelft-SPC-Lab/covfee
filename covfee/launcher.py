@@ -61,16 +61,12 @@ class Launcher:
         self.folder = folder
         self.auth_enabled = auth_enabled
 
-        if environment != "dev":
-            self._database_engine_config = DatabaseEngineConfig(
-                database_file=self.config["DATABASE_PATH"],
-            )
-            self._database_modifications_should_be_manually_confirmed = os.path.exists(
-                self._database_engine_config.database_file
-            )
-        else:
-            # In memory database for development and debugging
-            self._database_engine_config = DatabaseEngineConfig()
+        self._database_engine_config = DatabaseEngineConfig(
+            database_file=self.config["DATABASE_PATH"],
+        )
+        self._database_modifications_should_be_manually_confirmed = os.path.exists(
+            self._database_engine_config.database_file
+        )
 
         self.engine = create_database_engine(self._database_engine_config)
         self._sessionmaker = create_database_sessionmaker(self.engine)
