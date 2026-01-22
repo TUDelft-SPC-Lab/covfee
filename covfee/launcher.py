@@ -182,7 +182,10 @@ class Launcher:
         if self.environment == "local":
             socketio.run(app, host=host, port=port, **ssl_options)
         elif self.environment == "dev":
-            socketio.run(app, host=host, port=port, debug=True, **ssl_options)
+            # The reloader breaks vscode debugging, so we disable it here
+            socketio.run(
+                app, host=host, port=port, debug=True, **ssl_options, use_reloader=False
+            )
         elif self.environment == "deploy":
             socketio.run(app, host=host, port=port, **ssl_options)
         else:
