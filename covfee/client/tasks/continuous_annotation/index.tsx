@@ -93,10 +93,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     if (!validAnnotationsDataAndSelection) {
       return
     }
-    console.log("Posting new data to server", freeTextAnswer1, freeTextAnswer2)
+    console.log("Posting new data to server", freeTextAnswer1, freeTextAnswer2, getCurrentVideoTime())
     const freeText_answer_data_to_post = {
       ...annotationsDataMirror[selectedAnnotationIndex],
-      data_json: [freeTextAnswer1, freeTextAnswer2],
+      data_json: [freeTextAnswer1, freeTextAnswer2, getCurrentVideoTime()],
     }
 
     try {
