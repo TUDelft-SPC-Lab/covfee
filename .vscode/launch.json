@@ -1,0 +1,78 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "covfee-make-dev",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/covfee/cli/commands/launch.py",
+      "cwd": "${workspaceFolder}/samples/ingroup_annotation",
+      "gevent": true,
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "args": [
+        "--debug-covfee-command",
+        "make",
+        "--dev",
+        // "--force", // Uncomment to create a new database each time
+        "continuous_annotation.py"        
+      ],
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/libs/"
+      }
+    },
+    {
+      "name": "covfee-start-dev",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/covfee/cli/commands/launch.py",
+      "cwd": "${workspaceFolder}/samples/ingroup_annotation",
+      "gevent": true,
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "args": [
+        "--debug-covfee-command",
+        "start"
+      ],
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/libs/"
+      }
+    },
+    {
+      "name": "covfee-wsgi",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/samples/continuous_annotation/wsgi.py",
+      "cwd": "${workspaceFolder}/samples/continuous_annotation",
+      "gevent": true,
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": [],
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/libs/"
+      }
+    },
+    {
+      "name": "Debug firefox",
+      "type": "firefox",
+      "request": "attach",
+      "pathMappings": [
+        {
+          "url": "webpack://covfee-client/tasks",
+          "path": "${workspaceFolder}/covfee/client/tasks"
+        }
+      ]
+    }
+  ]
+}
