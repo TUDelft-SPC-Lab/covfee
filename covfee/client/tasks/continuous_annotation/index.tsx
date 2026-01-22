@@ -162,6 +162,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       props.spec.taskVariantPopupBulletPoints.length > 0
   )
 
+  const [videoLengthMismatch, setVideoLengthMismatch] = useState(false)
+  const [showVideoLengthMismatch, setShowVideoLengthMismatch] = useState(false)
+
   const dataJsonContainsAValidAnnotation = (
     data_json: null | number[]
   ): boolean => {
@@ -454,10 +457,15 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     const local_vid_duration = videoPlayerRef.current.duration() 
 
     if (Math.abs(server_video_length - local_vid_duration) > 0.001) {
-      message.error(
-        "The video length does not match the expected length. Please refresh the page and try again."
-      )
+      setVideoLengthMismatch(true)
+      setShowVideoLengthMismatch(true)
+      setShowTaskVariantPopupBulletPoints(false)
+    } else {
+      setVideoLengthMismatch(false)
+      setShowVideoLengthMismatch(false)
     }
+
+
 
   }
 
@@ -802,6 +810,25 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           )}
         </Modal>
       )}
+      {showVideoLengthMismatch && (
+        <Modal
+          title={"Video length error"}
+          open={showVideoLengthMismatch}
+          footer={[
+            <Button
+              key="submit"
+              type="primary"
+              onClick={() => {
+                setShowVideoLengthMismatch(false)
+              }}
+            >
+              Ok
+            </Button>,
+          ]}
+        >
+          <p>Annotation is not possible. Please update your browser or try with a different one.</p>
+        </Modal>
+      )}
       <ModalParticipantSelectionGallery
         open={showingGallery}
         onCancel={() => {
@@ -917,7 +944,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             <Textarea onChange={(e) => setFreeTextAnswer1(e.target.value)} onBlur={() => postFreetextAnswerToServer()}/>
             <Text marginTop="20px" marginLeft="10px">Explain why you believe it to be their intention:</Text>
             <Textarea onChange={(e) => setFreeTextAnswer2(e.target.value)} onBlur={() => postFreetextAnswerToServer()}/>
-            <ButtonChakra onClick={submitFreeTextToServer} marginTop="10px" colorScheme="blue">Submit Annotation</ButtonChakra>
+            <ButtonChakra onClick={submitFreeTextToServer} marginTop="10px" colorScheme="blue" isDisabled={videoLengthMismatch}>Submit Annotation</ButtonChakra>
 
           </div>
           {/* <>
