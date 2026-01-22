@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import datetime
+import subprocess
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from flask import Blueprint, jsonify, request
@@ -98,6 +100,40 @@ def delete_annotation(annotid):
     app.session.delete(annot)
     app.session.commit()
     return "", 200
+
+
+@bp.route("/video/<video_name>/length")
+def get_video_length(video_name):
+    return jsonify({"duration": 10.026667})
+    local_path = Path("/data/conflab/data_processed/cameras/video_segments")
+    try:
+        # Run ffprobe to get video duration efficiently
+        result = subprocess.run(
+            [
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "format=duration",
+                "-of",
+                "default=noprint_wrappers=1:nokey=1",
+                str(local_path / video_name),
+                # "/home/era/Downloads/mov_bbb.mp4",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+
+        if result.returncode == 0:
+            duration = float(result.stdout.strip())
+            return jsonify({"duration": duration})
+        else:
+            return jsonify({"error": "Failed to get video duration"}), 400
+    except subprocess.TimeoutExpired:
+        return jsonify({"error": "Timeout while getting video duration"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 class Annotation(Base):

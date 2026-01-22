@@ -321,6 +321,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     // below.
     setIsVideoPlayerReady(true)
     forceVideoAudioRequirement()
+    checkVideoLengthWithServer()
   }
 
   useEffect(() => {
@@ -434,6 +435,31 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       }
     }
   }, [videoLoadStartEvent])
+
+  
+
+  const checkVideoLengthWithServer = async () => {
+
+    let video_src = videoPlayerRef.current?.src()
+    let video_name_with_extension = video_src.split("/").pop()
+    console.log("Checking video lenght", video_name_with_extension )
+
+    const url =
+      Constants.base_url +
+      node.customApiBase +
+      `/video/${video_name_with_extension}/length`
+    const res = await fetcher(url)
+    const server_video_length = (await res.json())["duration"]
+    console.log("Video length from server:", server_video_length)
+    const local_vid_duration = videoPlayerRef.current.duration() 
+
+    if (Math.abs(server_video_length - local_vid_duration) > 0.001) {
+      message.error(
+        "The video length does not match the expected length. Please refresh the page and try again."
+      )
+    }
+
+  }
 
   const forceVideoAudioRequirement = () => {
     if (!videoPlayerRef.current || props.spec.audioRequirement === null) {
