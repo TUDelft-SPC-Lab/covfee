@@ -73,6 +73,19 @@
           "path": "${workspaceFolder}/covfee/client/tasks"
         }
       ]
+    },
+    {
+      "name": "covfee-app-deploy",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/covfee/server/app.py",
+      "cwd": "${workspaceFolder}/samples/continuous_annotation",
+      "gevent": true,
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "args": ["--debug-covfee-command", "start", "--deploy"],
+      "env": { "PYTHONPATH": "${workspaceFolder}/libs/" }
     }
+
   ]
 }
