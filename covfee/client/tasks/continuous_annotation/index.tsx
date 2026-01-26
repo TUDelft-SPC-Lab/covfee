@@ -13,7 +13,8 @@ import { CovfeeTaskProps } from "../base"
 import CamViewSelection from "./camview_selection"
 import { ModalParticipantSelectionGallery } from "./conflab_participant_selection"
 
-import { Button as ButtonChakra, ChakraProvider, Checkbox as CheckboxChakra, Stack, Text, Textarea } from "@chakra-ui/react"
+import { ChakraProvider, Checkbox as CheckboxChakra, Stack, Text } from "@chakra-ui/react"
+import { Answer_form } from "./answer_form"
 
 
 import {
@@ -939,14 +940,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               </div>
             )}
           </div>
-          <div>
-            <Text marginTop="10px" marginLeft="10px">What intention do you see in the video:</Text>
-            <Textarea onChange={(e) => setFreeTextAnswer1(e.target.value)} onBlur={() => postFreetextAnswerToServer()}/>
-            <Text marginTop="20px" marginLeft="10px">Explain why you believe it to be their intention:</Text>
-            <Textarea onChange={(e) => setFreeTextAnswer2(e.target.value)} onBlur={() => postFreetextAnswerToServer()}/>
-            <ButtonChakra onClick={submitFreeTextToServer} marginTop="10px" colorScheme="blue" isDisabled={videoLengthMismatch}>Submit Annotation</ButtonChakra>
-
-          </div>
+          <Answer_form freeTextAnswer1={freeTextAnswer1} freeTextAnswer2={freeTextAnswer2} setFreeTextAnswer1={(value) => setFreeTextAnswer1(value)} setFreeTextAnswer2={(value) => setFreeTextAnswer2(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} />
           {/* <>
             <h3>Node data:</h3>
             <p>{JSON.stringify(node)}</p>
