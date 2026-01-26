@@ -10,7 +10,7 @@ type Props = {
     submitFreeTextToServer: () => void,
 }
 
-const Answer_form: React.FC<Props> = ({freeTextAnswer1, freeTextAnswer2, setFreeTextAnswer1, setFreeTextAnswer2, postFreetextAnswerToServer, submitFreeTextToServer}: Props) => {
+const Answer_form_A: React.FC<Props> = ({freeTextAnswer1, freeTextAnswer2, setFreeTextAnswer1, setFreeTextAnswer2, postFreetextAnswerToServer, submitFreeTextToServer}: Props) => {
 
     const [submittable, setSubmittable] = React.useState(false);
       React.useEffect(() => {
@@ -23,7 +23,7 @@ const Answer_form: React.FC<Props> = ({freeTextAnswer1, freeTextAnswer2, setFree
 
     return(
         <div>
-            <Text marginTop="10px" marginLeft="10px">What intention do you see in the video:</Text>
+            <Text marginTop="10px" marginLeft="10px">Form A: What intention do you see in the video:</Text>
             <Textarea onChange={(e) => setFreeTextAnswer1(e.target.value)} onBlur={() => postFreetextAnswerToServer()}/>
             <Text marginTop="20px" marginLeft="10px">Explain why you believe it to be their intention:</Text>
             <Textarea onChange={(e) => setFreeTextAnswer2(e.target.value)} onBlur={() => postFreetextAnswerToServer()}/>
@@ -33,5 +33,5 @@ const Answer_form: React.FC<Props> = ({freeTextAnswer1, freeTextAnswer2, setFree
     )
 }
 
-export { Answer_form };
+export { Answer_form_A };
 

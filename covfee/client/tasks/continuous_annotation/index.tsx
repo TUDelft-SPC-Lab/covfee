@@ -13,8 +13,9 @@ import { CovfeeTaskProps } from "../base"
 import CamViewSelection from "./camview_selection"
 import { ModalParticipantSelectionGallery } from "./conflab_participant_selection"
 
-import { ChakraProvider, Checkbox as CheckboxChakra, Stack, Text } from "@chakra-ui/react"
-import { Answer_form } from "./answer_form"
+import { Button as ButtonChakra, ChakraProvider, Checkbox as CheckboxChakra, Stack, Text } from "@chakra-ui/react"
+import { Answer_form_A } from "./answer_form_A"
+import { Answer_form_B } from "./answer_form_B"
 
 
 import {
@@ -33,6 +34,7 @@ import {
 import { slice } from "./slice"
 import type { AnnotationDataSpec, ContinuousAnnotationTaskSpec } from "./spec"
 import TaskProgress, { TaskAlreadyCompleted } from "./task_progress"
+
 
 interface Props extends CovfeeTaskProps<ContinuousAnnotationTaskSpec> {}
 
@@ -71,6 +73,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //------------------ States definition -------------------- //
   //*************************************************************//
   
+  const [answerForm, setAnswerForm] = useState<"A" | "B">("A")
   const [freeTextAnswer1, setFreeTextAnswer1] = useState("")
   const [freeTextAnswer2, setFreeTextAnswer2] = useState("")
 
@@ -940,7 +943,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               </div>
             )}
           </div>
-          <Answer_form freeTextAnswer1={freeTextAnswer1} freeTextAnswer2={freeTextAnswer2} setFreeTextAnswer1={(value) => setFreeTextAnswer1(value)} setFreeTextAnswer2={(value) => setFreeTextAnswer2(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} />
+          <ButtonChakra onClick={() => setAnswerForm(answerForm == 'A' ? 'B':'A')}>Test button to switch forms</ButtonChakra>
+          {answerForm == "A" ? <Answer_form_A freeTextAnswer1={freeTextAnswer1} freeTextAnswer2={freeTextAnswer2} setFreeTextAnswer1={(value) => setFreeTextAnswer1(value)} setFreeTextAnswer2={(value) => setFreeTextAnswer2(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} /> : <Answer_form_B freeTextAnswer1={freeTextAnswer1} freeTextAnswer2={freeTextAnswer2} setFreeTextAnswer1={(value) => setFreeTextAnswer1(value)} setFreeTextAnswer2={(value) => setFreeTextAnswer2(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} />}
           {/* <>
             <h3>Node data:</h3>
             <p>{JSON.stringify(node)}</p>
