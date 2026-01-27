@@ -6,8 +6,12 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogOverlay,
+    Box,
     Button as ButtonChakra,
+    Flex,
     IconButton,
+    Radio,
+    RadioGroup,
     Tab,
     TabList,
     TabPanel,
@@ -162,6 +166,40 @@ const Answer_form_A: React.FC<Props> = ({
                   }
                   onBlur={postFreetextAnswerToServer}
                 />
+                <Text mt="10px" ml="10px">
+                  How confident are you?:
+                </Text>
+                <Box paddingTop={"10px"}>
+                <Flex justify="space-between" mb={1} px={2}>
+                    <Text fontSize="sm">Just a guess</Text>
+                    <Text fontSize="sm">Very confident</Text>
+                </Flex>
+
+                {/* Radio buttons */}
+                <RadioGroup
+                    onChange={e =>
+                    updateNarrativeField(
+                        i,
+                        "intention_explanation_confidence",
+                        e
+                    )
+                    }
+                    value={
+                    "intention_explanation_confidence" in narrative &&
+                    narrative.intention_explanation_confidence != null
+                        ? narrative.intention_explanation_confidence.toString()
+                        : undefined
+                    }
+                >
+                    <Flex justify="space-between" px={2}>
+                    <Radio value="1" />
+                    <Radio value="2" />
+                    <Radio value="3" />
+                    <Radio value="4" />
+                    <Radio value="5" />
+                    </Flex>
+                </RadioGroup>
+                </Box>
 
                 <Text mt="20px" ml="10px">
                   Explain why you believe it to be their intention:
