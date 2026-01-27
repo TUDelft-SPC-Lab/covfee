@@ -2,6 +2,7 @@ import { Button as ButtonChakra, Text, Textarea } from "@chakra-ui/react";
 import React from "react";
 
 type Props = {
+    videoLengthMismatch?: boolean,
     freeTextAnswer1?: string,
     freeTextAnswer2?: string,
     setFreeTextAnswer1: (value: string) => void,
@@ -10,7 +11,7 @@ type Props = {
     submitFreeTextToServer: () => void,
 }
 
-const Answer_form_B: React.FC<Props> = ({freeTextAnswer1, freeTextAnswer2, setFreeTextAnswer1, setFreeTextAnswer2, postFreetextAnswerToServer, submitFreeTextToServer}: Props) => {
+const Answer_form_B: React.FC<Props> = ({videoLengthMismatch, freeTextAnswer1, freeTextAnswer2, setFreeTextAnswer1, setFreeTextAnswer2, postFreetextAnswerToServer, submitFreeTextToServer}: Props) => {
 
     const [submittable, setSubmittable] = React.useState(false);
       React.useEffect(() => {
@@ -27,7 +28,7 @@ const Answer_form_B: React.FC<Props> = ({freeTextAnswer1, freeTextAnswer2, setFr
             <Textarea onChange={(e) => setFreeTextAnswer1(e.target.value)} onBlur={() => postFreetextAnswerToServer()}/>
             <Text marginTop="20px" marginLeft="10px">Explain why you believe it to be their intention:</Text>
             <Textarea onChange={(e) => setFreeTextAnswer2(e.target.value)} onBlur={() => postFreetextAnswerToServer()}/>
-            <ButtonChakra onClick={submitFreeTextToServer} marginTop="10px" colorScheme="blue" isDisabled={!submittable}>Submit Annotation</ButtonChakra>
+            <ButtonChakra onClick={submitFreeTextToServer} marginTop="10px" colorScheme="blue" isDisabled={videoLengthMismatch || !submittable}>Submit Annotation</ButtonChakra>
         
         </div>
     )

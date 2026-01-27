@@ -944,7 +944,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             )}
           </div>
           <ButtonChakra onClick={() => setAnswerForm(answerForm == 'A' ? 'B':'A')}>Test button to switch forms</ButtonChakra>
-          {answerForm == "A" ? <Answer_form_A freeTextAnswer1={freeTextAnswer1} freeTextAnswer2={freeTextAnswer2} setFreeTextAnswer1={(value) => setFreeTextAnswer1(value)} setFreeTextAnswer2={(value) => setFreeTextAnswer2(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} /> : <Answer_form_B freeTextAnswer1={freeTextAnswer1} freeTextAnswer2={freeTextAnswer2} setFreeTextAnswer1={(value) => setFreeTextAnswer1(value)} setFreeTextAnswer2={(value) => setFreeTextAnswer2(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} />}
+          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} freeTextAnswer1={freeTextAnswer1} freeTextAnswer2={freeTextAnswer2} setFreeTextAnswer1={(value) => setFreeTextAnswer1(value)} setFreeTextAnswer2={(value) => setFreeTextAnswer2(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} /> : <Answer_form_B videoLengthMismatch={videoLengthMismatch} freeTextAnswer1={freeTextAnswer1} freeTextAnswer2={freeTextAnswer2} setFreeTextAnswer1={(value) => setFreeTextAnswer1(value)} setFreeTextAnswer2={(value) => setFreeTextAnswer2(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} />}
           {/* <>
             <h3>Node data:</h3>
             <p>{JSON.stringify(node)}</p>
