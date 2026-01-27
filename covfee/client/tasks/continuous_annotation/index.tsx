@@ -56,6 +56,18 @@ type ActionAnnotationDataArray = {
   needs_upload: boolean
 }
 
+type Narrative_typeA = {
+  timestamp: number
+  intention_description: string
+  intention_explanation: string
+}
+type Narrative_typeB = {
+  timestamp: number
+  intention_description: string
+  intention_belief: string
+  intention_desire: string
+}
+
 const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   const args: AllPropsRequired<Props> = React.useMemo(() => {
     return {
@@ -74,8 +86,37 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //*************************************************************//
   
   const [answerForm, setAnswerForm] = useState<"A" | "B">("A")
-  const [freeTextAnswer1, setFreeTextAnswer1] = useState("")
-  const [freeTextAnswer2, setFreeTextAnswer2] = useState("")
+
+  //Initialize first narrative based on answer form
+  const [narratives, setNarratives] = useState<(Narrative_typeA | Narrative_typeB)[]>(answerForm == "A" ? [{
+      timestamp: Date.now(),
+      intention_description: "",
+      intention_explanation: "",
+    }] : [{
+      timestamp: Date.now(),
+      intention_description: "",
+      intention_belief: "",
+      intention_desire: "",
+    }])
+
+  // TODO:Remove this useEffect after testing
+  React.useEffect(() => {
+      //Reset narratives when answer form changes
+      if (answerForm == "A") {
+        setNarratives([{
+          timestamp: Date.now(),
+          intention_description: "",
+          intention_explanation: "",
+        }])
+      } else {
+        setNarratives([{
+          timestamp: Date.now(),
+          intention_description: "",
+          intention_belief: "",
+          intention_desire: "",
+        }])
+      }
+    }, [answerForm])
 
   const submitFreeTextToServer = async () => {
     postFreetextAnswerToServer()
@@ -97,10 +138,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     if (!validAnnotationsDataAndSelection) {
       return
     }
-    console.log("Posting new data to server", freeTextAnswer1, freeTextAnswer2, getCurrentVideoTime())
+    console.log("Posting new data to server", narratives, getCurrentVideoTime())
     const freeText_answer_data_to_post = {
       ...annotationsDataMirror[selectedAnnotationIndex],
-      data_json: [freeTextAnswer1, freeTextAnswer2, getCurrentVideoTime()],
+      data_json: [narratives, getCurrentVideoTime()],
     }
 
     try {
@@ -943,8 +984,11 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               </div>
             )}
           </div>
+          {/* TODO: Remove this line after testing */}
           <ButtonChakra onClick={() => setAnswerForm(answerForm == 'A' ? 'B':'A')}>Test button to switch forms</ButtonChakra>
-          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} freeTextAnswer1={freeTextAnswer1} freeTextAnswer2={freeTextAnswer2} setFreeTextAnswer1={(value) => setFreeTextAnswer1(value)} setFreeTextAnswer2={(value) => setFreeTextAnswer2(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} /> : <Answer_form_B videoLengthMismatch={videoLengthMismatch} freeTextAnswer1={freeTextAnswer1} freeTextAnswer2={freeTextAnswer2} setFreeTextAnswer1={(value) => setFreeTextAnswer1(value)} setFreeTextAnswer2={(value) => setFreeTextAnswer2(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} />}
+          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives} setNarratives={(value) => setNarratives(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} />
+           : 
+           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives} setNarratives={(value) => setNarratives(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} />}
           {/* <>
             <h3>Node data:</h3>
             <p>{JSON.stringify(node)}</p>
