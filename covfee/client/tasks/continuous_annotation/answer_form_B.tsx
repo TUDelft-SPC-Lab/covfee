@@ -1,13 +1,21 @@
-import { PlusOutlined } from "@ant-design/icons"
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons"
 import {
-    Button as ButtonChakra,
-    Tab,
-    TabList,
-    TabPanel,
-    TabPanels,
-    Tabs,
-    Text,
-    Textarea,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Button as ButtonChakra,
+  IconButton,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+  Textarea,
+  useDisclosure
 } from "@chakra-ui/react"
 import React from "react"
 
@@ -58,7 +66,20 @@ const Answer_form_B: React.FC<Props> = ({
       )
     )
   }
+    //Delete narrative confirmation dialog
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    const cancelRef = React.useRef<HTMLButtonElement>(null)
+    const deleteTab = () => {
+        if (!narratives) return
 
+        // remove narrative
+        setNarratives(narratives.filter((_, i) => i !== index))
+
+        // move index safely
+        setIndex(prev => Math.max(0, prev - 1))
+
+        onClose()
+    }
   /* ---------------- validation ---------------- */
 
   const isNarrativeComplete = (
@@ -87,28 +108,41 @@ const Answer_form_B: React.FC<Props> = ({
 
   return (
     <div>
-      <Tabs index={index} onChange={setIndex} variant="enclosed">
-        <TabList>
+      <Tabs index={index} onChange={setIndex} variant="enclosed" height="100%">
+        <TabList position={"sticky"} top={0} zIndex={1}>
           {narratives.map((_, i) => (
-            <Tab key={i}>Participant {i + 1}</Tab>
+            <Tab key={i}>Intention {i + 1}</Tab>
           ))}
 
-          <Tab
-            onClick={e => {
-              e.preventDefault()
-              addNarrative()
-            }}
-          >
-            <PlusOutlined />
-          </Tab>
+          <IconButton
+              aria-label="Add narrative"
+              icon={<PlusOutlined />}
+              size="sm"
+              variant="ghost"
+              onClick={addNarrative}
+              ml={2}
+              alignSelf="center" 
+          />
         </TabList>
 
-        <TabPanels>
+        <TabPanels maxH={"60vh"} overflowY={"auto"}>
           {narratives.map((narrative, i) => {
             if (!narrative) return null
 
             return (
-              <TabPanel key={i}>
+              <TabPanel key={i} position="relative">
+                <IconButton
+                    aria-label="Delete tab"
+                    icon={<DeleteOutlined />}
+                    size="s"
+                    colorScheme="red"
+                    variant="ghost"
+                    position="absolute"
+                    top="8px"
+                    right="8px"
+                    onClick={onOpen}
+                    isDisabled={narratives.length === 1}
+                />
                 <Text mt="10px" ml="10px">
                   Form B: What intention do you see in the video:
                 </Text>
@@ -178,6 +212,33 @@ const Answer_form_B: React.FC<Props> = ({
       >
         Submit Annotation
       </ButtonChakra>
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+        >
+        <AlertDialogOverlay>
+            <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                Delete Narrative
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+                Are you sure you want to delete this narrative?
+                This action cannot be undone.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+                <ButtonChakra ref={cancelRef} onClick={onClose}>
+                Cancel
+                </ButtonChakra>
+                <ButtonChakra colorScheme="red" onClick={deleteTab} ml={3}>
+                Delete
+                </ButtonChakra>
+            </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialogOverlay>
+        </AlertDialog>
     </div>
   )
 }
