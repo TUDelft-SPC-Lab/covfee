@@ -1,30 +1,21 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons"
 import {
-    AlertDialog,
-    AlertDialogBody,
-    AlertDialogContent,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogOverlay,
-    Box,
-    Button as ButtonChakra,
-    Flex,
-    IconButton,
-    Radio,
-    RadioGroup,
-    Tab,
-    TabList,
-    TabPanel,
-    TabPanels,
-    Tabs,
-    Text,
-    Textarea,
-    useDisclosure
+  Button as ButtonChakra,
+  IconButton,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  useDisclosure
 } from "@chakra-ui/react"
 import React from "react"
 
 import { Narrative_typeA } from "../annotation_types/narrative_typeA"
 import { Narrative_typeB } from "../annotation_types/narrative_typeB"
+import { DeleteAlertDialogue } from "./custom_components/AlertDialog"
+import { Free_text } from "./custom_components/free_text"
+import { Likert_scale } from "./custom_components/likert_scale"
 
 type Props = {
   videoLengthMismatch?: boolean
@@ -46,9 +37,13 @@ const Answer_form_A: React.FC<Props> = ({
   /* ---------------- helpers ---------------- */
 
   const createBlankNarrativeA = (): Narrative_typeA => ({
+    created_at: Date.now(),
     timestamp: Date.now(),
     intention_description: "",
+    intention_description_confidence: null,
     intention_explanation: "",
+    intention_explanation_confidence: null,
+    intention_intensity: "",
   })
 
   const addNarrative = () => {
@@ -71,7 +66,6 @@ const Answer_form_A: React.FC<Props> = ({
   }
     //Delete narrative confirmation dialog
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const cancelRef = React.useRef<HTMLButtonElement>(null)
     const deleteTab = () => {
         if (!narratives) return
 
@@ -115,8 +109,8 @@ const Answer_form_A: React.FC<Props> = ({
     <div>
       <Tabs index={index} onChange={setIndex} variant="enclosed" height="100%">
         <TabList position={"sticky"} top={0} zIndex={1}>
-          {narratives.map((_, i) => (
-            <Tab key={i}>Intention {i + 1}</Tab>
+          {narratives.map((narrative, i) => (
+            <Tab key={narrative?.created_at}>Intention {i + 1}</Tab>
           ))}
 
          <IconButton
@@ -135,96 +129,39 @@ const Answer_form_A: React.FC<Props> = ({
             if (!narrative) return null
 
             return (
-              <TabPanel key={i} position="relative">
+              <TabPanel key={narrative?.created_at} position="relative">
                 <IconButton
                     aria-label="Delete tab"
                     icon={<DeleteOutlined />}
-                    size="s"
+                    size="md"
                     colorScheme="red"
                     variant="ghost"
                     position="absolute"
-                    top="8px"
-                    right="8px"
+                    top="5px"
+                    right="5px"
                     onClick={onOpen}
                     isDisabled={narratives.length === 1}
                 />
-                <Text mt="10px" ml="10px">
+                <Free_text paddingTop={"5px"} narrative={narrative} field={"intention_description"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
                   Form A: What intention do you see in the video:
-                </Text>
-                <Textarea
-                  value={
-                    "intention_description" in narrative
-                      ? narrative.intention_description
-                      : ""
-                  }
-                  onChange={e =>
-                    updateNarrativeField(
-                      i,
-                      "intention_description",
-                      e.target.value
-                    )
-                  }
-                  onBlur={postFreetextAnswerToServer}
-                />
-                <Text mt="10px" ml="10px">
-                  How confident are you?:
-                </Text>
-                <Box paddingTop={"10px"}>
-                <Flex justify="space-between" mb={1} px={2}>
-                    <Text fontSize="sm">Just a guess</Text>
-                    <Text fontSize="sm">Very confident</Text>
-                </Flex>
-
-                {/* Radio buttons */}
-                <RadioGroup
-                    onChange={e =>
-                    updateNarrativeField(
-                        i,
-                        "intention_explanation_confidence",
-                        e
-                    )
-                    }
-                    value={
-                    "intention_explanation_confidence" in narrative &&
-                    narrative.intention_explanation_confidence != null
-                        ? narrative.intention_explanation_confidence.toString()
-                        : undefined
-                    }
-                >
-                    <Flex justify="space-between" px={2}>
-                    <Radio value="1" />
-                    <Radio value="2" />
-                    <Radio value="3" />
-                    <Radio value="4" />
-                    <Radio value="5" />
-                    </Flex>
-                </RadioGroup>
-                </Box>
-
-                <Text mt="20px" ml="10px">
+                </Free_text>
+                <Likert_scale narrative={narrative} field={"intention_description_confidence"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
+                  How confident are you that this is the intention?
+                </Likert_scale>
+                <Free_text narrative={narrative} field={"intention_explanation"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
                   Explain why you believe it to be their intention:
-                </Text>
-                <Textarea
-                  value={
-                    "intention_explanation" in narrative
-                      ? narrative.intention_explanation
-                      : ""
-                  }
-                  onChange={e =>
-                    updateNarrativeField(
-                      i,
-                      "intention_explanation",
-                      e.target.value
-                    )
-                  }
-                  onBlur={postFreetextAnswerToServer}
-                />
+                </Free_text>
+                <Likert_scale narrative={narrative} field={"intention_explanation_confidence"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
+                  How confident are you about this explanation?
+                </Likert_scale>
+                <Likert_scale narrative={narrative} field={"intention_intensity"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
+                  With what intensity is the intention being carried out?
+                </Likert_scale>
               </TabPanel>
             )
           })}
         </TabPanels>
       </Tabs>
-
       <ButtonChakra
         mt="10px"
         colorScheme="blue"
@@ -233,33 +170,7 @@ const Answer_form_A: React.FC<Props> = ({
       >
         Submit Annotation
       </ButtonChakra>
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-        >
-        <AlertDialogOverlay>
-            <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                Delete Narrative
-            </AlertDialogHeader>
-
-            <AlertDialogBody>
-                Are you sure you want to delete this narrative?
-                This action cannot be undone.
-            </AlertDialogBody>
-
-            <AlertDialogFooter>
-                <ButtonChakra ref={cancelRef} onClick={onClose}>
-                Cancel
-                </ButtonChakra>
-                <ButtonChakra colorScheme="red" onClick={deleteTab} ml={3}>
-                Delete
-                </ButtonChakra>
-            </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialogOverlay>
-        </AlertDialog>
+      <DeleteAlertDialogue isOpen={isOpen} onClose={onClose} deleteTab={deleteTab} />
 
     </div>
     

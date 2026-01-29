@@ -57,13 +57,16 @@ type ActionAnnotationDataArray = {
 }
 
 type Narrative_typeA = {
+  created_at: number
   timestamp: number
   intention_description: string
   intention_description_confidence: string| null
   intention_explanation: string
   intention_explanation_confidence: string| null
+  intention_intensity: string| null
 }
 type Narrative_typeB = {
+  created_at: number
   timestamp: number
   intention_description: string
   intention_description_confidence: string| null
@@ -71,6 +74,7 @@ type Narrative_typeB = {
   intention_belief_confidence: string| null
   intention_desire: string
   intention_desire_confidence: string| null
+  intention_intensity: string| null
 }
 
 const ContinuousAnnotationTask: React.FC<Props> = (props) => {
@@ -94,12 +98,15 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   //Initialize first narrative based on answer form
   const [narratives, setNarratives] = useState<(Narrative_typeA | Narrative_typeB)[]>(answerForm == "A" ? [{
+      created_at: Date.now(),
       timestamp: Date.now(),
       intention_description: "",
       intention_description_confidence: null,
       intention_explanation: "",
       intention_explanation_confidence: null,
+      intention_intensity: "",
     }] : [{
+      created_at: Date.now(),
       timestamp: Date.now(),
       intention_description: "",
       intention_description_confidence: null,
@@ -107,6 +114,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       intention_belief_confidence: null,
       intention_desire: "",
       intention_desire_confidence: null,
+      intention_intensity: "",
     }])
 
   // TODO:Remove this useEffect after testing
@@ -114,14 +122,17 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       //Reset narratives when answer form changes
       if (answerForm == "A") {
         setNarratives([{
+          created_at: Date.now(),
           timestamp: Date.now(),
           intention_description: "",
           intention_description_confidence: null,
           intention_explanation: "",
           intention_explanation_confidence: null,
+          intention_intensity: "",
         }])
       } else {
         setNarratives([{
+          created_at: Date.now(),
           timestamp: Date.now(),
           intention_description: "",
           intention_description_confidence: null,
@@ -129,6 +140,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           intention_belief_confidence: null,
           intention_desire: "",
           intention_desire_confidence: null,
+          intention_intensity: "",
         }])
       }
     }, [answerForm])

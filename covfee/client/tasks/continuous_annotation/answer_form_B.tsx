@@ -1,11 +1,5 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons"
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Button as ButtonChakra,
   IconButton,
   Tab,
@@ -13,14 +7,15 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  Text,
-  Textarea,
   useDisclosure
 } from "@chakra-ui/react"
 import React from "react"
 
 import { Narrative_typeA } from "../annotation_types/narrative_typeA"
 import { Narrative_typeB } from "../annotation_types/narrative_typeB"
+import { DeleteAlertDialogue } from "./custom_components/AlertDialog"
+import { Free_text } from "./custom_components/free_text"
+import { Likert_scale } from "./custom_components/likert_scale"
 
 type Props = {
   videoLengthMismatch?: boolean
@@ -42,10 +37,15 @@ const Answer_form_B: React.FC<Props> = ({
   /* ---------------- helpers ---------------- */
 
   const createBlankNarrativeB = (): Narrative_typeB => ({
+    created_at: Date.now(),
     timestamp: Date.now(),
     intention_description: "",
+    intention_description_confidence: null,
     intention_belief: "",
+    intention_belief_confidence: null,
     intention_desire: "",
+    intention_desire_confidence: null,
+    intention_intensity: null,
   })
 
   const addNarrative = () => {
@@ -68,7 +68,6 @@ const Answer_form_B: React.FC<Props> = ({
   }
     //Delete narrative confirmation dialog
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const cancelRef = React.useRef<HTMLButtonElement>(null)
     const deleteTab = () => {
         if (!narratives) return
 
@@ -110,8 +109,8 @@ const Answer_form_B: React.FC<Props> = ({
     <div>
       <Tabs index={index} onChange={setIndex} variant="enclosed" height="100%">
         <TabList position={"sticky"} top={0} zIndex={1}>
-          {narratives.map((_, i) => (
-            <Tab key={i}>Intention {i + 1}</Tab>
+          {narratives.map((narrative, i) => (
+            <Tab key={narrative?.created_at}>Intention {i + 1}</Tab>
           ))}
 
           <IconButton
@@ -130,7 +129,7 @@ const Answer_form_B: React.FC<Props> = ({
             if (!narrative) return null
 
             return (
-              <TabPanel key={i} position="relative">
+              <TabPanel key={narrative?.created_at} position="relative">
                 <IconButton
                     aria-label="Delete tab"
                     icon={<DeleteOutlined />}
@@ -143,61 +142,27 @@ const Answer_form_B: React.FC<Props> = ({
                     onClick={onOpen}
                     isDisabled={narratives.length === 1}
                 />
-                <Text mt="10px" ml="10px">
+                <Free_text paddingTop="5px" narrative={narrative} field={"intention_description"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
                   Form B: What intention do you see in the video:
-                </Text>
-                <Textarea
-                  value={
-                    "intention_description" in narrative
-                      ? narrative.intention_description
-                      : ""
-                  }
-                  onChange={e =>
-                    updateNarrativeField(
-                      i,
-                      "intention_description",
-                      e.target.value
-                    )
-                  }
-                  onBlur={postFreetextAnswerToServer}
-                />
-
-                <Text mt="20px" ml="10px">
+                </Free_text>
+                <Likert_scale narrative={narrative} field={"intention_description_confidence"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
+                  How confident are you that this is the intention?
+                </Likert_scale>
+                <Free_text narrative={narrative} field={"intention_explanation"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
                   Explain why you believe it to be their intention in term of their beliefs:
-                </Text>
-                <Textarea
-                  value={
-                    "intention_belief" in narrative
-                      ? narrative.intention_belief
-                      : ""
-                  }
-                  onChange={e =>
-                    updateNarrativeField(
-                      i,
-                      "intention_belief",
-                      e.target.value
-                    )
-                  }
-                  onBlur={postFreetextAnswerToServer}
-                />
-                <Text mt="20px" ml="10px">
+                </Free_text>
+                <Likert_scale narrative={narrative} field={"intention_belief_confidence"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
+                  How confident are you in your explanation based on their beliefs?
+                </Likert_scale>
+                <Free_text narrative={narrative} field={"intention_desire"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
                   Explain why you believe it to be their intention in term of their desires:
-                </Text>
-                <Textarea
-                  value={
-                    "intention_desire" in narrative
-                      ? narrative.intention_desire
-                      : ""
-                  }
-                  onChange={e =>
-                    updateNarrativeField(
-                      i,
-                      "intention_desire",
-                      e.target.value
-                    )
-                  }
-                  onBlur={postFreetextAnswerToServer}
-                />
+                </Free_text>
+                <Likert_scale narrative={narrative} field={"intention_desire_confidence"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
+                  How confident are you in your explanation based on their desires?
+                </Likert_scale>
+                <Likert_scale narrative={narrative} field={"intention_intensity"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
+                  With what intensity is the intention being carried out?
+                </Likert_scale>
               </TabPanel>
             )
           })}
@@ -212,33 +177,7 @@ const Answer_form_B: React.FC<Props> = ({
       >
         Submit Annotation
       </ButtonChakra>
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-        >
-        <AlertDialogOverlay>
-            <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                Delete Narrative
-            </AlertDialogHeader>
-
-            <AlertDialogBody>
-                Are you sure you want to delete this narrative?
-                This action cannot be undone.
-            </AlertDialogBody>
-
-            <AlertDialogFooter>
-                <ButtonChakra ref={cancelRef} onClick={onClose}>
-                Cancel
-                </ButtonChakra>
-                <ButtonChakra colorScheme="red" onClick={deleteTab} ml={3}>
-                Delete
-                </ButtonChakra>
-            </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialogOverlay>
-        </AlertDialog>
+      <DeleteAlertDialogue isOpen={isOpen} onClose={onClose} deleteTab={deleteTab} />
     </div>
   )
 }
