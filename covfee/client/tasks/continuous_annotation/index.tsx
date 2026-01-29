@@ -116,6 +116,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       intention_desire_confidence: null,
       intention_intensity: "",
     }])
+  const [pausedAt, setPausedAt] = useState<number[]>([])
 
   // TODO:Remove this useEffect after testing
   React.useEffect(() => {
@@ -165,10 +166,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     if (!validAnnotationsDataAndSelection) {
       return
     }
-    console.log("Posting new data to server", narratives, getCurrentVideoTime())
+    console.log("Posting new data to server", narratives, pausedAt, getCurrentVideoTime())
     const freeText_answer_data_to_post = {
       ...annotationsDataMirror[selectedAnnotationIndex],
-      data_json: [narratives, getCurrentVideoTime()],
+      data_json: [narratives, pausedAt, getCurrentVideoTime()],
     }
 
     try {
@@ -971,6 +972,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               audioSrc={PARTICIPANT_AUDIO_SRC}
               audioToggles={audioToggles}
               onReady={handleVideoPlayerReady}
+              onPausedAt={(time) => setPausedAt(prev => [...prev, time])}
             />
             
             {showingAnnotationTips && (

@@ -7,6 +7,7 @@ interface Props {
   audioSrc?: string | string[]
   audioToggles?: boolean[]
   onReady?: (player: videojs.Player) => void
+  onPausedAt?: (time: number) => void
 }
 
 export const VideoJSFC: React.FC<Props> = ({
@@ -14,6 +15,7 @@ export const VideoJSFC: React.FC<Props> = ({
   audioSrc,
   audioToggles = [],
   onReady,
+  onPausedAt,
 }) => {
   const videoRef = React.useRef<HTMLDivElement | null>(null)
   const playerRef = React.useRef<videojs.Player | null>(null)
@@ -35,7 +37,11 @@ export const VideoJSFC: React.FC<Props> = ({
 
       // Play/pause/seeking sync for all audio tracks
       player.on("play", () => audioRefs.current.forEach(a => a.play()))
-      player.on("pause", () => audioRefs.current.forEach(a => a.pause()))
+      player.on("pause", () => {
+        const currentTime = player.currentTime()
+        audioRefs.current.forEach(a => a.pause())
+        onPausedAt?.(currentTime)
+      })
       player.on("seeking", () => {
         const time = player.currentTime()
         audioRefs.current.forEach(a => {
