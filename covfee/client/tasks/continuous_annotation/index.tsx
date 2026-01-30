@@ -11,12 +11,11 @@ import { AllPropsRequired } from "../../types/utils"
 import { fetcher } from "../../utils"
 import { CovfeeTaskProps } from "../base"
 import CamViewSelection from "./camview_selection"
-import { ModalParticipantSelectionGallery } from "./conflab_participant_selection"
 
-import { Button as ButtonChakra, ChakraProvider, Checkbox as CheckboxChakra, Stack, Text } from "@chakra-ui/react"
+import { Button as ButtonChakra, Modal as ChakraModal, ChakraProvider, Checkbox as CheckboxChakra, ModalCloseButton, ModalContent, ModalOverlay, Stack, Text } from "@chakra-ui/react"
+import ConflabGallery from "../../art/conflab-gallery.svg"
 import { Answer_form_A } from "./answer_form_A"
 import { Answer_form_B } from "./answer_form_B"
-
 
 import {
   ABORT_ONGOING_ANNOTATION_KEY,
@@ -897,16 +896,29 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           <p>Annotation is not possible. Please update your browser or try with a different one.</p>
         </Modal>
       )}
-      <ModalParticipantSelectionGallery
-        open={showingGallery}
-        onCancel={() => {
-          setShowingGallery(false)
-        }}
-        onParticipantSelected={(participant: string) => {
-          selectFirstAvailableAnnotationIndexBasedOnParticipantName(participant)
-          setShowingGallery(false)
-        }}
-      />
+      <ChakraModal
+        isOpen={showingGallery}
+        onClose={() => setShowingGallery(false)}
+        size="full"
+      >
+        <ModalOverlay bg="blackAlpha.800" />
+
+        <ModalContent
+          bg="transparent"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <ModalCloseButton
+            color="white"
+            size="lg"
+            zIndex={2}
+          />
+
+          <ConflabGallery />
+
+      </ModalContent>
+    </ChakraModal>
       <div className={styles["action-annotation-task"]}>
         <div
           className={`${styles["sidebar"]} ${styles["left-sidebar"]} ${
@@ -1074,6 +1086,11 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               </CheckboxChakra>
                 ))}     
             </Stack>
+            
+          </div>
+          <div className={styles["sidebar-block"]}>
+            <Text>Show all participants and their id's:</Text>
+            <ButtonChakra colorScheme={"blue"} size={"lg"} onClick={() => setShowingGallery(true)}>Gallery</ButtonChakra>
           </div>
         </div>
       </div>
