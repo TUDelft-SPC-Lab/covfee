@@ -25,7 +25,7 @@ interface Props {
 const Free_text: React.FC<Props> = ({ narrative, field, i, updateNarrativeField, postFreetextAnswerToServer, paddingTop = "40px", children }) => {
     return(
         <Box padding={"0px"} mt={paddingTop}>
-        <Text ml="10px" fontSize={"lg"} fontWeight={"bold"}>
+        <Text ml="10px" fontSize={"lg"}>
             {children}
         </Text>
         <Textarea

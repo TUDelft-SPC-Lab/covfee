@@ -70,10 +70,8 @@ type Narrative_typeB = {
   timestamp: number
   intention_description: string
   intention_description_confidence: string| null
-  intention_belief: string
-  intention_belief_confidence: string| null
-  intention_desire: string
-  intention_desire_confidence: string| null
+  intention_explanation: string
+  intention_explanation_confidence: string| null
   intention_intensity: string| null
 }
 
@@ -110,13 +108,12 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       timestamp: Date.now(),
       intention_description: "",
       intention_description_confidence: null,
-      intention_belief: "",
-      intention_belief_confidence: null,
-      intention_desire: "",
-      intention_desire_confidence: null,
+      intention_explanation: "",
+      intention_explanation_confidence: null,
       intention_intensity: "",
     }])
   const [pausedAt, setPausedAt] = useState<number[]>([])
+  const [noIntentionSeen, setNoIntentionSeen] = useState<boolean>(false)
 
   // TODO:Remove this useEffect after testing
   React.useEffect(() => {
@@ -137,10 +134,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           timestamp: Date.now(),
           intention_description: "",
           intention_description_confidence: null,
-          intention_belief: "",
-          intention_belief_confidence: null,
-          intention_desire: "",
-          intention_desire_confidence: null,
+          intention_explanation: "",
+          intention_explanation_confidence: null,
           intention_intensity: "",
         }])
       }
@@ -962,6 +957,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             onWatchTutorialVideoClick={() => {
               setShowTaskVariantPopupBulletPoints(true)
             }}
+            answerForm={answerForm}
           />
         </div>
         <div style={{ backgroundColor: "blue" }} /> {/* <--- Filler div */}
@@ -1015,9 +1011,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           </div>
           {/* TODO: Remove this line after testing */}
           <ButtonChakra onClick={() => setAnswerForm(answerForm == 'A' ? 'B':'A')}>Test button to switch forms</ButtonChakra>
-          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives} setNarratives={(value) => setNarratives(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} />
+          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives} setNarratives={(value) => setNarratives(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} />
            : 
-           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives} setNarratives={(value) => setNarratives(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} />}
+           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives} setNarratives={(value) => setNarratives(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} />}
           {/* <>
             <h3>Node data:</h3>
             <p>{JSON.stringify(node)}</p>

@@ -1,22 +1,14 @@
 import type { MenuProps } from "antd"
-import { Button, Dropdown, MenuInfo, Modal, Space } from "antd"
+import { MenuInfo, Modal } from "antd"
 import React, { useEffect, useState } from "react"
-import { SelectedParticipantImage } from "./conflab_participant_selection"
 
 import {
   BorderOutlined,
-  CheckSquareTwoTone,
-  DownOutlined,
-  ExclamationCircleOutlined,
+  CheckSquareTwoTone
 } from "@ant-design/icons"
 
-import {
-  CHANGE_VIEW_NEXT_KEY,
-  CHANGE_VIEW_PREV_KEY,
-  DRINKING_ANNOTATION_CATEGORY,
-  REGISTER_ACTION_ANNOTATION_KEY,
-  TIP_EMOJI,
-} from "./constants"
+
+import { ListItem, OrderedList, Text } from "@chakra-ui/react"
 
 import styles from "./continous_annotation.module.css"
 
@@ -37,6 +29,7 @@ type Props = {
   participant_options: ParticipantOption[]
   annotation_options: AnnotationOption[]
   video_tutorial_url?: string
+  answerForm: React.ReactNode
 
   onCantFindParticipant: () => void
   onParticipantSelected: (participant: string) => void
@@ -116,221 +109,41 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
 
   return (
     <>
-      <Modal
-        title={
-          "Set " +
-          props.selected_participant.name +
-          " as not appearing in the video(s)"
-        }
-        open={isMarkParticipantModalOpen}
-        onOk={props.onCantFindParticipant}
-        onCancel={() => {
-          setIsMarkParticipantModalOpen(false)
-        }}
-        footer={[
-          <Button
-            key="back"
-            onClick={() => {
-              setIsMarkParticipantModalOpen(false)
-            }}
-          >
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            onClick={() => {
-              props.onCantFindParticipant()
-              setIsMarkParticipantModalOpen(false)
-            }}
-          >
-            I'm sure the participant is not found
-            {props.selected_annotation.category === DRINKING_ANNOTATION_CATEGORY
-              ? " or has no beverage"
-              : ""}
-          </Button>,
-        ]}
-      >
-        <ul>
-          <li>
-            I checked all camera views and I can't find this participant{" "}
-            {props.selected_annotation.category === DRINKING_ANNOTATION_CATEGORY
-              ? "or I did find the participant but I confirmed they don't have a beverage"
-              : ""}
-            .
-          </li>
-          <li>
-            I am certain this participant does not enter any view
-            {props.selected_annotation.category === DRINKING_ANNOTATION_CATEGORY
-              ? " or does not get a beverage"
-              : ""}{" "}
-            in the middle of playback.
-          </li>
-        </ul>
-      </Modal>
+     
       <div className={styles["sidebar-block"]}>
         <h1>Instructions</h1>
-        {props.video_tutorial_url && (
-          <Button
-            type="primary"
-            className={styles["gallery-button"]}
-            onClick={() => {
-              window.open(props.video_tutorial_url, "_blank")
-              props.onWatchTutorialVideoClick()
-            }}
-          >
-            Watch Tutorial Video (audio required)
-          </Button>
-        )}
-        <h2>
-          <strong>Step 1: </strong>
-          {"Select the camera view where the person below is "}
-          <strong>best visible</strong>
-          {" using the "} {CHANGE_VIEW_PREV_KEY}
-          {" or "}
-          {CHANGE_VIEW_NEXT_KEY}
-          {" keys. You can play the video to help you find the person. "}
-        </h2>
-        <SelectedParticipantImage
-          participant={props.selected_participant.name}
-        />
-
-        <h2>
-          <strong>Step 2: </strong>
-          If you have found the participant
-          {props.selected_annotation.category ===
-          DRINKING_ANNOTATION_CATEGORY ? (
-            <strong>, confirmed they have a beverage</strong>
-          ) : (
-            ""
-          )}{" "}
-          and selected the best camera view, proceed to Step 3. If you
-          <strong> can't find the participant at all</strong>
-          {props.selected_annotation.category ===
-          DRINKING_ANNOTATION_CATEGORY ? (
-            <strong> or doesn't have a beverage</strong>
-          ) : (
-            ""
-          )}
-          , click the button below. A pop-up will appear asking you to confirm.
-          If you confirm this, proceed to Step
-          {multiple_annotations_for_selected_participant ? " 5" : " 4"}.
-        </h2>
-        <Button
-          type="primary"
-          onClick={() => {
-            setIsMarkParticipantModalOpen(true)
-          }}
-          className={styles["gallery-button"]}
-          icon={<ExclamationCircleOutlined />}
-        >
-          {props.selected_annotation.category === DRINKING_ANNOTATION_CATEGORY
-            ? "Participant can't be found or has no beverage!"
-            : "I can't find this participant!"}
-        </Button>
-        {multiple_annotations_for_selected_participant && (
-          <>
-            <h2>
-              <strong>Step 3: </strong> Select an action that hasn't been
-              annotated and continue to Step 4. If all have been annotated, skip
-              to Step 5.
-            </h2>
-            <Dropdown
-              menu={{ items: annotations_menu_items, selectable: true }}
-            >
-              <Button
-                onClick={(e) => {
-                  e.preventDefault()
-                }}
-                className={styles["action-task-dropwdown-button"]}
-              >
-                <span className={styles["action-task-dropdown-button-text"]}>
-                  <Space>
-                    {props.selected_annotation.completed ? (
-                      <CheckSquareTwoTone />
-                    ) : (
-                      <BorderOutlined />
-                    )}
-                    {props.selected_annotation.category}
-                  </Space>
-                </span>
-                <DownOutlined
-                  className={styles["action-task-dropwdown-button-icon"]}
-                />
-              </Button>
-            </Dropdown>
-          </>
-        )}
-        <h2>
-          <strong>
-            Step {multiple_annotations_for_selected_participant ? "4" : "3"}:{" "}
-          </strong>
-          Start the annotation process. <strong>Get ready! </strong>
-          The video will start playing from the beginning. During playback,
-          press and <strong> hold </strong> the{" "}
-          <strong>{`${REGISTER_ACTION_ANNOTATION_KEY}`}</strong> key to indicate
-          the person is <strong>{props.selected_annotation.category}</strong>.
-          Release while they are not ({TIP_EMOJI}
-          <em>
-            You can press <strong>{`${REGISTER_ACTION_ANNOTATION_KEY}`}</strong>{" "}
-            right now, before the annotation process starts, to practice!
-          </em>
-          ). When finished, go to Step{" "}
-          {multiple_annotations_for_selected_participant ? "3" : "4"}.
-        </h2>
-        <Button
-          type="primary"
-          className={styles["gallery-button"]}
-          onClick={handleStartRedoAnnotationClick}
-        >
-          {props.selected_annotation.completed
-            ? "Redo Annotation"
-            : "Start Annotation"}
-        </Button>
-        <h2>
-          <strong>
-            Step {multiple_annotations_for_selected_participant ? "5" : "4"}:{" "}
-          </strong>{" "}
-          Select a participant that hasn't been annotated (without a checkmark{" "}
-          <CheckSquareTwoTone />
-          ). Then, go to Step 1
-        </h2>
-        <Button
-          type="primary"
-          className={styles["gallery-button"]}
-          onClick={props.onOpenParticipantSelectionClick}
-        >
-          Select Participant on Gallery
-        </Button>
-        <Dropdown
-          menu={{
-            items: participants_menu_items,
-            selectable: true,
-            className: styles["action-task-dropdown-menu"],
-          }}
-          className={styles["action-task-dropdown"]}
-        >
-          <Button
-            onClick={(e) => {
-              e.preventDefault()
-            }}
-            className={styles["action-task-dropwdown-button"]}
-          >
-            <span className={styles["action-task-dropdown-button-text"]}>
-              <Space>
-                {props.selected_participant.completed ? (
-                  <CheckSquareTwoTone />
-                ) : (
-                  <BorderOutlined />
-                )}
-                {props.selected_participant.name}
-              </Space>
-            </span>
-            <DownOutlined
-              className={styles["action-task-dropwdown-button-icon"]}
-            />
-          </Button>
-        </Dropdown>
+        {props.answerForm === "A" && (<>
+        <Text fontSize={"md"}><strong>Welcome!</strong> In this task, you will watch a short video clip (30 seconds). Your goal is to identify the <strong>intentions</strong> of the participant (shown below) as they happen.</Text>
+        <Text fontSize={"md"} marginBottom={"5px"}><strong>1. Watch and pause:</strong> Please watch the clip carefully. <strong>Pause the clip as soon as you witness what you perceive to be an intention.</strong> </Text>
+        <Text fontSize={"md"}><i>Note:</i> It is natural to take a few seconds to process what you see; if you pause slightly after the moment, please use the timestamp adjustment tool to mark the exact start and end of the intention.</Text>
+        <Text fontSize={"md"}><strong>2. Multiple Intentions: </strong>If you believe the participant is acting on multiple intentions at once, or if several interpretations are possible, click the "+" to fill out a separate set of questions for each.</Text>
+        <Text fontSize={"md"}><strong>3. Fill in the questionaire under the video: </strong>We are looking for your most intuitive thoughts on what you see. There is no right or wrong answer.</Text>
+        </>)
+        }
+        {props.answerForm === "B" &&
+        <>
+        <Text fontSize={"md"}><strong>Welcome!</strong> In this task, you will watch a short video clip (30 seconds). Your goal is to identify the <strong>intentions</strong> of the participants (shown below) as they happen and explain why.<br /> An intention is a thought and subsequent planning behavior to ensure their intention is successfully realised. Try to use your thoughts about their beliefs and desires as part of your explanation. Beliefs are what the participant thinks are true about the situation. Desires are goals of the participant.</Text>
+        <Text fontSize={"md"}>To help construct your explanation, here are some tips that might help.</Text>
+        <OrderedList fontSize="md" pl="20px" spacing={2}>
+          <ListItem>
+            <strong>Cues:</strong> Physical objects or cues (e.g., a person looking at their watch, a loud noise, a sofa, a book, a specific location like a "kitchen"). 
+          </ListItem>
+          <ListItem>
+            <strong>Characteristics:</strong> How would you describe the vibe of the situation? (e.g., is it "tense," "casual," “boring”, or "pleasant"?). 
+          </ListItem>
+          <ListItem>
+            <strong>Category:</strong> What "type" of situation do they think they are in? (e.g., “changing lanes on the motorway” vs “interaction at zebra crossing” vs. “driving in a pedestrianised area”). 
+          </ListItem>
+          <ListItem>
+            <strong>Social Scripts:</strong> These are mental "how-to" guides or roadmaps for how an interaction is supposed to go, possibly based on the category. These can be defined by a situation e.g. in the fine dining industry, customers need to wait for a waiter to come and take their order at their table. That is an externalised script. For a customer who has only eaten at fast food restaurants and goes to a fine dining restaurant for the first time might expect the food orders to be made at the kitchen counter. That is an internal script. 
+          </ListItem>
+        </OrderedList>
+        <Text fontSize={"md"} marginBottom={"5px"}><strong>1. Watch and pause:</strong> Please watch the clip carefully. <strong>Pause the clip as soon as you witness what you perceive to be an intention.</strong> </Text>
+        <Text fontSize={"md"}><i>Note:</i> It is natural to take a few seconds to process what you see; if you pause slightly after the moment, please use the timestamp adjustment tool to mark the exact start and end of the intention.</Text>
+        <Text fontSize={"md"}><strong>2. Multiple Intentions: </strong>If you believe the participant is acting on multiple intentions at once, or if several interpretations are possible, click the "+" to fill out a separate set of questions for each.</Text>
+        <Text fontSize={"md"}><strong>3. Fill in the questionaire under the video: </strong>There is no right answer, just your honest interpretation.</Text>
+        </>
+        }
       </div>
     </>
   )

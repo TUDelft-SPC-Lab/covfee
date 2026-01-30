@@ -20,19 +20,20 @@ interface Props {
         value: string
     ) => void
     postFreetextAnswerToServer: () => void
+    extremes?: [string, string]
     children?: React.ReactNode
 }
 
-const Likert_scale: React.FC<Props> = ({ narrative, field, i, updateNarrativeField, postFreetextAnswerToServer, children }) => {
+const Likert_scale: React.FC<Props> = ({ narrative, field, i, updateNarrativeField, postFreetextAnswerToServer, extremes = ["Just a guess", "Very confident"], children }) => {
     return(
         <Box padding={"0px"}>
-        <Text mt="30px" ml="10px" fontSize={"lg"} fontWeight={"bold"} mb={"0px"}>
+        <Text mt="30px" ml="10px" fontSize={"lg"} mb={"0px"}>
              {children}
         </Text>
         <Box paddingTop={"5px"}>
         <Flex justify="space-between" mb={1} px={2}>
-            <Text fontSize="sm">Just a guess</Text>
-            <Text fontSize="sm">Very confident</Text>
+            <Text fontSize="sm">{extremes[0]}</Text>
+            <Text fontSize="sm">{extremes[1]}</Text>
         </Flex>
         <RadioGroup
             onChange={e =>
