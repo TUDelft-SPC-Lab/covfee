@@ -1,5 +1,8 @@
-from flask import current_app as app
+from fileinput import filename
+from flask import current_app as app, send_from_directory
 from flask import jsonify, request
+
+import os
 
 from covfee.server.orm.node import NodeInstance, NodeInstanceManualStatus
 from covfee.server.socketio.socket import socketio
@@ -10,6 +13,17 @@ from .auth import admin_required
 from .utils import jsonify_or_404
 
 # TASKS
+
+
+MEDIA_DIR = "/home/arthur/Documents/Repos/covfee/samples/continuous_annotation/data"
+
+@api.route("/media/<path:filename>")
+def media(filename):
+    file_path = os.path.join(MEDIA_DIR, filename)
+    print("Looking for file:", file_path)
+    if not os.path.exists(file_path):
+        print("File not found!")
+    return send_from_directory(MEDIA_DIR, filename)
 
 
 @api.route("/nodes/<nid>")

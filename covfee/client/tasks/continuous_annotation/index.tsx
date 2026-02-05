@@ -12,7 +12,8 @@ import { fetcher } from "../../utils"
 import { CovfeeTaskProps } from "../base"
 import CamViewSelection from "./camview_selection"
 
-import { Button as ButtonChakra, Modal as ChakraModal, ChakraProvider, Checkbox as CheckboxChakra, ModalCloseButton, ModalContent, ModalOverlay, Stack, Text } from "@chakra-ui/react"
+import { Button as ButtonChakra, Modal as ChakraModal, ChakraProvider, Checkbox as CheckboxChakra, HStack, Input, ModalCloseButton, ModalContent, ModalOverlay, Stack, Text } from "@chakra-ui/react"
+// import LocalVideo from "../../../../samples/continuous_annotation/data/camera_02_14540000_14543000.mp4"
 import ConflabGallery from "../../art/conflab-gallery.svg"
 import { Answer_form_A } from "./answer_form_A"
 import { Answer_form_B } from "./answer_form_B"
@@ -30,10 +31,10 @@ import {
   InstructionsSidebar,
   ParticipantOption,
 } from "./instructions_sidebar"
+import { medialist } from "./listofvideoaudio"
 import { slice } from "./slice"
 import type { AnnotationDataSpec, ContinuousAnnotationTaskSpec } from "./spec"
 import TaskProgress, { TaskAlreadyCompleted } from "./task_progress"
-
 
 interface Props extends CovfeeTaskProps<ContinuousAnnotationTaskSpec> {}
 
@@ -57,7 +58,7 @@ type ActionAnnotationDataArray = {
 
 type Narrative_typeA = {
   created_at: number
-  timestamp: number
+  timestamp: [number, number]
   intention_description: string
   intention_description_confidence: string| null
   intention_explanation: string
@@ -66,7 +67,7 @@ type Narrative_typeA = {
 }
 type Narrative_typeB = {
   created_at: number
-  timestamp: number
+  timestamp: [number, number]
   intention_description: string
   intention_description_confidence: string| null
   intention_explanation: string
@@ -91,12 +92,35 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //------------------ States definition -------------------- //
   //*************************************************************//
   
+  //Purely to help sampling the video clips. remove immediatly
+  const [currMediaIndex, setCurrMediaIndex] = useState<number>(0)
+  const current_video_src = medialist[currMediaIndex]?.video
+  console.log("Current video src:", current_video_src)
+  const PARTICIPANT_AUDIO_SRC = medialist[currMediaIndex]?.audios ?? []
+  //for manageing the number input
+  const [draftCurrMediaIndex, setDraftCurrMediaIndex] = useState<number|"">(currMediaIndex+1)
+  React.useEffect(() => {
+    setDraftCurrMediaIndex(currMediaIndex + 1)
+  }, [currMediaIndex])
+
+const commitCurrMediaIndex = (add: number = 0) => {
+  if (draftCurrMediaIndex === "") return
+
+   const newIndex = draftCurrMediaIndex + add
+
+  const clamped = Math.max(1, Math.min(newIndex, 32))
+  setCurrMediaIndex(clamped - 1)
+}
+
+
+
+
   const [answerForm, setAnswerForm] = useState<"A" | "B">("A")
 
   //Initialize first narrative based on answer form
   const [narratives, setNarratives] = useState<(Narrative_typeA | Narrative_typeB)[]>(answerForm == "A" ? [{
       created_at: Date.now(),
-      timestamp: Date.now(),
+      timestamp: [Date.now(), Date.now()],
       intention_description: "",
       intention_description_confidence: null,
       intention_explanation: "",
@@ -104,7 +128,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       intention_intensity: "",
     }] : [{
       created_at: Date.now(),
-      timestamp: Date.now(),
+      timestamp: [Date.now(), Date.now()],
       intention_description: "",
       intention_description_confidence: null,
       intention_explanation: "",
@@ -120,7 +144,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       if (answerForm == "A") {
         setNarratives([{
           created_at: Date.now(),
-          timestamp: Date.now(),
+          timestamp: [Date.now(), Date.now()],
           intention_description: "",
           intention_description_confidence: null,
           intention_explanation: "",
@@ -130,7 +154,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       } else {
         setNarratives([{
           created_at: Date.now(),
-          timestamp: Date.now(),
+          timestamp: [Date.now(), Date.now()],
           intention_description: "",
           intention_description_confidence: null,
           intention_explanation: "",
@@ -149,8 +173,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     })
   }
 
-  // const PARTICIPANT_AUDIO_SRC = ["https://www.w3schools.com/html/mov_bbb.mp4", "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"]
-  const PARTICIPANT_AUDIO_SRC = props.spec.audioMedia
+  // const PARTICIPANT_AUDIO_SRC = props.spec.audioMedia
   const conversationFloorParticipants = PARTICIPANT_AUDIO_SRC.map((_, index) => index)
   const [audioToggles, setAudioToggles] = useState<boolean[]>(conversationFloorParticipants.map(() => true))
   const allChecked = audioToggles.every(Boolean)
@@ -160,10 +183,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     if (!validAnnotationsDataAndSelection) {
       return
     }
-    console.log("Posting new data to server", narratives, pausedAt, getCurrentVideoTime())
+    console.log("Posting new data to server", narratives, pausedAt, Date.now())
     const freeText_answer_data_to_post = {
       ...annotationsDataMirror[selectedAnnotationIndex],
-      data_json: [narratives, pausedAt, getCurrentVideoTime()],
+      data_json: [narratives, pausedAt, Date.now()],
     }
 
     try {
@@ -461,9 +484,16 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       responsive: true,
       fluid: true,
       muted: true,
-      sources: [source],
+      // sources: [source],
+      sources: [
+        {
+          // src: "http://localhost:5000/api/media/camera_02_14540000_14543000.mp4",
+          src: current_video_src,
+          type: "video/mp4",
+        },
+      ],
     }
-  }, [props.spec, selectedCamViewIndex, selectedAnnotationIndex])
+  }, [props.spec, selectedCamViewIndex, selectedAnnotationIndex, currMediaIndex, current_video_src])
 
   // ...and add logic that ensures that video playback status is kept in sync under
   // the selectedCamViewIndex changes. First, we keep track of the playback status.
@@ -482,7 +512,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         currentTime: videoPlayerRef.current.currentTime(),
       })
     }
-  }, [selectedCamViewIndex])
+  }, [selectedCamViewIndex, currMediaIndex, current_video_src])
 
   // ...and then we ensure that the video player is updated with the playback status
   // when the new video source becomes active.
@@ -504,7 +534,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         }
       }
     }
-  }, [videoLoadStartEvent])
+  }, [videoLoadStartEvent, currMediaIndex, current_video_src])
 
   
 
@@ -1023,6 +1053,26 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           </div>
           {/* TODO: Remove this line after testing */}
           <ButtonChakra onClick={() => setAnswerForm(answerForm == 'A' ? 'B':'A')}>Test button to switch forms</ButtonChakra>
+          <HStack>
+              <ButtonChakra onClick={() => commitCurrMediaIndex(-1)}>Prev</ButtonChakra>
+              <Input
+                type="number"
+                value={draftCurrMediaIndex}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setDraftCurrMediaIndex(val === "" ? "" : Number(val))
+                }}
+                onBlur={() => commitCurrMediaIndex()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    commitCurrMediaIndex()
+                    e.currentTarget.blur()
+                  }
+                }}
+              />
+
+              <ButtonChakra onClick={() => commitCurrMediaIndex(1)}>Next</ButtonChakra>
+          </HStack>
           {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives} setNarratives={(value) => setNarratives(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} />
            : 
            <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives} setNarratives={(value) => setNarratives(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} />}

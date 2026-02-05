@@ -110,7 +110,6 @@ const Answer_form_A: React.FC<Props> = ({
   }, [narratives])
 
   /* ---------------- render ---------------- */
-
   return (
     <>
       <Tabs index={index} onChange={setIndex} variant="enclosed" height="100%">

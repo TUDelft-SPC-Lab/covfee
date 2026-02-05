@@ -60,7 +60,33 @@ export const VideoJSFC: React.FC<Props> = ({
 
       return () => clearInterval(interval)
     }
-  }, [options, audioSrc, onReady])
+    }, [])
+  // }, [options, audioSrc, onReady])
+
+  React.useEffect(() => {
+    const player = playerRef.current
+    if (!player || !options.sources?.length) return
+
+    const newSrc = options.sources[0].src
+    const currentSrc = player.currentSrc()
+
+    if (currentSrc !== newSrc) {
+      const wasPaused = player.paused()
+      const currentTime = player.currentTime()
+
+      player.src(options.sources)
+      player.load()
+
+      // Optional: resume playback state
+      if (!wasPaused) {
+        player.play().catch(() => {})
+      }
+
+      // Optional: reset time if you want
+      player.currentTime(0)
+    }
+  }, [options.sources])
+
 
   // Dispose Video.js on unmount
   React.useEffect(() => {
@@ -72,6 +98,12 @@ export const VideoJSFC: React.FC<Props> = ({
       }
     }
   }, [])
+  React.useEffect(() => {
+    audioRefs.current.forEach(a => {
+      a.pause()
+      a.currentTime = 0
+    })
+  }, [audioSrc])
 
   // Render audio elements
   const audioElements = React.useMemo(() => {
