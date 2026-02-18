@@ -91,7 +91,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //*************************************************************//
   //------------------ States definition -------------------- //
   //*************************************************************//
-  
   //Purely to help sampling the video clips. remove immediatly
   const [currMediaIndex, setCurrMediaIndex] = useState<number>(0)
   const current_video_src = medialist[currMediaIndex]?.video
@@ -108,7 +107,7 @@ const commitCurrMediaIndex = (add: number = 0) => {
 
    const newIndex = draftCurrMediaIndex + add
 
-  const clamped = Math.max(1, Math.min(newIndex, 32))
+  const clamped = Math.max(0, Math.min(newIndex, 40))
   setCurrMediaIndex(clamped - 1)
 }
 
