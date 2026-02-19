@@ -18,6 +18,7 @@ import { Narrative_typeB } from "../annotation_types/narrative_typeB"
 import { DeleteAlertDialogue } from "./custom_components/AlertDialog"
 import { Free_text } from "./custom_components/free_text"
 import { Likert_scale } from "./custom_components/likert_scale"
+import { Timestamp } from "./custom_components/Timestamp"
 
 type Props = {
   videoLengthMismatch?: boolean
@@ -27,6 +28,7 @@ type Props = {
   submitFreeTextToServer: () => void
   setNoIntentionSeen: (value: boolean) => void
   noIntentionSeen: boolean
+  getCurrentPausedTime: () => number;
 }
 
 const Answer_form_B: React.FC<Props> = ({
@@ -37,6 +39,7 @@ const Answer_form_B: React.FC<Props> = ({
   submitFreeTextToServer,
   setNoIntentionSeen,
   noIntentionSeen,
+  getCurrentPausedTime,
 }) => {
   const [index, setIndex] = React.useState(0)
 
@@ -44,7 +47,8 @@ const Answer_form_B: React.FC<Props> = ({
 
   const createBlankNarrativeB = (): Narrative_typeB => ({
     created_at: Date.now(),
-    timestamp: Date.now(),
+    timestamp_start: getCurrentPausedTime(),
+    timestamp_end: getCurrentPausedTime(),
     intention_description: "",
     intention_description_confidence: null,
     intention_belief: "",
@@ -148,6 +152,9 @@ const Answer_form_B: React.FC<Props> = ({
                     onClick={onOpen}
                     isDisabled={narratives.length === 1}
                 />
+                <Timestamp paddingTop={"5px"} narrative={narrative} field_start={"timestamp_start"} field_end={"timestamp_end"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer} getCurrentPausedTime={getCurrentPausedTime}>
+                  <strong>Timestamps:</strong> Mark the start and end times at which you perceive this intention in the video.
+                </Timestamp>
                 <Free_text paddingTop={"5px"} narrative={narrative} field={"intention_description"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
                   <strong>Describe the Intention:</strong> What intention do you see at this moment? <br />Provide a brief description of what you think the person is trying to do. 
                 </Free_text>

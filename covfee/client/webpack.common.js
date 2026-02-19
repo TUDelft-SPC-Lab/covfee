@@ -45,6 +45,10 @@ module.exports = env => {
                     use: ['@svgr/webpack']
                 },
                 {
+                    test: /\.(png|jpe?g|gif|webp)$/i,
+                    type: 'asset/resource'
+                },
+                {
                     test: /\.(scss|css)$/,
                     use: ['style-loader', 'css-loader', 'sass-loader'],
                 }
