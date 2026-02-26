@@ -56,6 +56,7 @@ const Answer_form_B: React.FC<Props> = ({
     intention_desire: "",
     intention_desire_confidence: null,
     intention_intensity: null,
+    narrative_index: narratives.length,
   })
 
   const addNarrative = () => {
