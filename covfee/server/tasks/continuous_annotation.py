@@ -9,6 +9,7 @@ from flask import Blueprint, jsonify, request
 from flask import current_app as app
 from sqlalchemy import ForeignKey, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm.attributes import flag_modified
 
 from covfee.server.orm import Base
 from covfee.server.tasks.base import BaseCovfeeTask
@@ -85,7 +86,22 @@ def update_annotation(annotid):
         if hasattr(annot, key):
             if key in ["created_at", "updated_at"]:
                 continue
-            setattr(annot, key, value)
+            if key == "data_json":
+                narrative_data, current_video_time, time_annot, narrative_index = value
+                narrative_index = str(narrative_index)
+                new_data = {
+                    "narratives": narrative_data,
+                    "paused_at": current_video_time,
+                    "time_annot": time_annot,
+                }
+                if annot.data_json is None:
+                    annot.data_json = {}
+                if narrative_index not in annot.data_json:
+                    annot.data_json[narrative_index] = []
+                annot.data_json[narrative_index].append(new_data)
+                flag_modified(annot, "data_json")
+            else:
+                setattr(annot, key, value)
 
     app.session.commit()
     return jsonify_or_404(annot)

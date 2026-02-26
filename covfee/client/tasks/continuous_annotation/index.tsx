@@ -103,6 +103,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //*************************************************************//
   
   const [answerForm, setAnswerForm] = useState<"A" | "B">("A")
+  const [currentNarrativeIndex, setCurrentNarrativeIndex] = useState(0)
 
   //Initialize first narrative based on answer form
   const [narratives, setNarratives] = useState<Narrative_List>(answerForm == "A" ? {narratives: [{
@@ -194,7 +195,12 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     console.log("Posting new data to server", narratives, getCurrentVideoTime())
     const freeText_answer_data_to_post = {
       ...annotationsDataMirror[selectedAnnotationIndex],
-      data_json: [narratives, getCurrentVideoTime(), Date.now()],
+      data_json: [
+        narratives.narratives[currentNarrativeIndex],
+        getCurrentVideoTime(),
+        Date.now(),
+        currentNarrativeIndex,
+      ],
     }
 
     try {
@@ -1055,9 +1061,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           </div>
           {/* TODO: Remove this line after testing */}
           <ButtonChakra onClick={() => setAnswerForm(answerForm == 'A' ? 'B':'A')}>Test button to switch forms</ButtonChakra>
-          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() =>videoPlayerRef.current?.currentTime() ?? 0} />
+          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() =>videoPlayerRef.current?.currentTime() ?? 0} onNarrativeIndexChange={setCurrentNarrativeIndex} />
            : 
-           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() =>videoPlayerRef.current?.currentTime() ?? 0}  />}
+           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() =>videoPlayerRef.current?.currentTime() ?? 0} onNarrativeIndexChange={setCurrentNarrativeIndex}  />}
           {/* <>
             <h3>Node data:</h3>
             <p>{JSON.stringify(node)}</p>
