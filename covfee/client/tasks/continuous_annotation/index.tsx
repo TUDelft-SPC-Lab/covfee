@@ -1113,7 +1113,7 @@ const commitCurrMediaIndex = (add: number = 0) => {
 
               <ButtonChakra onClick={() => commitCurrMediaIndex(1)}>Next</ButtonChakra>
           </HStack>
-          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives} setNarratives={(value) => setNarratives(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} />
+          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() => Number(Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2))}  onNarrativeIndexChange={setCurrentNarrativeIndex}/>
            : 
            <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() => Number(Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2))}  onNarrativeIndexChange={setCurrentNarrativeIndex}/>}
           {/* <>
