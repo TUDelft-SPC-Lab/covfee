@@ -66,6 +66,7 @@ type Narrative_typeA = {
   intention_explanation: string
   intention_explanation_confidence: string| null
   intention_intensity: string| null
+  narrative_index: number
 }
 type Narrative_typeB = {
   created_at: number
@@ -76,6 +77,7 @@ type Narrative_typeB = {
   intention_explanation: string
   intention_explanation_confidence: string| null
   intention_intensity: string| null
+  narrative_index: number
 }
 
 type Narrative_List ={
@@ -101,6 +103,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //*************************************************************//
   
   const [answerForm, setAnswerForm] = useState<"A" | "B">("A")
+  const [currentNarrativeIndex, setCurrentNarrativeIndex] = useState(0)
 
   //Initialize first narrative based on answer form
   const [narratives, setNarratives] = useState<Narrative_List>(answerForm == "A" ? {narratives: [{
@@ -112,6 +115,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       intention_explanation: "",
       intention_explanation_confidence: null,
       intention_intensity: "",
+      narrative_index: 0,
     }], pausedAt: []} : {narratives: [{
       created_at: Date.now(),
       timestamp_start: 0,
@@ -121,6 +125,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       intention_explanation: "",
       intention_explanation_confidence: null,
       intention_intensity: "",
+      narrative_index: 0,
     }], pausedAt: []})
   const setPausedAt = (item: number) => {
     setNarratives(prev => {
@@ -146,6 +151,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             intention_explanation: "",
           intention_explanation_confidence: null,
           intention_intensity: "",
+          narrative_index: 0,
         }], pausedAt: []})
       } else {
         setNarratives({
@@ -158,6 +164,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             intention_explanation: "",
             intention_explanation_confidence: null,
             intention_intensity: "",
+            narrative_index: 0,
           }],
           pausedAt: [],
         })
@@ -188,7 +195,12 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     console.log("Posting new data to server", narratives, getCurrentVideoTime())
     const freeText_answer_data_to_post = {
       ...annotationsDataMirror[selectedAnnotationIndex],
-      data_json: [narratives, getCurrentVideoTime()],
+      data_json: [
+        narratives.narratives[currentNarrativeIndex],
+        getCurrentVideoTime(),
+        Date.now(),
+        currentNarrativeIndex,
+      ],
     }
 
     try {
@@ -1054,9 +1066,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           </div>
           {/* TODO: Remove this line after testing */}
           <ButtonChakra onClick={() => setAnswerForm(answerForm == 'A' ? 'B':'A')}>Test button to switch forms</ButtonChakra>
-          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() => Number(Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2))} />
+          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() =>Number(Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2))} onNarrativeIndexChange={setCurrentNarrativeIndex}/>
            : 
-           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() => Number(Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2))}  />}
+           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() => Number(Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2))}  onNarrativeIndexChange={setCurrentNarrativeIndex}/>}
           {/* <>
             <h3>Node data:</h3>
             <p>{JSON.stringify(node)}</p>

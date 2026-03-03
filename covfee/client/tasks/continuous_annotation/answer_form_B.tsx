@@ -29,6 +29,7 @@ type Props = {
   setNoIntentionSeen: (value: boolean) => void
   noIntentionSeen: boolean
   getCurrentPausedTime: () => number;
+  onNarrativeIndexChange: (value: number) => void
 }
 
 const Answer_form_B: React.FC<Props> = ({
@@ -40,8 +41,13 @@ const Answer_form_B: React.FC<Props> = ({
   setNoIntentionSeen,
   noIntentionSeen,
   getCurrentPausedTime,
+  onNarrativeIndexChange,
 }) => {
   const [index, setIndex] = React.useState(0)
+  const setIndexAndNotify = (nextIndex: number) => {
+    setIndex(nextIndex)
+    onNarrativeIndexChange(nextIndex)
+  }
 
   /* ---------------- helpers ---------------- */
 
@@ -56,11 +62,12 @@ const Answer_form_B: React.FC<Props> = ({
     intention_desire: "",
     intention_desire_confidence: null,
     intention_intensity: null,
+    narrative_index: narratives.length,
   })
 
   const addNarrative = () => {
     setNarratives([...narratives, createBlankNarrativeB()])
-    setIndex(narratives.length) // select newly added tab
+    setIndexAndNotify(narratives.length) // select newly added tab
   }
 
   const updateNarrativeField = (
@@ -85,7 +92,7 @@ const Answer_form_B: React.FC<Props> = ({
         setNarratives(narratives.filter((_, i) => i !== index))
 
         // move index safely
-        setIndex(prev => Math.max(0, prev - 1))
+        setIndexAndNotify(Math.max(0, index - 1))
 
         onClose()
     }
@@ -117,7 +124,7 @@ const Answer_form_B: React.FC<Props> = ({
 
   return (
     <>
-      <Tabs index={index} onChange={setIndex} variant="enclosed" height="100%">
+      <Tabs index={index} onChange={setIndexAndNotify} variant="enclosed" height="100%">
         <TabList position={"sticky"} top={0} zIndex={1}>
           {narratives.map((narrative, i) => (
             <Tab key={narrative?.created_at}>Intention {i + 1}</Tab>
