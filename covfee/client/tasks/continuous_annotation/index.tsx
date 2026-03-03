@@ -10,11 +10,10 @@ import { TaskExport } from "../../types/node"
 import { AllPropsRequired } from "../../types/utils"
 import { fetcher } from "../../utils"
 import { CovfeeTaskProps } from "../base"
-import CamViewSelection from "./camview_selection"
 
-import { Button as ButtonChakra, Modal as ChakraModal, ChakraProvider, Checkbox as CheckboxChakra, HStack, Input, ModalCloseButton, ModalContent, ModalOverlay, Stack, Text } from "@chakra-ui/react"
-// import LocalVideo from "../../../../samples/continuous_annotation/data/camera_02_14540000_14543000.mp4"
-import ConflabGallery from "../../art/conflab-gallery.svg"
+import { Button as ButtonChakra, Modal as ChakraModal, ChakraProvider, Checkbox as CheckboxChakra, HStack, Image as ImageChakra, Input, ModalCloseButton, ModalContent, ModalOverlay, Stack, Text } from "@chakra-ui/react"
+import Ingroupgallery_one from "../../../../samples/continuous_annotation/art/session1_cam6_10_2.png"
+import Ingroupgallery_two from "../../../../samples/continuous_annotation/art/session2_cam1_5_2.png"
 import { Answer_form_A } from "./answer_form_A"
 import { Answer_form_B } from "./answer_form_B"
 
@@ -26,6 +25,7 @@ import {
   TIP_EMOJI,
 } from "./constants"
 import styles from "./continous_annotation.module.css"
+import { Participant_image } from "./custom_components/participant_image"
 import {
   AnnotationOption,
   InstructionsSidebar,
@@ -58,21 +58,30 @@ type ActionAnnotationDataArray = {
 
 type Narrative_typeA = {
   created_at: number
-  timestamp: [number, number]
+  timestamp_start: number
+  timestamp_end: number
   intention_description: string
   intention_description_confidence: string| null
   intention_explanation: string
   intention_explanation_confidence: string| null
   intention_intensity: string| null
+  narrative_index: number
 }
 type Narrative_typeB = {
   created_at: number
-  timestamp: [number, number]
+  timestamp_start: number
+  timestamp_end: number
   intention_description: string
   intention_description_confidence: string| null
   intention_explanation: string
   intention_explanation_confidence: string| null
   intention_intensity: string| null
+  narrative_index: number
+}
+
+type Narrative_List ={
+  narratives: (Narrative_typeA | Narrative_typeB)[]
+  pausedAt: number[]
 }
 
 const ContinuousAnnotationTask: React.FC<Props> = (props) => {
@@ -115,51 +124,71 @@ const commitCurrMediaIndex = (add: number = 0) => {
 
 
   const [answerForm, setAnswerForm] = useState<"A" | "B">("A")
+  const [currentNarrativeIndex, setCurrentNarrativeIndex] = useState(0)
 
   //Initialize first narrative based on answer form
-  const [narratives, setNarratives] = useState<(Narrative_typeA | Narrative_typeB)[]>(answerForm == "A" ? [{
+  const [narratives, setNarratives] = useState<Narrative_List>(answerForm == "A" ? {narratives: [{
       created_at: Date.now(),
-      timestamp: [Date.now(), Date.now()],
+      timestamp_start: 0,
+      timestamp_end: 0,
       intention_description: "",
       intention_description_confidence: null,
       intention_explanation: "",
       intention_explanation_confidence: null,
       intention_intensity: "",
-    }] : [{
+      narrative_index: 0,
+    }], pausedAt: []} : {narratives: [{
       created_at: Date.now(),
-      timestamp: [Date.now(), Date.now()],
+      timestamp_start: 0,
+      timestamp_end: 0,
       intention_description: "",
       intention_description_confidence: null,
       intention_explanation: "",
       intention_explanation_confidence: null,
       intention_intensity: "",
-    }])
-  const [pausedAt, setPausedAt] = useState<number[]>([])
+      narrative_index: 0,
+    }], pausedAt: []})
+  const setPausedAt = (item: number) => {
+    setNarratives(prev => {
+      return {
+        narratives: prev.narratives,
+        pausedAt: [...prev.pausedAt, item],
+      }
+    })
+  }
   const [noIntentionSeen, setNoIntentionSeen] = useState<boolean>(false)
 
   // TODO:Remove this useEffect after testing
   React.useEffect(() => {
       //Reset narratives when answer form changes
       if (answerForm == "A") {
-        setNarratives([{
-          created_at: Date.now(),
-          timestamp: [Date.now(), Date.now()],
-          intention_description: "",
-          intention_description_confidence: null,
-          intention_explanation: "",
+        setNarratives({
+          narratives: [{
+            created_at: Date.now(),
+            timestamp_start: 0,
+            timestamp_end: 0,
+            intention_description: "",
+            intention_description_confidence: null,
+            intention_explanation: "",
           intention_explanation_confidence: null,
           intention_intensity: "",
-        }])
+          narrative_index: 0,
+        }], pausedAt: []})
       } else {
-        setNarratives([{
-          created_at: Date.now(),
-          timestamp: [Date.now(), Date.now()],
-          intention_description: "",
-          intention_description_confidence: null,
-          intention_explanation: "",
-          intention_explanation_confidence: null,
-          intention_intensity: "",
-        }])
+        setNarratives({
+          narratives: [{
+            created_at: Date.now(),
+            timestamp_start: 0,
+            timestamp_end: 0,
+            intention_description: "",
+            intention_description_confidence: null,
+            intention_explanation: "",
+            intention_explanation_confidence: null,
+            intention_intensity: "",
+            narrative_index: 0,
+          }],
+          pausedAt: [],
+        })
       }
     }, [answerForm])
 
@@ -174,6 +203,7 @@ const commitCurrMediaIndex = (add: number = 0) => {
 
   // const PARTICIPANT_AUDIO_SRC = props.spec.audioMedia
   const conversationFloorParticipants = PARTICIPANT_AUDIO_SRC.map((_, index) => index)
+  //TODO instead of true turn on for paticipants of current conversation floor sent through props
   const [audioToggles, setAudioToggles] = useState<boolean[]>(conversationFloorParticipants.map(() => true))
   const allChecked = audioToggles.every(Boolean)
   const isIndeterminate = audioToggles.some(Boolean) && !allChecked
@@ -182,10 +212,15 @@ const commitCurrMediaIndex = (add: number = 0) => {
     if (!validAnnotationsDataAndSelection) {
       return
     }
-    console.log("Posting new data to server", narratives, pausedAt, Date.now())
+    console.log("Posting new data to server", narratives, getCurrentVideoTime())
     const freeText_answer_data_to_post = {
       ...annotationsDataMirror[selectedAnnotationIndex],
-      data_json: [narratives, pausedAt, Date.now()],
+      data_json: [
+        narratives.narratives[currentNarrativeIndex],
+        getCurrentVideoTime(),
+        Date.now(),
+        currentNarrativeIndex,
+      ],
     }
 
     try {
@@ -491,6 +526,11 @@ const commitCurrMediaIndex = (add: number = 0) => {
           type: "video/mp4",
         },
       ],
+
+      controlBar: {
+        volumePanel: false,
+        remainingTimeDisplay: false
+      },
     }
   }, [props.spec, selectedCamViewIndex, selectedAnnotationIndex, currMediaIndex, current_video_src])
 
@@ -944,7 +984,8 @@ const commitCurrMediaIndex = (add: number = 0) => {
             zIndex={2}
           />
 
-          <ConflabGallery />
+          <ImageChakra boxSize="80%" src={Ingroupgallery_one} />
+          <ImageChakra boxSize="80%" src={Ingroupgallery_two} />
 
       </ModalContent>
     </ChakraModal>
@@ -1009,7 +1050,7 @@ const commitCurrMediaIndex = (add: number = 0) => {
               audioSrc={PARTICIPANT_AUDIO_SRC}
               audioToggles={audioToggles}
               onReady={handleVideoPlayerReady}
-              onPausedAt={(time) => setPausedAt(prev => [...prev, time])}
+              onPausedAt={setPausedAt}
             />
             
             {showingAnnotationTips && (
@@ -1074,7 +1115,7 @@ const commitCurrMediaIndex = (add: number = 0) => {
           </HStack>
           {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives} setNarratives={(value) => setNarratives(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} />
            : 
-           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives} setNarratives={(value) => setNarratives(value)} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} />}
+           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() => Number(Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2))}  onNarrativeIndexChange={setCurrentNarrativeIndex}/>}
           {/* <>
             <h3>Node data:</h3>
             <p>{JSON.stringify(node)}</p>
@@ -1089,16 +1130,8 @@ const commitCurrMediaIndex = (add: number = 0) => {
         </div>
         <div className={`${styles["sidebar"]} ${styles["right-sidebar"]}`}>
           <div className={styles["sidebar-block"]}>
-            <h1>
-              Press {CHANGE_VIEW_PREV_KEY.toUpperCase()} or{" "}
-              {CHANGE_VIEW_NEXT_KEY.toUpperCase()} to select a camera view
-            </h1>
-            <CamViewSelection
-              setSelectedView={setSelectedCamViewIndex}
-              selectedView={selectedCamViewIndex}
-              layoutIsVertical={CAMVIEW_SELECTION_LAYOUT_IS_VERTICAL}
-              numberOfViews={CAMVIEW_SELECTION_NUMBER_OF_VIEWS}
-            />
+            <Text>Conversing Participants:</Text>
+            <Participant_image participant_id={["13", "13", "13"]}/>
           </div>
           <div className={styles["sidebar-block"]}>
             {/* <ActionAnnotationFlashscreen

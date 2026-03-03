@@ -18,6 +18,7 @@ import { Narrative_typeB } from "../annotation_types/narrative_typeB"
 import { DeleteAlertDialogue } from "./custom_components/AlertDialog"
 import { Free_text } from "./custom_components/free_text"
 import { Likert_scale } from "./custom_components/likert_scale"
+import { Timestamp } from "./custom_components/Timestamp"
 
 type Props = {
   videoLengthMismatch?: boolean
@@ -27,6 +28,8 @@ type Props = {
   submitFreeTextToServer: () => void
   setNoIntentionSeen: (value: boolean) => void
   noIntentionSeen: boolean
+  getCurrentPausedTime: () => number;
+  onNarrativeIndexChange: (value: number) => void
 }
 
 const Answer_form_B: React.FC<Props> = ({
@@ -37,14 +40,21 @@ const Answer_form_B: React.FC<Props> = ({
   submitFreeTextToServer,
   setNoIntentionSeen,
   noIntentionSeen,
+  getCurrentPausedTime,
+  onNarrativeIndexChange,
 }) => {
   const [index, setIndex] = React.useState(0)
+  const setIndexAndNotify = (nextIndex: number) => {
+    setIndex(nextIndex)
+    onNarrativeIndexChange(nextIndex)
+  }
 
   /* ---------------- helpers ---------------- */
 
   const createBlankNarrativeB = (): Narrative_typeB => ({
     created_at: Date.now(),
-    timestamp: Date.now(),
+    timestamp_start: getCurrentPausedTime(),
+    timestamp_end: getCurrentPausedTime(),
     intention_description: "",
     intention_description_confidence: null,
     intention_belief: "",
@@ -52,11 +62,12 @@ const Answer_form_B: React.FC<Props> = ({
     intention_desire: "",
     intention_desire_confidence: null,
     intention_intensity: null,
+    narrative_index: narratives.length,
   })
 
   const addNarrative = () => {
     setNarratives([...narratives, createBlankNarrativeB()])
-    setIndex(narratives.length) // select newly added tab
+    setIndexAndNotify(narratives.length) // select newly added tab
   }
 
   const updateNarrativeField = (
@@ -81,7 +92,7 @@ const Answer_form_B: React.FC<Props> = ({
         setNarratives(narratives.filter((_, i) => i !== index))
 
         // move index safely
-        setIndex(prev => Math.max(0, prev - 1))
+        setIndexAndNotify(Math.max(0, index - 1))
 
         onClose()
     }
@@ -113,7 +124,7 @@ const Answer_form_B: React.FC<Props> = ({
 
   return (
     <>
-      <Tabs index={index} onChange={setIndex} variant="enclosed" height="100%">
+      <Tabs index={index} onChange={setIndexAndNotify} variant="enclosed" height="100%">
         <TabList position={"sticky"} top={0} zIndex={1}>
           {narratives.map((narrative, i) => (
             <Tab key={narrative?.created_at}>Intention {i + 1}</Tab>
@@ -148,6 +159,9 @@ const Answer_form_B: React.FC<Props> = ({
                     onClick={onOpen}
                     isDisabled={narratives.length === 1}
                 />
+                <Timestamp paddingTop={"5px"} narrative={narrative} field_start={"timestamp_start"} field_end={"timestamp_end"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer} getCurrentPausedTime={getCurrentPausedTime}>
+                  <strong>Timestamps:</strong> Mark the start and end times at which you perceive this intention in the video.
+                </Timestamp>
                 <Free_text paddingTop={"5px"} narrative={narrative} field={"intention_description"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
                   <strong>Describe the Intention:</strong> What intention do you see at this moment? <br />Provide a brief description of what you think the person is trying to do. 
                 </Free_text>
