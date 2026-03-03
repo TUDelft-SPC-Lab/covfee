@@ -487,6 +487,11 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       fluid: true,
       muted: true,
       sources: [source],
+
+      controlBar: {
+        volumePanel: false,
+        remainingTimeDisplay: false
+      },
     }
   }, [props.spec, selectedCamViewIndex, selectedAnnotationIndex])
 
@@ -1049,9 +1054,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           </div>
           {/* TODO: Remove this line after testing */}
           <ButtonChakra onClick={() => setAnswerForm(answerForm == 'A' ? 'B':'A')}>Test button to switch forms</ButtonChakra>
-          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() =>videoPlayerRef.current?.currentTime() ?? 0} />
+          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() => Number(Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2))} />
            : 
-           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() =>videoPlayerRef.current?.currentTime() ?? 0}  />}
+           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() => Number(Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2))}  />}
           {/* <>
             <h3>Node data:</h3>
             <p>{JSON.stringify(node)}</p>
