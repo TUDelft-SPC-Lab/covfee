@@ -11,7 +11,18 @@ import { AllPropsRequired } from "../../types/utils"
 import { fetcher } from "../../utils"
 import { CovfeeTaskProps } from "../base"
 
-import { Button as ButtonChakra, Modal as ChakraModal, ChakraProvider, Checkbox as CheckboxChakra, Image as ImageChakra, ModalCloseButton, ModalContent, ModalOverlay, Stack, Text } from "@chakra-ui/react"
+import {
+  Button as ButtonChakra,
+  Modal as ChakraModal,
+  ChakraProvider,
+  Checkbox as CheckboxChakra,
+  Image as ImageChakra,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
+  Stack,
+  Text,
+} from "@chakra-ui/react"
 import Ingroupgallery_one from "../../../../samples/continuous_annotation/art/session1_cam6_10_2.png"
 import Ingroupgallery_two from "../../../../samples/continuous_annotation/art/session2_cam1_5_2.png"
 
@@ -35,7 +46,6 @@ import {
 import { slice } from "./slice"
 import type { AnnotationDataSpec, ContinuousAnnotationTaskSpec } from "./spec"
 import TaskProgress, { TaskAlreadyCompleted } from "./task_progress"
-
 
 interface Props extends CovfeeTaskProps<ContinuousAnnotationTaskSpec> {}
 
@@ -62,10 +72,10 @@ type Narrative_typeA = {
   timestamp_start: number
   timestamp_end: number
   intention_description: string
-  intention_description_confidence: string| null
+  intention_description_confidence: string | null
   intention_explanation: string
-  intention_explanation_confidence: string| null
-  intention_intensity: string| null
+  intention_explanation_confidence: string | null
+  intention_intensity: string | null
   narrative_index: number
 }
 type Narrative_typeB = {
@@ -73,14 +83,14 @@ type Narrative_typeB = {
   timestamp_start: number
   timestamp_end: number
   intention_description: string
-  intention_description_confidence: string| null
+  intention_description_confidence: string | null
   intention_explanation: string
-  intention_explanation_confidence: string| null
-  intention_intensity: string| null
+  intention_explanation_confidence: string | null
+  intention_intensity: string | null
   narrative_index: number
 }
 
-type Narrative_List ={
+type Narrative_List = {
   narratives: (Narrative_typeA | Narrative_typeB)[]
   pausedAt: number[]
 }
@@ -101,34 +111,48 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //*************************************************************//
   //------------------ States definition -------------------- //
   //*************************************************************//
-  
+
   const [answerForm, setAnswerForm] = useState<"A" | "B">("A")
   const [currentNarrativeIndex, setCurrentNarrativeIndex] = useState(0)
 
   //Initialize first narrative based on answer form
-  const [narratives, setNarratives] = useState<Narrative_List>(answerForm == "A" ? {narratives: [{
-      created_at: Date.now(),
-      timestamp_start: 0,
-      timestamp_end: 0,
-      intention_description: "",
-      intention_description_confidence: null,
-      intention_explanation: "",
-      intention_explanation_confidence: null,
-      intention_intensity: "",
-      narrative_index: 0,
-    }], pausedAt: []} : {narratives: [{
-      created_at: Date.now(),
-      timestamp_start: 0,
-      timestamp_end: 0,
-      intention_description: "",
-      intention_description_confidence: null,
-      intention_explanation: "",
-      intention_explanation_confidence: null,
-      intention_intensity: "",
-      narrative_index: 0,
-    }], pausedAt: []})
+  const [narratives, setNarratives] = useState<Narrative_List>(
+    answerForm == "A"
+      ? {
+          narratives: [
+            {
+              created_at: Date.now(),
+              timestamp_start: 0,
+              timestamp_end: 0,
+              intention_description: "",
+              intention_description_confidence: null,
+              intention_explanation: "",
+              intention_explanation_confidence: null,
+              intention_intensity: "",
+              narrative_index: 0,
+            },
+          ],
+          pausedAt: [],
+        }
+      : {
+          narratives: [
+            {
+              created_at: Date.now(),
+              timestamp_start: 0,
+              timestamp_end: 0,
+              intention_description: "",
+              intention_description_confidence: null,
+              intention_explanation: "",
+              intention_explanation_confidence: null,
+              intention_intensity: "",
+              narrative_index: 0,
+            },
+          ],
+          pausedAt: [],
+        },
+  )
   const setPausedAt = (item: number) => {
-    setNarratives(prev => {
+    setNarratives((prev) => {
       return {
         narratives: prev.narratives,
         pausedAt: [...prev.pausedAt, item],
@@ -139,23 +163,11 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   // TODO:Remove this useEffect after testing
   React.useEffect(() => {
-      //Reset narratives when answer form changes
-      if (answerForm == "A") {
-        setNarratives({
-          narratives: [{
-            created_at: Date.now(),
-            timestamp_start: 0,
-            timestamp_end: 0,
-            intention_description: "",
-            intention_description_confidence: null,
-            intention_explanation: "",
-          intention_explanation_confidence: null,
-          intention_intensity: "",
-          narrative_index: 0,
-        }], pausedAt: []})
-      } else {
-        setNarratives({
-          narratives: [{
+    //Reset narratives when answer form changes
+    if (answerForm == "A") {
+      setNarratives({
+        narratives: [
+          {
             created_at: Date.now(),
             timestamp_start: 0,
             timestamp_end: 0,
@@ -165,13 +177,30 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             intention_explanation_confidence: null,
             intention_intensity: "",
             narrative_index: 0,
-          }],
-          pausedAt: [],
-        })
-      }
-    }, [answerForm])
+          },
+        ],
+        pausedAt: [],
+      })
+    } else {
+      setNarratives({
+        narratives: [
+          {
+            created_at: Date.now(),
+            timestamp_start: 0,
+            timestamp_end: 0,
+            intention_description: "",
+            intention_description_confidence: null,
+            intention_explanation: "",
+            intention_explanation_confidence: null,
+            intention_intensity: "",
+            narrative_index: 0,
+          },
+        ],
+        pausedAt: [],
+      })
+    }
+  }, [answerForm])
 
-  
   const submitFreeTextToServer = async () => {
     postFreetextAnswerToServer()
     notification.open({
@@ -183,9 +212,13 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   // const PARTICIPANT_AUDIO_SRC = ["https://www.w3schools.com/html/mov_bbb.mp4", "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"]
   const PARTICIPANT_AUDIO_SRC = props.spec.audioMedia
-  const conversationFloorParticipants = PARTICIPANT_AUDIO_SRC.map((_, index) => index)
+  const conversationFloorParticipants = PARTICIPANT_AUDIO_SRC.map(
+    (_, index) => index,
+  )
   //TODO instead of true turn on for paticipants of current conversation floor sent through props
-  const [audioToggles, setAudioToggles] = useState<boolean[]>(conversationFloorParticipants.map(() => true))
+  const [audioToggles, setAudioToggles] = useState<boolean[]>(
+    conversationFloorParticipants.map(() => true),
+  )
   const allChecked = audioToggles.every(Boolean)
   const isIndeterminate = audioToggles.some(Boolean) && !allChecked
 
@@ -228,7 +261,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   }
 
   //Original state definitions below, new INGroup state definitions above.
-  
+
   const [submitted, setSubmitted] = useState(args.response.submitted)
 
   React.useEffect(() => {
@@ -264,14 +297,14 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     setShowTaskVariantPopupBulletPoints,
   ] = useState(
     props.spec.taskVariantPopupBulletPoints &&
-      props.spec.taskVariantPopupBulletPoints.length > 0
+      props.spec.taskVariantPopupBulletPoints.length > 0,
   )
 
   const [videoLengthMismatch, setVideoLengthMismatch] = useState(false)
   const [showVideoLengthMismatch, setShowVideoLengthMismatch] = useState(false)
 
   const dataJsonContainsAValidAnnotation = (
-    data_json: null | number[]
+    data_json: null | number[],
   ): boolean => {
     return data_json !== null && data_json.length > 0
   }
@@ -289,19 +322,19 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   if (annotationsDataMirror !== undefined) {
     isEntireTaskCompleted = annotationsDataMirror.every(
       (annotationData: AnnotationData) =>
-        dataJsonContainsAValidAnnotation(annotationData.data_json)
+        dataJsonContainsAValidAnnotation(annotationData.data_json),
     )
     numberOfAnnotations = annotationsDataMirror.length
     numberOfAnnotationsCompleted = annotationsDataMirror.filter(
       (annotationData: AnnotationData) =>
-        dataJsonContainsAValidAnnotation(annotationData.data_json)
+        dataJsonContainsAValidAnnotation(annotationData.data_json),
     ).length
     taskCompletionPercentage =
       (100 * numberOfAnnotationsCompleted) / numberOfAnnotations
   }
 
   const selectFirstAvailableAnnotationIndexBasedOnParticipantName = (
-    participant: string
+    participant: string,
   ) => {
     if (annotationsDataMirror === undefined) {
       return
@@ -486,12 +519,12 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       participant = annotationsDataMirror[selectedAnnotationIndex].participant
       participant_substr_to_set_to_src_url = participant.replace(
         "Participant_",
-        ""
+        "",
       )
     }
     source.src = source.src.replace(
       "{participant}",
-      participant_substr_to_set_to_src_url
+      participant_substr_to_set_to_src_url,
     )
     return {
       autoplay: false,
@@ -503,7 +536,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
       controlBar: {
         volumePanel: false,
-        remainingTimeDisplay: false
+        remainingTimeDisplay: false,
       },
     }
   }, [props.spec, selectedCamViewIndex, selectedAnnotationIndex])
@@ -532,7 +565,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   useEffect(() => {
     if (videoPlayerRef.current) {
       videoPlayerRef.current.currentTime(
-        playbackStatusOnCamViewChangeEvent.currentTime
+        playbackStatusOnCamViewChangeEvent.currentTime,
       )
       if (
         playbackStatusOnCamViewChangeEvent.paused !=
@@ -549,13 +582,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     }
   }, [videoLoadStartEvent])
 
-  
-
   const checkVideoLengthWithServer = async () => {
-
     let video_src = videoPlayerRef.current?.src()
     let video_name_with_extension = video_src.split("/").pop()
-    console.log("Checking video lenght", video_name_with_extension )
+    console.log("Checking video lenght", video_name_with_extension)
 
     const url =
       Constants.base_url +
@@ -564,7 +594,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     const res = await fetcher(url)
     const server_video_length = (await res.json())["duration"]
     console.log("Video length from server:", server_video_length)
-    const local_vid_duration = videoPlayerRef.current.duration() 
+    const local_vid_duration = videoPlayerRef.current.duration()
 
     if (Math.abs(server_video_length - local_vid_duration) > 0.001) {
       setVideoLengthMismatch(true)
@@ -574,9 +604,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       setVideoLengthMismatch(false)
       setShowVideoLengthMismatch(false)
     }
-
-
-
   }
 
   const forceVideoAudioRequirement = () => {
@@ -595,7 +622,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     } else {
       if (videoPlayerRef.current.volume() !== 0) {
         videoPlayerRef.current.volume(0)
-        videoPlayerRef.current.muted(true) 
+        videoPlayerRef.current.muted(true)
       }
     }
   }
@@ -603,7 +630,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   const numberOfVideoFrames = () => {
     if (videoPlayerRef.current) {
       return Math.round(
-        videoPlayerRef.current.duration() * getCurrentVideoFramerate()
+        videoPlayerRef.current.duration() * getCurrentVideoFramerate(),
       )
     } else {
       return 0
@@ -650,10 +677,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       return false
     }
     const participant_annotations = annotationsDataMirror.filter(
-      (annotation) => annotation.participant === participant
+      (annotation) => annotation.participant === participant,
     )
     return participant_annotations.every((annotation) =>
-      dataJsonContainsAValidAnnotation(annotation.data_json)
+      dataJsonContainsAValidAnnotation(annotation.data_json),
     )
   }
 
@@ -662,7 +689,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       return false
     }
     return dataJsonContainsAValidAnnotation(
-      annotationsDataMirror[index].data_json
+      annotationsDataMirror[index].data_json,
     )
   }
 
@@ -692,12 +719,12 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       // Based on the registered annotation start time and framerate, we get
       // the corresponding frame time.
       const startFrameIndex = Math.round(
-        actionAnnotationStartTime * currentVideoFramerate
+        actionAnnotationStartTime * currentVideoFramerate,
       )
       // Similarly, we retrieve the current frame number
       const endFrameIndex = Math.min(
         Math.round(currentVideoTime * currentVideoFramerate),
-        activeAnnotationDataArray.buffer.length
+        activeAnnotationDataArray.buffer.length,
       )
       // We then update the data array for the elements in between start and end time
       if (
@@ -726,13 +753,13 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       }
       let new_buffer: number[] = Array.from(
         { length: numberOfVideoFrames() },
-        () => 0
+        () => 0,
       )
 
       if (new_buffer.length === 0) {
         // This is the result of failure to load the video.
         message.error(
-          "There was an error loading the video. Please refresh the page and try again."
+          "There was an error loading the video. Please refresh the page and try again.",
         )
         return
       }
@@ -791,7 +818,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         handleAnnotationStartOrStopButtonClick()
       }
     },
-    [actionAnnotationStartTime, getCurrentVideoTime, isAnnotating]
+    [actionAnnotationStartTime, getCurrentVideoTime, isAnnotating],
   )
 
   const handleKeyUp = useCallback(
@@ -814,7 +841,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         })
       }
     },
-    [isAnnotating, annotateEndEventOfActionAnnotation]
+    [isAnnotating, annotateEndEventOfActionAnnotation],
   )
 
   // Register the listeners for keyboard events
@@ -840,7 +867,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           index ===
           self
             .map((self_annotation) => self_annotation.participant)
-            .indexOf(annotation.participant)
+            .indexOf(annotation.participant),
       )
       // Those unique occurrences are then mapped into menu items
       .map(({ participant }) => ({
@@ -858,7 +885,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       .filter(
         ({ annotation, annotation_index }) =>
           annotation.participant ===
-          annotationsDataMirror[selectedAnnotationIndex].participant
+          annotationsDataMirror[selectedAnnotationIndex].participant,
       )
       // Now we transform those into entries for the menu, using the original index as unique identifier (key)
       .map(({ annotation, annotation_index }) => ({
@@ -892,8 +919,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   return (
     <ChakraProvider>
-    <form>
-      {/* {showTaskVariantPopupBulletPoints && (
+      <form>
+        {/* {showTaskVariantPopupBulletPoints && (
         <Modal
           title={"Task overview"}
           open={showTaskVariantPopupBulletPoints}
@@ -920,157 +947,201 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           )}
         </Modal>
       )} */}
-      {showVideoLengthMismatch && (
-        <Modal
-          title={"Video length error"}
-          open={showVideoLengthMismatch}
-          footer={[
-            <Button
-              key="submit"
-              type="primary"
-              onClick={() => {
-                setShowVideoLengthMismatch(false)
+        {showVideoLengthMismatch && (
+          <Modal
+            title={"Video length error"}
+            open={showVideoLengthMismatch}
+            footer={[
+              <Button
+                key="submit"
+                type="primary"
+                onClick={() => {
+                  setShowVideoLengthMismatch(false)
+                }}
+              >
+                Ok
+              </Button>,
+            ]}
+          >
+            <p>
+              Annotation is not possible. Please update your browser or try with
+              a different one.
+            </p>
+          </Modal>
+        )}
+        <ChakraModal
+          isOpen={showingGallery}
+          onClose={() => setShowingGallery(false)}
+          size="full"
+        >
+          <ModalOverlay bg="blackAlpha.800" />
+
+          <ModalContent
+            bg="transparent"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <ModalCloseButton color="white" size="lg" zIndex={2} />
+
+            <ImageChakra boxSize="80%" src={Ingroupgallery_one} />
+            <ImageChakra boxSize="80%" src={Ingroupgallery_two} />
+          </ModalContent>
+        </ChakraModal>
+        <div className={styles["action-annotation-task"]}>
+          <div
+            className={`${styles["sidebar"]} ${styles["left-sidebar"]} ${
+              isAnnotating ? styles["left-sidebar-hidden"] : ""
+            }`}
+          >
+            <TaskProgress
+              finished={isEntireTaskCompleted}
+              percent={taskCompletionPercentage}
+              completionCode={props.spec.prolificCompletionCode}
+              redirectUrl={redirectUrl}
+              onSubmit={() => {
+                props.onSubmit({})
+                setSubmitted(true)
               }}
-            >
-              Ok
-            </Button>,
-          ]}
-        >
-          <p>Annotation is not possible. Please update your browser or try with a different one.</p>
-        </Modal>
-      )}
-      <ChakraModal
-        isOpen={showingGallery}
-        onClose={() => setShowingGallery(false)}
-        size="full"
-      >
-        <ModalOverlay bg="blackAlpha.800" />
-
-        <ModalContent
-          bg="transparent"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <ModalCloseButton
-            color="white"
-            size="lg"
-            zIndex={2}
-          />
-
-          <ImageChakra boxSize="80%" src={Ingroupgallery_one} />
-          <ImageChakra boxSize="80%" src={Ingroupgallery_two} />
-
-      </ModalContent>
-    </ChakraModal>
-      <div className={styles["action-annotation-task"]}>
-        <div
-          className={`${styles["sidebar"]} ${styles["left-sidebar"]} ${
-            isAnnotating ? styles["left-sidebar-hidden"] : ""
-          }`}
-        >
-          <TaskProgress
-            finished={isEntireTaskCompleted}
-            percent={taskCompletionPercentage}
-            completionCode={props.spec.prolificCompletionCode}
-            redirectUrl={redirectUrl}
-            onSubmit={() => {
-              props.onSubmit({})
-              setSubmitted(true)
-            }}
-            submitButtonDisabled={submitted}
-          />
-
-          <InstructionsSidebar
-            // Current content to display
-            selected_participant={{
-              name: annotationsDataMirror[selectedAnnotationIndex].participant,
-              completed: participantCompleted(
-                annotationsDataMirror[selectedAnnotationIndex].participant
-              ),
-            }}
-            selected_annotation={{
-              category: annotationsDataMirror[selectedAnnotationIndex].category,
-              completed: annotationCompleted(selectedAnnotationIndex),
-            }}
-            participant_options={participant_options}
-            annotation_options={annotation_options}
-            video_tutorial_url={props.spec.videoTutorialUrl}
-            // Callbacks
-            onCantFindParticipant={handleParticipantNotAppearingInVideos}
-            onParticipantSelected={(participant: string) => {
-              selectFirstAvailableAnnotationIndexBasedOnParticipantName(
-                participant
-              )
-            }}
-            onAnnotationSelected={(index: number) => {
-              setSelectedAnnotationIndex(index)
-            }}
-            onStartStopAnnotationClick={handleAnnotationStartOrStopButtonClick}
-            onOpenParticipantSelectionClick={() => {
-              setShowingGallery(true)
-            }}
-            onWatchTutorialVideoClick={() => {
-              setShowTaskVariantPopupBulletPoints(true)
-            }}
-            answerForm={answerForm}
-          />
-        </div>
-        <div style={{ backgroundColor: "blue" }} /> {/* <--- Filler div */}
-        <div className={styles["main-content"]}>
-          <div className={styles["main-content-video-and-guide"]}>
-            <VideoJSFC
-              options={videoPlayerOptions}
-              audioSrc={PARTICIPANT_AUDIO_SRC}
-              audioToggles={audioToggles}
-              onReady={handleVideoPlayerReady}
-              onPausedAt={setPausedAt}
+              submitButtonDisabled={submitted}
             />
-            
-            {showingAnnotationTips && (
-              <div className={styles["instructions-box-overlay"]}>
-                {/* These are the tips we want to make sure the annotator sees while the annotation process is ongoing */}
-                <Button
-                  type="text"
-                  icon={<CloseOutlined style={{ color: "white" }} />}
-                  style={{ position: "absolute", top: 0, right: 0 }}
-                  onClick={() => {
-                    setShowingAnnotationTips(false)
-                  }}
-                />
-                <h2 className={styles["instruction-text-during-annotation"]}>
-                  {TIP_EMOJI} Press ESC to abort the ongoing annotation. Don't
-                  worry you can start over.
-                </h2>
-                <h2 className={styles["instruction-text-during-annotation"]}>
-                  {TIP_EMOJI} Press {CHANGE_VIEW_PREV_KEY.toUpperCase()} or{" "}
-                  {CHANGE_VIEW_NEXT_KEY.toUpperCase()} to change camera if the
-                  participant of interest moves out of view.
-                </h2>
 
-                <Checkbox
-                  style={{
-                    color: "white",
-                    fontSize: "1rem",
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                  }}
-                  onChange={(e) =>
-                    setShowAnnotationTipsOnStart(!e.target.checked)
-                  }
-                >
-                  Don't show this again
-                </Checkbox>
-              </div>
-            )}
+            <InstructionsSidebar
+              // Current content to display
+              selected_participant={{
+                name: annotationsDataMirror[selectedAnnotationIndex]
+                  .participant,
+                completed: participantCompleted(
+                  annotationsDataMirror[selectedAnnotationIndex].participant,
+                ),
+              }}
+              selected_annotation={{
+                category:
+                  annotationsDataMirror[selectedAnnotationIndex].category,
+                completed: annotationCompleted(selectedAnnotationIndex),
+              }}
+              participant_options={participant_options}
+              annotation_options={annotation_options}
+              video_tutorial_url={props.spec.videoTutorialUrl}
+              // Callbacks
+              onCantFindParticipant={handleParticipantNotAppearingInVideos}
+              onParticipantSelected={(participant: string) => {
+                selectFirstAvailableAnnotationIndexBasedOnParticipantName(
+                  participant,
+                )
+              }}
+              onAnnotationSelected={(index: number) => {
+                setSelectedAnnotationIndex(index)
+              }}
+              onStartStopAnnotationClick={
+                handleAnnotationStartOrStopButtonClick
+              }
+              onOpenParticipantSelectionClick={() => {
+                setShowingGallery(true)
+              }}
+              onWatchTutorialVideoClick={() => {
+                setShowTaskVariantPopupBulletPoints(true)
+              }}
+              answerForm={answerForm}
+            />
           </div>
-          {/* TODO: Remove this line after testing */}
-          <ButtonChakra onClick={() => setAnswerForm(answerForm == 'A' ? 'B':'A')}>Test button to switch forms</ButtonChakra>
-          {answerForm == "A" ? <Answer_form_A videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() =>Number(Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2))} onNarrativeIndexChange={setCurrentNarrativeIndex}/>
-           : 
-           <Answer_form_B videoLengthMismatch={videoLengthMismatch} narratives={narratives.narratives} setNarratives={(value) => setNarratives({...narratives, narratives: value})} postFreetextAnswerToServer={postFreetextAnswerToServer} submitFreeTextToServer={submitFreeTextToServer} setNoIntentionSeen={(value) => setNoIntentionSeen(value)} noIntentionSeen={noIntentionSeen} getCurrentPausedTime={() => Number(Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2))}  onNarrativeIndexChange={setCurrentNarrativeIndex}/>}
-          {/* <>
+          <div style={{ backgroundColor: "blue" }} /> {/* <--- Filler div */}
+          <div className={styles["main-content"]}>
+            <div className={styles["main-content-video-and-guide"]}>
+              <VideoJSFC
+                options={videoPlayerOptions}
+                audioSrc={PARTICIPANT_AUDIO_SRC}
+                audioToggles={audioToggles}
+                onReady={handleVideoPlayerReady}
+                onPausedAt={setPausedAt}
+              />
+
+              {showingAnnotationTips && (
+                <div className={styles["instructions-box-overlay"]}>
+                  {/* These are the tips we want to make sure the annotator sees while the annotation process is ongoing */}
+                  <Button
+                    type="text"
+                    icon={<CloseOutlined style={{ color: "white" }} />}
+                    style={{ position: "absolute", top: 0, right: 0 }}
+                    onClick={() => {
+                      setShowingAnnotationTips(false)
+                    }}
+                  />
+                  <h2 className={styles["instruction-text-during-annotation"]}>
+                    {TIP_EMOJI} Press ESC to abort the ongoing annotation. Don't
+                    worry you can start over.
+                  </h2>
+                  <h2 className={styles["instruction-text-during-annotation"]}>
+                    {TIP_EMOJI} Press {CHANGE_VIEW_PREV_KEY.toUpperCase()} or{" "}
+                    {CHANGE_VIEW_NEXT_KEY.toUpperCase()} to change camera if the
+                    participant of interest moves out of view.
+                  </h2>
+
+                  <Checkbox
+                    style={{
+                      color: "white",
+                      fontSize: "1rem",
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                    }}
+                    onChange={(e) =>
+                      setShowAnnotationTipsOnStart(!e.target.checked)
+                    }
+                  >
+                    Don't show this again
+                  </Checkbox>
+                </div>
+              )}
+            </div>
+            {/* TODO: Remove this line after testing */}
+            <ButtonChakra
+              onClick={() => setAnswerForm(answerForm == "A" ? "B" : "A")}
+            >
+              Test button to switch forms
+            </ButtonChakra>
+            {answerForm == "A" ? (
+              <Answer_form_A
+                videoLengthMismatch={videoLengthMismatch}
+                narratives={narratives.narratives}
+                setNarratives={(value) =>
+                  setNarratives({ ...narratives, narratives: value })
+                }
+                postFreetextAnswerToServer={postFreetextAnswerToServer}
+                submitFreeTextToServer={submitFreeTextToServer}
+                setNoIntentionSeen={(value) => setNoIntentionSeen(value)}
+                noIntentionSeen={noIntentionSeen}
+                getCurrentPausedTime={() =>
+                  Number(
+                    Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(
+                      2,
+                    ),
+                  )
+                }
+                onNarrativeIndexChange={setCurrentNarrativeIndex}
+              />
+            ) : (
+              <Answer_form_B
+                videoLengthMismatch={videoLengthMismatch}
+                narratives={narratives.narratives}
+                setNarratives={(value) =>
+                  setNarratives({ ...narratives, narratives: value })
+                }
+                postFreetextAnswerToServer={postFreetextAnswerToServer}
+                submitFreeTextToServer={submitFreeTextToServer}
+                setNoIntentionSeen={(value) => setNoIntentionSeen(value)}
+                noIntentionSeen={noIntentionSeen}
+                getCurrentPausedTime={() =>
+                  Number(
+                    Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(
+                      2,
+                    ),
+                  )
+                }
+                onNarrativeIndexChange={setCurrentNarrativeIndex}
+              />
+            )}
+            {/* <>
             <h3>Node data:</h3>
             <p>{JSON.stringify(node)}</p>
 
@@ -1081,14 +1152,14 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             <h3>Annotations in the database:</h3>
             <p>{JSON.stringify(annotationsDataMirror)}</p>
           </> */}
-        </div>
-        <div className={`${styles["sidebar"]} ${styles["right-sidebar"]}`}>
-          <div className={styles["sidebar-block"]}>
-            <Text>Conversing Participants:</Text>
-            <Participant_image participant_id={["13", "13", "13"]}/>
           </div>
-          <div className={styles["sidebar-block"]}>
-            {/* <ActionAnnotationFlashscreen
+          <div className={`${styles["sidebar"]} ${styles["right-sidebar"]}`}>
+            <div className={styles["sidebar-block"]}>
+              <Text>Conversing Participants:</Text>
+              <Participant_image participant_id={["13", "13", "13"]} />
+            </div>
+            <div className={styles["sidebar-block"]}>
+              {/* <ActionAnnotationFlashscreen
               active={
                 actionAnnotationStartTime !==
                 UNINITIALIZED_ACTION_ANNOTATION_START_TIME
@@ -1097,40 +1168,47 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                 annotationsDataMirror[selectedAnnotationIndex].category
               }
             /> */}
-            <Text>Toggle individual audio:</Text>
-            <CheckboxChakra
-              isChecked={allChecked}
-              isIndeterminate={isIndeterminate}
-              onChange={(e) => setAudioToggles(audioToggles.map(() => e.target.checked))}
-            >
-              All Participants
-            </CheckboxChakra>
-            <Stack pl={6} mt={1} spacing={1}>
-              {conversationFloorParticipants.map((participantIndex) => (
+              <Text>Toggle individual audio:</Text>
               <CheckboxChakra
-                key={participantIndex}
-                isChecked={audioToggles[participantIndex]}
+                isChecked={allChecked}
+                isIndeterminate={isIndeterminate}
                 onChange={(e) =>
-                  setAudioToggles(prev =>
-                    prev.map((value, index) =>
-                      index === participantIndex ? e.target.checked : value
-                    )
-                  )
+                  setAudioToggles(audioToggles.map(() => e.target.checked))
                 }
               >
-                Participant {participantIndex + 1}
+                All Participants
               </CheckboxChakra>
-                ))}     
-            </Stack>
-            
-          </div>
-          <div className={styles["sidebar-block"]}>
-            <Text>Show all participants and their id's:</Text>
-            <ButtonChakra colorScheme={"blue"} size={"lg"} onClick={() => setShowingGallery(true)}>Gallery</ButtonChakra>
+              <Stack pl={6} mt={1} spacing={1}>
+                {conversationFloorParticipants.map((participantIndex) => (
+                  <CheckboxChakra
+                    key={participantIndex}
+                    isChecked={audioToggles[participantIndex]}
+                    onChange={(e) =>
+                      setAudioToggles((prev) =>
+                        prev.map((value, index) =>
+                          index === participantIndex ? e.target.checked : value,
+                        ),
+                      )
+                    }
+                  >
+                    Participant {participantIndex + 1}
+                  </CheckboxChakra>
+                ))}
+              </Stack>
+            </div>
+            <div className={styles["sidebar-block"]}>
+              <Text>Show all participants and their id's:</Text>
+              <ButtonChakra
+                colorScheme={"blue"}
+                size={"lg"}
+                onClick={() => setShowingGallery(true)}
+              >
+                Gallery
+              </ButtonChakra>
+            </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
     </ChakraProvider>
   )
 }
