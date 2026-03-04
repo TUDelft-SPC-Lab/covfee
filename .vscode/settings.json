@@ -24,5 +24,12 @@
   "notebook.codeActionsOnSave": {
     "notebook.source.fixAll": true,
     "notebook.source.organizeImports": true
-  }
+  },
+  "python-envs.pythonProjects": [
+    {
+      "path": ".",
+      "envManager": "ms-python.python:conda",
+      "packageManager": "ms-python.python:conda"
+    }
+  ]
 }
