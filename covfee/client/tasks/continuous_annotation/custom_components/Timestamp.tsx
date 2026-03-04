@@ -3,7 +3,9 @@ import {
     Button,
     HStack,
     Input,
-    Text
+    InputGroup,
+    InputRightElement,
+    Text,
 } from "@chakra-ui/react"
 import React from "react"
 
@@ -41,36 +43,76 @@ const Timestamp: React.FC<Props> = ({ narrative, field_start, field_end, i, upda
                 updateNarrativeField(i, field_start, getCurrentPausedTime().toString())
                 postFreetextAnswerToServer()
             }}>Start</Button>
-            <Input value={
-            field_start in narrative
-                ? narrative[field_start]
-                : ""
-            }
-            onChange={e =>
-            updateNarrativeField(
-                i,
-                field_start,
-                e.target.value
-            )
-            }
-            onBlur={postFreetextAnswerToServer}/>
+            <InputGroup width={"auto"}>
+                <Input
+                    w="100px"
+                    type="number"
+                    step="0.01"
+                    value={
+                        field_start in narrative && narrative[field_start] !== ""
+                        ? Number(narrative[field_start]).toFixed(2)
+                        : ""
+                    }
+                    onChange={e =>
+                        updateNarrativeField(
+                        i,
+                        field_start,
+                        e.target.value
+                        )
+                    }
+                    onBlur={e => {
+                        const value = parseFloat(e.target.value);
+                        if (!isNaN(value)) {
+                        updateNarrativeField(
+                            i,
+                            field_start,
+                            value.toFixed(2)
+                        );
+                        }
+                        postFreetextAnswerToServer();
+                    }}
+                    />
+                <InputRightElement pointerEvents="none">
+                    s
+                </InputRightElement>
+            </InputGroup>
             <Button colorScheme="blue" onClick={() => {
                 updateNarrativeField(i, field_end, getCurrentPausedTime().toString())
                 postFreetextAnswerToServer()
             }}>End</Button>
-            <Input value={
-            field_end in narrative
-                ? narrative[field_end]
-                : ""
-            }
-            onChange={e =>
-            updateNarrativeField(
-                i,
-                field_end,
-                e.target.value
-            )
-            }
-            onBlur={postFreetextAnswerToServer}/>
+            <InputGroup width={"auto"}>
+                <Input
+                    w="100px"
+                    type="number"
+                    step="0.01"
+                    value={
+                        field_end in narrative && narrative[field_end] !== ""
+                        ? Number(narrative[field_end]).toFixed(2)
+                        : ""
+                    }
+                    onChange={e =>
+                        updateNarrativeField(
+                        i,
+                        field_end,
+                        e.target.value
+                        )
+                    }
+                    onBlur={e => {
+                        const value = parseFloat(e.target.value);
+                        if (!isNaN(value)) {
+                        updateNarrativeField(
+                            i,
+                            field_end,
+                            value.toFixed(2)
+                        );
+                        }
+                        postFreetextAnswerToServer();
+                    }}
+                    />
+                <InputRightElement pointerEvents="none">
+                    s
+                </InputRightElement>
+            </InputGroup>
         </HStack>
         </Box>
     )

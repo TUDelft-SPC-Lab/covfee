@@ -892,7 +892,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   return (
     <ChakraProvider>
     <form>
-      {showTaskVariantPopupBulletPoints && (
+      {/* {showTaskVariantPopupBulletPoints && (
         <Modal
           title={"Task overview"}
           open={showTaskVariantPopupBulletPoints}
@@ -918,7 +918,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             </ul>
           )}
         </Modal>
-      )}
+      )} */}
       {showVideoLengthMismatch && (
         <Modal
           title={"Video length error"}
