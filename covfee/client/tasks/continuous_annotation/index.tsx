@@ -304,9 +304,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   const [showVideoLengthMismatch, setShowVideoLengthMismatch] = useState(false)
 
   const dataJsonContainsAValidAnnotation = (
-    data_json: null | number[],
+    data_json: null | object,
   ): boolean => {
-    return data_json !== null && data_json.length > 0
+    return data_json !== null && Object.keys(data_json).length > 0
   }
 
   const validAnnotationsDataAndSelection: boolean =
