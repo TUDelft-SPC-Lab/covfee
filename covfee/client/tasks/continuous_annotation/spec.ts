@@ -5,6 +5,7 @@ import { BaseTaskSpec } from "@covfee-shared/spec/task"
 export interface AnnotationDataSpec {
   category: string
   participant: string
+  conversation_floor: number[]
   interface: "RankTrace" | "GTrace" | "Binary"
 }
 export interface MediaSpec {
