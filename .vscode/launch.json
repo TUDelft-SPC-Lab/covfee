@@ -17,7 +17,7 @@
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/covfee/cli/commands/launch.py",
-      "cwd": "${workspaceFolder}/samples/ingroup_annotation",
+      "cwd": "${workspaceFolder}/samples/continuous_annotation",
       "gevent": true,
       "console": "integratedTerminal",
       "justMyCode": false,
@@ -26,7 +26,7 @@
         "make",
         "--dev",
         // "--force", // Uncomment to create a new database each time
-        "continuous_annotation.py"        
+        "continuous_annotation.py"
       ],
       "env": {
         "PYTHONPATH": "${workspaceFolder}/libs/"
@@ -37,14 +37,11 @@
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/covfee/cli/commands/launch.py",
-      "cwd": "${workspaceFolder}/samples/ingroup_annotation",
+      "cwd": "${workspaceFolder}/samples/continuous_annotation",
       "gevent": true,
       "console": "integratedTerminal",
       "justMyCode": false,
-      "args": [
-        "--debug-covfee-command",
-        "start"
-      ],
+      "args": ["--debug-covfee-command", "start"],
       "env": {
         "PYTHONPATH": "${workspaceFolder}/libs/"
       }
@@ -86,6 +83,5 @@
       "args": ["--debug-covfee-command", "start", "--deploy"],
       "env": { "PYTHONPATH": "${workspaceFolder}/libs/" }
     }
-
   ]
 }
