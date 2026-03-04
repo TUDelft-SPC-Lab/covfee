@@ -171,6 +171,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       }
     }, [answerForm])
 
+  
   const submitFreeTextToServer = async () => {
     postFreetextAnswerToServer()
     notification.open({

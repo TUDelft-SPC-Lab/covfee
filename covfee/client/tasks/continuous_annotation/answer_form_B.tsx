@@ -1,5 +1,12 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons"
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Button,
   Button as ButtonChakra,
   Checkbox,
   IconButton,
@@ -9,7 +16,7 @@ import {
   TabPanels,
   Tabs,
   useDisclosure,
-  VStack
+  VStack,
 } from "@chakra-ui/react"
 import React from "react"
 
@@ -49,6 +56,13 @@ const Answer_form_B: React.FC<Props> = ({
     onNarrativeIndexChange(nextIndex)
   }
 
+  const [isOpenSubmit, setIsOpenSubmit] = React.useState(false)
+  const onCloseSubmit = () => setIsOpenSubmit(false)
+  const cancelRefSubmit = React.useRef<HTMLButtonElement>(null)
+  const submitOpenPopUp= () => {
+    setIsOpenSubmit(true)
+  }
+
   /* ---------------- helpers ---------------- */
 
   const createBlankNarrativeB = (): Narrative_typeB => ({
@@ -84,7 +98,7 @@ const Answer_form_B: React.FC<Props> = ({
     )
   }
     //Delete narrative confirmation dialog
-    const { isOpen, onOpen, onClose } = useDisclosure()
+    const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure()
     const deleteTab = () => {
         if (!narratives) return
 
@@ -94,7 +108,7 @@ const Answer_form_B: React.FC<Props> = ({
         // move index safely
         setIndexAndNotify(Math.max(0, index - 1))
 
-        onClose()
+        onCloseDelete()
     }
   /* ---------------- validation ---------------- */
 
@@ -156,7 +170,7 @@ const Answer_form_B: React.FC<Props> = ({
                     position="absolute"
                     top="8px"
                     right="8px"
-                    onClick={onOpen}
+                    onClick={onOpenDelete}
                     isDisabled={narratives.length === 1}
                 />
                 <Timestamp paddingTop={"5px"} narrative={narrative} field_start={"timestamp_start"} field_end={"timestamp_end"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer} getCurrentPausedTime={getCurrentPausedTime}>
@@ -186,14 +200,47 @@ const Answer_form_B: React.FC<Props> = ({
         <ButtonChakra
           mt="10px"
           colorScheme="blue"
-          onClick={submitFreeTextToServer}
+          onClick={() => setIsOpenSubmit(true)}
           isDisabled={videoLengthMismatch || (!submittable && !noIntentionSeen)}
         >
           Submit Annotation
         </ButtonChakra>
         <Checkbox paddingBottom={"15px"} onChange={(e) => setNoIntentionSeen(e.target.checked)} isChecked={noIntentionSeen}><strong>No Intention:</strong> If you watch the entire clip and see no clear intention, you may check the box. </Checkbox>
       </VStack>
-      <DeleteAlertDialogue isOpen={isOpen} onClose={onClose} deleteTab={deleteTab} />
+      <DeleteAlertDialogue isOpen={isOpenDelete} onClose={onCloseDelete} deleteTab={deleteTab} />
+      <AlertDialog
+        isOpen={isOpenSubmit}
+        leastDestructiveRef={cancelRefSubmit}
+        onClose={onCloseSubmit}
+      >
+      <AlertDialogOverlay>
+        <AlertDialogContent>
+          <AlertDialogHeader fontSize="lg" fontWeight="bold">
+            Continue?
+          </AlertDialogHeader>
+
+          <AlertDialogBody>
+            Are you sure you want to continue to the next annotation? <br/> This action will bring you to the next video and you will not be able to return to this one. If you can still think of some intentions or have not finished going through the video, please click "Cancel".
+          </AlertDialogBody>
+
+          <AlertDialogFooter>
+            <Button ref={cancelRefSubmit} onClick={onCloseSubmit}>
+              Cancel
+            </Button>
+            <Button
+              colorScheme="blue"
+              onClick={async () => {
+                await submitFreeTextToServer()
+                onCloseSubmit()
+              }}
+              ml={3}
+            >
+              Yes, Continue
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogOverlay>
+    </AlertDialog>
     </>
   )
 }
