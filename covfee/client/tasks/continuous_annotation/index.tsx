@@ -274,6 +274,11 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   const [submitted, setSubmitted] = useState(args.response.submitted)
 
+  const submitFinal = async () => {
+    await props.onSubmit({})
+    setSubmitted(true)
+  }
+
   React.useEffect(() => {
     setSubmitted(args.response.submitted)
   }, [args.response.submitted])
@@ -1009,10 +1014,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               percent={taskCompletionPercentage}
               completionCode={props.spec.prolificCompletionCode}
               redirectUrl={redirectUrl}
-              onSubmit={() => {
-                props.onSubmit({})
-                setSubmitted(true)
-              }}
+              onSubmit={submitFinal}
               submitButtonDisabled={submitted}
             />
 
