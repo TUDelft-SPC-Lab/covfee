@@ -106,6 +106,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     }
   }, [props])
 
+  console.log("Rendering ContinuousAnnotationTask with props:", props)
+
   const { node } = React.useContext(nodeContext)
 
   //*************************************************************//
