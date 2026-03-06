@@ -19,9 +19,8 @@ const TaskProgress: React.FC<Props> = (props) => {
   useEffect(() => {
     if (checkWhetherToSubmitTask) {
       Modal.confirm({
-        title: "Are you sure you want to submit?",
-        content: "You won't be able to change your response after you submit.",
-        okText: "Submit",
+        title: "Back to Prolific Academic?",
+        okText: "Yes, I'm done",
         onOk: () => {
           setCheckWhetherToSubmitTask(false)
           props.onSubmit()
@@ -76,7 +75,7 @@ type TaskAlreadyCompletedProps = {
 }
 
 export const TaskAlreadyCompleted: React.FC<TaskAlreadyCompletedProps> = (
-  props
+  props,
 ) => {
   return (
     <>
