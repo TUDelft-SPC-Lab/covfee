@@ -250,7 +250,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         Constants.base_url +
         node.customApiBase +
         "/annotations/" +
-        freeText_answer_data_to_post.id
+        (freeText_answer_data_to_post.id + selectedCamViewIndex)
       const res = await fetcher(url, {
         method: "UPDATE",
         headers: {
