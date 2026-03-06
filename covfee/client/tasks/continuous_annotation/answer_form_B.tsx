@@ -37,6 +37,7 @@ type Props = {
   noIntentionSeen: boolean
   getCurrentPausedTime: () => number
   onNarrativeIndexChange: (value: number) => void
+  submitDialogueText?: React.JSX.Element
 }
 
 const Answer_form_B: React.FC<Props> = ({
@@ -49,6 +50,7 @@ const Answer_form_B: React.FC<Props> = ({
   noIntentionSeen,
   getCurrentPausedTime,
   onNarrativeIndexChange,
+  submitDialogueText,
 }) => {
   const [index, setIndex] = React.useState(0)
   const setIndexAndNotify = (nextIndex: number) => {
@@ -286,13 +288,7 @@ const Answer_form_B: React.FC<Props> = ({
               Continue?
             </AlertDialogHeader>
 
-            <AlertDialogBody>
-              Are you sure you want to continue to the next annotation? <br />{" "}
-              This action will bring you to the next video and you will not be
-              able to return to this one. If you can still think of some
-              intentions or have not finished going through the video, please
-              click "Cancel".
-            </AlertDialogBody>
+            <AlertDialogBody>{submitDialogueText}</AlertDialogBody>
 
             <AlertDialogFooter>
               <Button ref={cancelRefSubmit} onClick={onCloseSubmit}>

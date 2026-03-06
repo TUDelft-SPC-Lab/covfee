@@ -35,8 +35,9 @@ type Props = {
   submitFreeTextToServer: () => void
   noIntentionSeen: boolean
   setNoIntentionSeen: (value: boolean) => void
-  getCurrentPausedTime: () => number;
+  getCurrentPausedTime: () => number
   onNarrativeIndexChange: (value: number) => void
+  submitDialogueText?: React.JSX.Element
 }
 
 const Answer_form_A: React.FC<Props> = ({
@@ -49,6 +50,7 @@ const Answer_form_A: React.FC<Props> = ({
   setNoIntentionSeen,
   getCurrentPausedTime,
   onNarrativeIndexChange,
+  submitDialogueText,
 }) => {
   const [index, setIndex] = React.useState(0)
   const setIndexAndNotify = (nextIndex: number) => {
@@ -56,13 +58,12 @@ const Answer_form_A: React.FC<Props> = ({
     onNarrativeIndexChange(nextIndex)
   }
 
-const [isOpenSubmit, setIsOpenSubmit] = React.useState(false)
-const onCloseSubmit = () => setIsOpenSubmit(false)
-const cancelRefSubmit = React.useRef<HTMLButtonElement>(null)
-const submitOpenPopUp= () => {
-  setIsOpenSubmit(true)
-}
-
+  const [isOpenSubmit, setIsOpenSubmit] = React.useState(false)
+  const onCloseSubmit = () => setIsOpenSubmit(false)
+  const cancelRefSubmit = React.useRef<HTMLButtonElement>(null)
+  const submitOpenPopUp = () => {
+    setIsOpenSubmit(true)
+  }
 
   /* ---------------- helpers ---------------- */
 
@@ -86,36 +87,38 @@ const submitOpenPopUp= () => {
   const updateNarrativeField = (
     narrativeIndex: number,
     field: keyof Narrative_typeA,
-    value: string
+    value: string,
   ) => {
     setNarratives(
       narratives.map((narrative, i) =>
         i === narrativeIndex && narrative
           ? { ...narrative, [field]: value }
-          : narrative
-      )
+          : narrative,
+      ),
     )
   }
-    //Delete narrative confirmation dialog
-    const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure()
-    const deleteTab = () => {
-        if (!narratives) return
+  //Delete narrative confirmation dialog
+  const {
+    isOpen: isOpenDelete,
+    onOpen: onOpenDelete,
+    onClose: onCloseDelete,
+  } = useDisclosure()
+  const deleteTab = () => {
+    if (!narratives) return
 
-        // remove narrative
-        setNarratives(narratives.filter((_, i) => i !== index))
+    // remove narrative
+    setNarratives(narratives.filter((_, i) => i !== index))
 
-        // move index safely
-        setIndexAndNotify(Math.max(0, index - 1))
+    // move index safely
+    setIndexAndNotify(Math.max(0, index - 1))
 
-        onCloseDelete()
-    }
-
-  
+    onCloseDelete()
+  }
 
   /* ---------------- validation ---------------- */
 
   const isNarrativeComplete = (
-    narrative: Narrative_typeA | Narrative_typeB | null
+    narrative: Narrative_typeA | Narrative_typeB | null,
   ): boolean => {
     if (!narrative) return false
 
@@ -140,21 +143,26 @@ const submitOpenPopUp= () => {
 
   return (
     <>
-      <Tabs index={index} onChange={setIndexAndNotify} variant="enclosed" height="100%">
+      <Tabs
+        index={index}
+        onChange={setIndexAndNotify}
+        variant="enclosed"
+        height="100%"
+      >
         <TabList position={"sticky"} top={0} zIndex={1}>
           {narratives.map((narrative, i) => (
             <Tab key={narrative?.created_at}>Intention {i + 1}</Tab>
           ))}
 
-         <IconButton
+          <IconButton
             aria-label="Add narrative"
             icon={<PlusOutlined />}
             size="sm"
             variant="ghost"
             onClick={addNarrative}
             ml={2}
-            alignSelf="center" 
-            />
+            alignSelf="center"
+          />
         </TabList>
 
         <TabPanels maxH={"60vh"} overflowY={"auto"}>
@@ -164,34 +172,82 @@ const submitOpenPopUp= () => {
             return (
               <TabPanel key={narrative?.created_at} position="relative">
                 <IconButton
-                    aria-label="Delete tab"
-                    icon={<DeleteOutlined />}
-                    size="md"
-                    colorScheme="red"
-                    variant="ghost"
-                    position="absolute"
-                    top="5px"
-                    right="5px"
-                    onClick={onOpenDelete}
-                    isDisabled={narratives.length === 1}
+                  aria-label="Delete tab"
+                  icon={<DeleteOutlined />}
+                  size="md"
+                  colorScheme="red"
+                  variant="ghost"
+                  position="absolute"
+                  top="5px"
+                  right="5px"
+                  onClick={onOpenDelete}
+                  isDisabled={narratives.length === 1}
                 />
-                <Timestamp paddingTop={"5px"} narrative={narrative} field_start={"timestamp_start"} field_end={"timestamp_end"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer} getCurrentPausedTime={getCurrentPausedTime}>
-                  <strong>Timestamps:</strong> Mark the start and end times at which you perceive this intention in the video.
+                <Timestamp
+                  paddingTop={"5px"}
+                  narrative={narrative}
+                  field_start={"timestamp_start"}
+                  field_end={"timestamp_end"}
+                  i={i}
+                  updateNarrativeField={updateNarrativeField}
+                  postFreetextAnswerToServer={postFreetextAnswerToServer}
+                  getCurrentPausedTime={getCurrentPausedTime}
+                >
+                  <strong>Timestamps:</strong> Mark the start and end times at
+                  which you perceive this intention in the video.
                 </Timestamp>
-                <Free_text narrative={narrative} field={"intention_description"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
-                  <strong>Describe the Intention:</strong> What intention do you see at this moment? <br />Provide a brief description of what you think the person is trying to do. 
+                <Free_text
+                  narrative={narrative}
+                  field={"intention_description"}
+                  i={i}
+                  updateNarrativeField={updateNarrativeField}
+                  postFreetextAnswerToServer={postFreetextAnswerToServer}
+                >
+                  <strong>Describe the Intention:</strong> What intention do you
+                  see at this moment? <br />
+                  Provide a brief description of what you think the person is
+                  trying to do.
                 </Free_text>
-                <Likert_scale narrative={narrative} field={"intention_description_confidence"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
-                  <strong>Confidence:</strong> On a scale of 1-5, how confident are you in this interpretation? 
+                <Likert_scale
+                  narrative={narrative}
+                  field={"intention_description_confidence"}
+                  i={i}
+                  updateNarrativeField={updateNarrativeField}
+                  postFreetextAnswerToServer={postFreetextAnswerToServer}
+                >
+                  <strong>Confidence:</strong> On a scale of 1-5, how confident
+                  are you in this interpretation?
                 </Likert_scale>
-                <Free_text narrative={narrative} field={"intention_explanation"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
-                  <strong>Why?</strong> Provide the evidence from the video or audio that led you to this conclusion. 
+                <Free_text
+                  narrative={narrative}
+                  field={"intention_explanation"}
+                  i={i}
+                  updateNarrativeField={updateNarrativeField}
+                  postFreetextAnswerToServer={postFreetextAnswerToServer}
+                >
+                  <strong>Why?</strong> Provide the evidence from the video or
+                  audio that led you to this conclusion.
                 </Free_text>
-                <Likert_scale narrative={narrative} field={"intention_explanation_confidence"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer}>
-                  <strong>Confidence:</strong> On a scale of 1-5, how confident are you in this explanation? 
+                <Likert_scale
+                  narrative={narrative}
+                  field={"intention_explanation_confidence"}
+                  i={i}
+                  updateNarrativeField={updateNarrativeField}
+                  postFreetextAnswerToServer={postFreetextAnswerToServer}
+                >
+                  <strong>Confidence:</strong> On a scale of 1-5, how confident
+                  are you in this explanation?
                 </Likert_scale>
-                <Likert_scale narrative={narrative} field={"intention_intensity"} i={i} updateNarrativeField={updateNarrativeField} postFreetextAnswerToServer={postFreetextAnswerToServer} extremes={["Low priority", "High priority"]}>
-                  <strong>Intensity:</strong> On a scale of 1-5, how much of a priority do you think this intention is for the participant? 
+                <Likert_scale
+                  narrative={narrative}
+                  field={"intention_intensity"}
+                  i={i}
+                  updateNarrativeField={updateNarrativeField}
+                  postFreetextAnswerToServer={postFreetextAnswerToServer}
+                  extremes={["Low priority", "High priority"]}
+                >
+                  <strong>Intensity:</strong> On a scale of 1-5, how much of a
+                  priority do you think this intention is for the participant?
                 </Likert_scale>
               </TabPanel>
             )
@@ -207,47 +263,53 @@ const submitOpenPopUp= () => {
         >
           Submit Annotation
         </ButtonChakra>
-        <Checkbox paddingBottom={"15px"} onChange={(e) => setNoIntentionSeen(e.target.checked)} isChecked={noIntentionSeen}><strong>No Intention:</strong> If you watch the entire clip and see no clear intention, you may check the box. </Checkbox>
+        <Checkbox
+          paddingBottom={"15px"}
+          onChange={(e) => setNoIntentionSeen(e.target.checked)}
+          isChecked={noIntentionSeen}
+        >
+          <strong>No Intention:</strong> If you watch the entire clip and see no
+          clear intention, you may check the box.{" "}
+        </Checkbox>
       </VStack>
-      <DeleteAlertDialogue isOpen={isOpenDelete} onClose={onCloseDelete} deleteTab={deleteTab} />
-          <AlertDialog
-            isOpen={isOpenSubmit}
-            leastDestructiveRef={cancelRefSubmit}
-            onClose={onCloseSubmit}
-          >
-          <AlertDialogOverlay>
-            <AlertDialogContent>
-              <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                Continue?
-              </AlertDialogHeader>
+      <DeleteAlertDialogue
+        isOpen={isOpenDelete}
+        onClose={onCloseDelete}
+        deleteTab={deleteTab}
+      />
+      <AlertDialog
+        isOpen={isOpenSubmit}
+        leastDestructiveRef={cancelRefSubmit}
+        onClose={onCloseSubmit}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Continue?
+            </AlertDialogHeader>
 
-              <AlertDialogBody>
-                Are you sure you want to continue to the next annotation? <br/> This action will bring you to the next video and you will not be able to return to this one. If you can still think of some intentions or have not finished going through the video, please click "Cancel".
-              </AlertDialogBody>
+            <AlertDialogBody>{submitDialogueText}</AlertDialogBody>
 
-              <AlertDialogFooter>
-                <Button ref={cancelRefSubmit} onClick={onCloseSubmit}>
-                  Cancel
-                </Button>
-                <Button
-                  colorScheme="blue"
-                  onClick={async () => {
-                    await submitFreeTextToServer()
-                    onCloseSubmit()
-                  }}
-                  ml={3}
-                >
-                  Yes, Continue
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialogOverlay>
-        </AlertDialog>
+            <AlertDialogFooter>
+              <Button ref={cancelRefSubmit} onClick={onCloseSubmit}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme="blue"
+                onClick={async () => {
+                  await submitFreeTextToServer()
+                  onCloseSubmit()
+                }}
+                ml={3}
+              >
+                Yes, Continue
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </>
-    
   )
-  
 }
 
 export { Answer_form_A }
-

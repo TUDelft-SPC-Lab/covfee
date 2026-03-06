@@ -229,6 +229,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         message: "All annotations completed!",
         icon: <InfoCircleFilled style={{ color: "green" }} />,
       })
+      await submitFinal()
+      if (redirectUrl) {
+        window.location.href = redirectUrl
+      }
     }
     nextCurrMediaIndex()
   }
@@ -249,6 +253,23 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       ].includes(index + 1),
     ),
   )
+  const NextVideoText = (
+    <>
+      Are you sure you want to continue to the next annotation? <br /> This
+      action will bring you to the <strong>next video</strong> and you will not
+      be able to return to this one. If you can still think of some intentions
+      or have not finished going through the video, please click "Cancel".
+    </>
+  )
+  const BackToProlificText = (
+    <>
+      Are you sure you want to continue? <br /> This action will bring you to
+      the <strong>end of task survey</strong> and you will not be able to return
+      to the video annotation. If you can still think of some intentions or have
+      not finished going through the video, please click "Cancel".
+    </>
+  )
+
   useEffect(() => {
     setAudioToggles(
       conversationFloorParticipants.map((index) =>
@@ -260,6 +281,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         ].includes(index + 1),
       ),
     )
+    setNoIntentionSeen(false)
   }, [currMediaIndex])
 
   const allChecked = audioToggles.every(Boolean)
@@ -1173,6 +1195,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                   )
                 }
                 onNarrativeIndexChange={setCurrentNarrativeIndex}
+                submitDialogueText={
+                  currMediaIndex == 2 ? BackToProlificText : NextVideoText
+                }
               />
             ) : (
               <Answer_form_B
@@ -1193,6 +1218,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                   )
                 }
                 onNarrativeIndexChange={setCurrentNarrativeIndex}
+                submitDialogueText={
+                  currMediaIndex == 2 ? BackToProlificText : NextVideoText
+                }
               />
             )}
             {/* <>
