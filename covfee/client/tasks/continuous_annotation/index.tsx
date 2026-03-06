@@ -240,8 +240,28 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   )
   //TODO instead of true turn on for paticipants of current conversation floor sent through props
   const [audioToggles, setAudioToggles] = useState<boolean[]>(
-    conversationFloorParticipants.map(() => true),
+    conversationFloorParticipants.map((index) =>
+      [
+        ...props.spec.annotations[currMediaIndex].conversation_floor,
+        Number(
+          props.spec.annotations[currMediaIndex].participant.split("_")[1],
+        ),
+      ].includes(index + 1),
+    ),
   )
+  useEffect(() => {
+    setAudioToggles(
+      conversationFloorParticipants.map((index) =>
+        [
+          ...props.spec.annotations[currMediaIndex].conversation_floor,
+          Number(
+            props.spec.annotations[currMediaIndex].participant.split("_")[1],
+          ),
+        ].includes(index + 1),
+      ),
+    )
+  }, [currMediaIndex])
+
   const allChecked = audioToggles.every(Boolean)
   const isIndeterminate = audioToggles.some(Boolean) && !allChecked
 
@@ -1044,13 +1064,11 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
             <InstructionsSidebar
               // Current content to display
-              selected_participant={{
-                name: annotationsDataMirror[selectedAnnotationIndex]
-                  .participant,
-                completed: participantCompleted(
-                  annotationsDataMirror[selectedAnnotationIndex].participant,
-                ),
-              }}
+              selected_participant={Number(
+                props.spec.annotations[currMediaIndex].participant.split(
+                  "_",
+                )[1],
+              )}
               selected_annotation={{
                 category:
                   annotationsDataMirror[selectedAnnotationIndex].category,
@@ -1192,7 +1210,11 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           <div className={`${styles["sidebar"]} ${styles["right-sidebar"]}`}>
             <div className={styles["sidebar-block"]}>
               <Text>Conversing Participants:</Text>
-              <Participant_image participant_id={["13", "13", "13"]} />
+              <Participant_image
+                participant_id={
+                  props.spec.annotations[currMediaIndex].conversation_floor
+                }
+              />
             </div>
             <div className={styles["sidebar-block"]}>
               {/* <ActionAnnotationFlashscreen
