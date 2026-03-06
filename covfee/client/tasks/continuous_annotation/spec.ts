@@ -14,7 +14,7 @@ export interface MediaSpec {
 }
 export interface AudioMediaSpec {
   type: "audio/mp3"
-  src: string
+  src: string[]
 }
 
 export interface ContinuousAnnotationTaskSpec extends BaseTaskSpec {

@@ -114,6 +114,18 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //------------------ States definition -------------------- //
   //*************************************************************//
 
+  //Purely to help sampling the video clips. remove immediatly
+  const [currMediaIndex, setCurrMediaIndex] = useState<number>(0)
+  const current_video_src = props.spec.media[currMediaIndex]?.src
+  console.log("Current video src:", current_video_src)
+  const PARTICIPANT_AUDIO_SRC = props.spec.audioMedia[currMediaIndex].src ?? []
+
+  const nextCurrMediaIndex = (add: number = 1) => {
+    const newIndex = currMediaIndex + add
+    const clamped = Math.max(0, Math.min(newIndex, 2))
+    setCurrMediaIndex(clamped)
+  }
+
   const [answerForm, setAnswerForm] = useState<"A" | "B">("A")
   const [currentNarrativeIndex, setCurrentNarrativeIndex] = useState(0)
 
@@ -218,10 +230,11 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         icon: <InfoCircleFilled style={{ color: "green" }} />,
       })
     }
+    nextCurrMediaIndex()
   }
 
   // const PARTICIPANT_AUDIO_SRC = ["https://www.w3schools.com/html/mov_bbb.mp4", "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"]
-  const PARTICIPANT_AUDIO_SRC = props.spec.audioMedia
+  // const PARTICIPANT_AUDIO_SRC = props.spec.audioMedia
   const conversationFloorParticipants = PARTICIPANT_AUDIO_SRC.map(
     (_, index) => index,
   )
@@ -547,14 +560,25 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       responsive: true,
       fluid: true,
       muted: true,
-      sources: [source],
+      sources: [
+        {
+          src: current_video_src,
+          type: "video/mp4",
+        },
+      ],
 
       controlBar: {
         volumePanel: false,
         remainingTimeDisplay: false,
       },
     }
-  }, [props.spec, selectedCamViewIndex, selectedAnnotationIndex])
+  }, [
+    props.spec,
+    selectedCamViewIndex,
+    selectedAnnotationIndex,
+    currMediaIndex,
+    current_video_src,
+  ])
 
   // ...and add logic that ensures that video playback status is kept in sync under
   // the selectedCamViewIndex changes. First, we keep track of the playback status.
@@ -573,7 +597,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         currentTime: videoPlayerRef.current.currentTime(),
       })
     }
-  }, [selectedCamViewIndex])
+  }, [selectedCamViewIndex, currMediaIndex, current_video_src])
 
   // ...and then we ensure that the video player is updated with the playback status
   // when the new video source becomes active.
@@ -595,7 +619,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         }
       }
     }
-  }, [videoLoadStartEvent])
+  }, [videoLoadStartEvent, currMediaIndex, current_video_src])
 
   const checkVideoLengthWithServer = async () => {
     let video_src = videoPlayerRef.current?.src()

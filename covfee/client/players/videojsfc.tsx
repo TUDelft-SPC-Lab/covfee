@@ -36,15 +36,15 @@ export const VideoJSFC: React.FC<Props> = ({
       player.muted(true)
 
       // Play/pause/seeking sync for all audio tracks
-      player.on("play", () => audioRefs.current.forEach(a => a.play()))
+      player.on("play", () => audioRefs.current.forEach((a) => a.play()))
       player.on("pause", () => {
         const currentTime = player.currentTime()
-        audioRefs.current.forEach(a => a.pause())
+        audioRefs.current.forEach((a) => a.pause())
         onPausedAt?.(currentTime)
       })
       player.on("seeking", () => {
         const time = player.currentTime()
-        audioRefs.current.forEach(a => {
+        audioRefs.current.forEach((a) => {
           a.currentTime = time
         })
       })
@@ -52,7 +52,7 @@ export const VideoJSFC: React.FC<Props> = ({
       // Smooth 3-second interval sync
       const interval = setInterval(() => {
         const time = player.currentTime()
-        audioRefs.current.forEach(a => {
+        audioRefs.current.forEach((a) => {
           const drift = time - a.currentTime
           if (Math.abs(drift) > 0.2) a.currentTime = time
         })
@@ -60,7 +60,32 @@ export const VideoJSFC: React.FC<Props> = ({
 
       return () => clearInterval(interval)
     }
-  }, [options, audioSrc, onReady])
+  }, [])
+  // }, [options, audioSrc, onReady])
+
+  React.useEffect(() => {
+    const player = playerRef.current
+    if (!player || !options.sources?.length) return
+
+    const newSrc = options.sources[0].src
+    const currentSrc = player.currentSrc()
+
+    if (currentSrc !== newSrc) {
+      const wasPaused = player.paused()
+      const currentTime = player.currentTime()
+
+      player.src(options.sources)
+      player.load()
+
+      // Optional: resume playback state
+      if (!wasPaused) {
+        player.play().catch(() => {})
+      }
+
+      // Optional: reset time if you want
+      player.currentTime(0)
+    }
+  }, [options.sources])
 
   // Dispose Video.js on unmount
   React.useEffect(() => {
@@ -73,6 +98,13 @@ export const VideoJSFC: React.FC<Props> = ({
     }
   }, [])
 
+  React.useEffect(() => {
+    audioRefs.current.forEach((a) => {
+      a.pause()
+      a.currentTime = 0
+    })
+  }, [audioSrc])
+
   // Render audio elements
   const audioElements = React.useMemo(() => {
     if (!audioSrc) return null
@@ -82,7 +114,7 @@ export const VideoJSFC: React.FC<Props> = ({
     return sources.map((src, index) => (
       <audio
         key={index}
-        ref={el => {
+        ref={(el) => {
           if (el) audioRefs.current[index] = el
         }}
         src={src}
