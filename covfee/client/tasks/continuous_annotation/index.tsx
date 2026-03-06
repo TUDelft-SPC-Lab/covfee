@@ -845,14 +845,14 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   )
 
   // Register the listeners for keyboard events
-  React.useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown)
-    window.addEventListener("keyup", handleKeyUp)
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-      window.removeEventListener("keyup", handleKeyUp)
-    }
-  }, [handleKeyDown, handleKeyUp])
+  // React.useEffect(() => {
+  //   window.addEventListener("keydown", handleKeyDown)
+  //   window.addEventListener("keyup", handleKeyUp)
+  //   return () => {
+  //     window.removeEventListener("keydown", handleKeyDown)
+  //     window.removeEventListener("keyup", handleKeyUp)
+  //   }
+  // }, [handleKeyDown, handleKeyUp])
 
   //********************************************************************//
   // Participant and annotations for participant options
