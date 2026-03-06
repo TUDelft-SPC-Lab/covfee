@@ -203,11 +203,19 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   const submitFreeTextToServer = async () => {
     postFreetextAnswerToServer()
-    notification.open({
-      message: "Annotation Saved",
-      description: "Please continue with the next one.",
-      icon: <InfoCircleFilled style={{ color: "green" }} />,
-    })
+    if (selectedCamViewIndex < props.spec.media.length - 1) {
+      setSelectedCamViewIndex(selectedCamViewIndex + 1)
+      notification.open({
+        message: "Annotation Saved",
+        description: "Please continue with the next one.",
+        icon: <InfoCircleFilled style={{ color: "green" }} />,
+      })
+    } else {
+      notification.open({
+        message: "All annotations completed!",
+        icon: <InfoCircleFilled style={{ color: "green" }} />,
+      })
+    }
   }
 
   // const PARTICIPANT_AUDIO_SRC = ["https://www.w3schools.com/html/mov_bbb.mp4", "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"]
