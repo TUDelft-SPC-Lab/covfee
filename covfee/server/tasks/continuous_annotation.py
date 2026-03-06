@@ -83,6 +83,8 @@ def update_annotation(annotid):
 
     updates = request.json
     for key, value in updates.items():
+        if key in ["id", "task_id", "participant", "category", "interface"]:
+            continue
         if hasattr(annot, key):
             if key in ["created_at", "updated_at"]:
                 continue

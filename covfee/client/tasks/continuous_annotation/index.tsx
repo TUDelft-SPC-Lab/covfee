@@ -252,7 +252,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         Constants.base_url +
         node.customApiBase +
         "/annotations/" +
-        freeText_answer_data_to_post.id
+        (freeText_answer_data_to_post.id + selectedCamViewIndex)
       const res = await fetcher(url, {
         method: "UPDATE",
         headers: {
@@ -974,8 +974,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             ]}
           >
             <p>
-              Annotation is not possible. Please update your browser or try with
-              a different one.
+              Annotation is not possible. Please reload the page. If that
+              doesn't work, update your browser or try with a different one.
             </p>
           </Modal>
         )}
