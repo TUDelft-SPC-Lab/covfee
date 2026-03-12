@@ -74,6 +74,7 @@ type Narrative_typeA = {
   intention_description: string
   intention_description_confidence: string | null
   intention_explanation: string
+  counterfactual_explanation: string
   intention_explanation_confidence: string | null
   intention_intensity: string | null
   narrative_index: number
@@ -85,6 +86,7 @@ type Narrative_typeB = {
   intention_description: string
   intention_description_confidence: string | null
   intention_explanation: string
+  counterfactual_explanation: string
   intention_explanation_confidence: string | null
   intention_intensity: string | null
   narrative_index: number
@@ -143,6 +145,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               intention_explanation: "",
               intention_explanation_confidence: null,
               intention_intensity: "",
+              counterfactual_explanation: "",
               narrative_index: 0,
             },
           ],
@@ -159,6 +162,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               intention_explanation: "",
               intention_explanation_confidence: null,
               intention_intensity: "",
+              counterfactual_explanation: "",
               narrative_index: 0,
             },
           ],
@@ -190,6 +194,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             intention_explanation: "",
             intention_explanation_confidence: null,
             intention_intensity: "",
+            counterfactual_explanation: "",
             narrative_index: 0,
           },
         ],
@@ -207,6 +212,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             intention_explanation: "",
             intention_explanation_confidence: null,
             intention_intensity: "",
+            counterfactual_explanation: "",
             narrative_index: 0,
           },
         ],
