@@ -5,6 +5,7 @@ import { Button, Checkbox, Modal, message, notification } from "antd"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { VideoJsPlayer } from "video.js"
 import { nodeContext } from "../../journey/node_context"
+import { fetchAnnotator } from "../../models/Journey"
 import VideoJSFC from "../../players/videojsfc"
 import { TaskExport } from "../../types/node"
 import { AllPropsRequired } from "../../types/utils"
@@ -980,6 +981,42 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     setShowingAnnotationTips(isAnnotating && showAnnotationTipsOnStart)
   }, [isAnnotating])
 
+  const [annotatorMeta, setAnnotatorMeta] = useState({
+    prolificPid: "",
+    studyId: "",
+    hit_global_unique_id: "",
+  })
+
+  useEffect(() => {
+    let mounted = true
+
+    fetchAnnotator(node.journey_id)
+      .then((payload) => {
+        if (!mounted || Object.keys(payload).length === 0) {
+          return
+        }
+
+        console.log(
+          `loaded prolific id ${payload.prolific_pid}, ` +
+            `study id ${payload.prolific_study_id}, ` +
+            `hit global unique id ${payload.hit_global_unique_id}`,
+        )
+
+        setAnnotatorMeta({
+          prolificPid: payload.prolific_pid ?? "",
+          studyId: payload.prolific_study_id ?? "",
+          hit_global_unique_id: payload.hit_global_unique_id ?? "",
+        })
+      })
+      .catch((error) => {
+        console.error("Failed to fetch annotator data:", error)
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [node.journey_id])
+
   // ********************************************************************//
   //----------------------- JSX rendering logic ------------------------//
   //********************************************************************//
@@ -990,9 +1027,18 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   }
 
   // Redirection URL once the annotator has completed the entire annotation task.
+  const { prolificPid, studyId, hit_global_unique_id } = annotatorMeta
+
   const redirectUrl =
-    "https://app.prolific.com/submissions/complete?cc=" +
-    props.spec.prolificCompletionCode
+    "https://greenwichuniversity.eu.qualtrics.com/jfe/form/SV_1IhZTEderDn23pY?" +
+    "CC=" +
+    encodeURIComponent(props.spec.prolificCompletionCode) +
+    "&PROLIFIC_PID=" +
+    encodeURIComponent(prolificPid) +
+    "&STUDY_ID=" +
+    encodeURIComponent(studyId) +
+    "&HIT_GLOBAL_ID=" +
+    encodeURIComponent(hit_global_unique_id)
 
   if (args.response.submitted && isEntireTaskCompleted) {
     return <TaskAlreadyCompleted redirectUrl={redirectUrl} />
