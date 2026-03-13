@@ -117,6 +117,17 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
               they happen.
             </Text>
             <Participant_image participant_id={[props.selected_participant]} />
+            <Text fontSize={"md"}>
+              Please rely on your own intuition and understanding of what an
+              intention is. There are no right or wrong answers. We are
+              interested in your immediate impression.
+            </Text>
+            <Text fontSize={"md"}>
+              <strong>
+                Do not look up definitions or use AI tools (e.g., ChatGPT) while
+                completing this task.
+              </strong>
+            </Text>
           </>
         )}
         {props.answerForm === "B" && (
@@ -134,6 +145,12 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
               thoughts about their beliefs and desires as part of your
               explanation. Beliefs are what the participant thinks are true
               about the situation. Desires are goals of the participant.
+            </Text>
+            <Text fontSize={"md"}>
+              <strong>
+                Do not look up definitions or use AI tools (e.g., ChatGPT) while
+                completing this task.
+              </strong>
             </Text>
             <Text fontSize={"md"}>
               To help construct your explanation, here are some tips that might

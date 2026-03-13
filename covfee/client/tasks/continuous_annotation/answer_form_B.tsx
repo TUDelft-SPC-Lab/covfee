@@ -76,6 +76,7 @@ const Answer_form_B: React.FC<Props> = ({
     intention_explanation: "",
     intention_explanation_confidence: null,
     intention_intensity: "",
+    counterfactual_explanation: "",
     narrative_index: narratives.length,
   })
 
@@ -244,11 +245,27 @@ const Answer_form_B: React.FC<Props> = ({
                   i={i}
                   updateNarrativeField={updateNarrativeField}
                   postFreetextAnswerToServer={postFreetextAnswerToServer}
-                  extremes={["Low priority", "High priority"]}
+                  extremes={[
+                    "Not pursuing it actively",
+                    "Actively and strongly pursuing it",
+                  ]}
                 >
                   <strong>Intensity:</strong> On a scale of 1-5, how much of a
-                  priority do you think this intention is for the participant?
+                  priority does this intention appear to be for the participant?
                 </Likert_scale>
+                <Free_text
+                  narrative={narrative}
+                  field={"counterfactual_explanation"}
+                  i={i}
+                  updateNarrativeField={updateNarrativeField}
+                  postFreetextAnswerToServer={postFreetextAnswerToServer}
+                >
+                  <strong>Counterfactual Explanation:</strong> Can you think of
+                  an alternative way the situation could be interpreted that
+                  would lead to a very different understanding of the
+                  participant’s intentions? Describe the assumption or
+                  interpretation that would change your understanding.
+                </Free_text>
               </TabPanel>
             )
           })}
