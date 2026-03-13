@@ -189,16 +189,13 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
         )}
 
         <Text fontSize={"md"} marginBottom={"5px"}>
-          <strong>1. Watch and pause:</strong> Please watch the clip carefully.{" "}
-          <strong>
-            Pause the clip as soon as you witness what you perceive to be an
-            intention.
-          </strong>{" "}
+          <strong>1. Watch and pause:</strong> Watch the clip and{" "}
+          <strong>pause as soon as you perceive an intention</strong>{" "}
         </Text>
         <Text fontSize={"md"}>
-          <i>Note:</i> It is natural to take a few seconds to process what you
-          see; if you pause slightly after the moment, please use the timestamp
-          adjustment tool to mark the exact start and end of the intention.
+          It’s normal to pause a few seconds after the moment.{" "}
+          <strong>Adjust the timestamp</strong> to mark the exact start and end
+          of the intention.
         </Text>
         {/* <Text fontSize={"md"}><strong>2. Timestamps</strong> Mark the start and end of when you perceive the intention in the video.</Text>
         <Text fontSize={"md"}>You can either:</Text>
@@ -210,22 +207,20 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
             <strong>Manually enter a timestamp</strong> in the corresponding text box.
           </ListItem>
         </OrderedList> */}
-        <Text fontSize={"md"}>
+        {/* <Text fontSize={"md"}>
           To select a precise moment, adjust the video using the progress bar,
           then click the appropriate button.
+        </Text> */}
+        <Text fontSize={"md"}>
+          <strong>2. Multiple Intentions: </strong>If you think{" "}
+          <strong>multiple intentions</strong> are present or several
+          interpretations are possible, click “<strong>+</strong>” to add
+          another entry.
         </Text>
         <Text fontSize={"md"}>
-          Make sure both a start and end time are provided.
-        </Text>
-        <Text fontSize={"md"}>
-          <strong>3. Multiple Intentions: </strong>If you believe the
-          participant is acting on multiple intentions at once, or if several
-          interpretations are possible, click the "+" to fill out a separate set
-          of questions for each.
-        </Text>
-        <Text fontSize={"md"}>
-          <strong>4. Fill in the questionaire under the video: </strong>There is
-          no right answer, just your honest interpretation.
+          <strong>3. Answer the questions: </strong>Complete the questionnaire
+          under the video with your{" "}
+          <strong>honest interpretation and reasoning</strong>.
         </Text>
       </div>
     </>
