@@ -1,18 +1,16 @@
 from flask import (
-    request,
-    jsonify,
-    redirect,
-    Response,
-    stream_with_context,
     current_app as app,
 )
-import zipstream
+from flask import (
+    request,
+)
 
+from covfee.server.socketio.socket import socketio
+
+from ..orm import JourneyInstance
 from .api import api
 from .auth import admin_required
 from .utils import jsonify_or_404
-from ..orm import JourneyInstance
-from covfee.server.socketio.socket import socketio
 
 # Journeys
 
@@ -82,11 +80,17 @@ def node_ready(jid, nidx, value):
 
     return "", 200
 
+
 # Return the annotator data for the annotator working on this journey
 @api.route("/journeys/<jid>/annotator")
 @admin_required
 def annotator(jid):
-    res :JourneyInstance  = app.session.query(JourneyInstance).get(bytes.fromhex(jid))
+    res: JourneyInstance = app.session.query(JourneyInstance).get(bytes.fromhex(jid))
     if res.annotator is None:
         return {}
-    return {"prolific_pid": res.annotator.prolific_id, "created_at": str(res.annotator.created_at)}
+    return {
+        "prolific_pid": res.annotator.prolific_id,
+        "prolific_study_id": res.annotator.prolific_study_id,
+        "hit_global_unique_id": res.hit.spec.global_unique_id,
+        "created_at": str(res.annotator.created_at),
+    }
