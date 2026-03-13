@@ -24,8 +24,8 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react"
-import Ingroupgallery_one from "../../../../samples/continuous_annotation/art/session1_cam6_10_2.png"
-import Ingroupgallery_two from "../../../../samples/continuous_annotation/art/session2_cam1_5_2.png"
+import Ingroupgallery_one from "../../art/session1_cam6_10_2.png"
+import Ingroupgallery_two from "../../art/session2_cam1_5_2.png"
 
 import { Answer_form_A } from "./answer_form_A"
 import { Answer_form_B } from "./answer_form_B"

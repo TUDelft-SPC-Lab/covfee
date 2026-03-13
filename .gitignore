@@ -42,6 +42,8 @@ samples/memory/media/*
 samples/memory/media.zip
 cam-multiview.svg
 conflab-gallery.svg
+participant_*.png
+session*.png
 
 # FIXME: #CONFLAB ignore the deployment files that now live in the private gitlab repo
 samples/continuous_annotation/*
