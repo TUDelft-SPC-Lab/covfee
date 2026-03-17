@@ -9,7 +9,8 @@ module.exports = env => {
             admin: './admin/index.js'
         },
         output: {
-            filename: '[name].js'            
+            filename: '[name].js',
+            path: path.resolve(__dirname, 'dist'),       
         },
         resolve: {
             extensions: [".ts", ".tsx", ".jsx", ".js"],
@@ -44,10 +45,10 @@ module.exports = env => {
                     test: /\.svg$/,
                     use: ['@svgr/webpack']
                 },
-                {
-                    test: /\.(png|jpe?g|gif|webp)$/i,
-                    type: 'asset/resource'
-                },
+                // {
+                //     test: /\.(png)$/i,
+                //     type: 'asset/resource',
+                // },
                 {
                     test: /\.(scss|css)$/,
                     use: ['style-loader', 'css-loader', 'sass-loader'],

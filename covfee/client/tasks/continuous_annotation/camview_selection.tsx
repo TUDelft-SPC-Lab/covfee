@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 // You can download this image and place it in the art folder from:
 // @covfee.ewi.tudelft.nl:/home/kfunesmora/conflab-media/
 // Do not commit to the repo for confidentiality reasons.
-import SvgCamMultiview from "../../art/cam-multiview.svg"
+import SvgCamMultiview from "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/cam-multiview.svg"
 import styles from "./continous_annotation.module.css"
 
 type Props = {
