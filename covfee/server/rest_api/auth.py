@@ -50,7 +50,7 @@ def admin_required(fn):
 
 def user_loader_callback(jwt_header, jwt_payload) -> User:
     identity = jwt_payload["sub"]
-    user = app.session.query(User).get(identity)
+    user = app.session.query(User).get(int(identity))
     return user
 
 
@@ -61,7 +61,7 @@ def user_loader_callback(jwt_header, jwt_payload) -> User:
 
 
 def user_identity_lookup(user):
-    return int(user.id)
+    return str(user.id)
 
 
 # Create a function that will be called whenever create_access_token

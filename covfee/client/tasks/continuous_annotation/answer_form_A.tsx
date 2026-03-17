@@ -276,7 +276,7 @@ const Answer_form_A: React.FC<Props> = ({
           mt="10px"
           colorScheme="blue"
           onClick={() => setIsOpenSubmit(true)}
-          isDisabled={videoLengthMismatch || (!submittable && !noIntentionSeen)}
+          isDisabled={ (!submittable && !noIntentionSeen)}
         >
           Submit Annotation
         </ButtonChakra>
