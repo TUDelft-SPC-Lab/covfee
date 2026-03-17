@@ -69,8 +69,8 @@ const Answer_form_B: React.FC<Props> = ({
 
   const createBlankNarrativeB = (): Narrative_typeB => ({
     created_at: Date.now(),
-    timestamp_start: getCurrentPausedTime(),
-    timestamp_end: getCurrentPausedTime(),
+    timestamp_start: 0,
+    timestamp_end: 0,
     intention_description: "",
     intention_description_confidence: null,
     intention_explanation: "",

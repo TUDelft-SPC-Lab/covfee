@@ -69,8 +69,8 @@ const Answer_form_A: React.FC<Props> = ({
 
   const createBlankNarrativeA = (): Narrative_typeA => ({
     created_at: Date.now(),
-    timestamp_start: getCurrentPausedTime(),
-    timestamp_end: getCurrentPausedTime(),
+    timestamp_start: 0,
+    timestamp_end: 0,
     intention_description: "",
     intention_description_confidence: null,
     intention_explanation: "",
@@ -276,7 +276,7 @@ const Answer_form_A: React.FC<Props> = ({
           mt="10px"
           colorScheme="blue"
           onClick={() => setIsOpenSubmit(true)}
-          isDisabled={ (!submittable && !noIntentionSeen)}
+          isDisabled={!submittable && !noIntentionSeen}
         >
           Submit Annotation
         </ButtonChakra>
