@@ -83,7 +83,6 @@ def node_ready(jid, nidx, value):
 
 # Return the annotator data for the annotator working on this journey
 @api.route("/journeys/<jid>/annotator")
-@admin_required
 def annotator(jid):
     res: JourneyInstance = app.session.query(JourneyInstance).get(bytes.fromhex(jid))
     if res.annotator is None:
