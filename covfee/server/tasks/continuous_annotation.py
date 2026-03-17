@@ -122,10 +122,7 @@ def delete_annotation(annotid):
 
 @bp.route("/video/<video_name>/length")
 def get_video_length(video_name):
-    return jsonify({"duration": 10.026667})
-    local_path = Path("/data/conflab/data_processed/cameras/video_segments")
     try:
-        # Run ffprobe to get video duration efficiently
         result = subprocess.run(
             [
                 "ffprobe",
@@ -135,8 +132,7 @@ def get_video_length(video_name):
                 "format=duration",
                 "-of",
                 "default=noprint_wrappers=1:nokey=1",
-                str(local_path / video_name),
-                # "/home/era/Downloads/mov_bbb.mp4",
+                str(Path(f"/data/ingroup/video_segs/{video_name}")),
             ],
             capture_output=True,
             text=True,
@@ -144,7 +140,7 @@ def get_video_length(video_name):
         )
 
         if result.returncode == 0:
-            duration = float(result.stdout.strip())
+            duration = round(float(result.stdout.strip()), 3)
             return jsonify({"duration": duration})
         else:
             return jsonify({"error": "Failed to get video duration"}), 400

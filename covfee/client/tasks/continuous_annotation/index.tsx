@@ -684,7 +684,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     console.log("Video length from server:", server_video_length)
     const local_vid_duration = videoPlayerRef.current.duration()
 
-    if (Math.abs(server_video_length - local_vid_duration) > 0.001) {
+    if (Math.abs(server_video_length - local_vid_duration) > 0.002) {
       setVideoLengthMismatch(true)
       setShowVideoLengthMismatch(true)
       setShowTaskVariantPopupBulletPoints(false)
@@ -1223,11 +1223,11 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               )}
             </div>
             {/* TODO: Remove this line after testing */}
-            <ButtonChakra
+            {/* <ButtonChakra
               onClick={() => setAnswerForm(answerForm == "A" ? "B" : "A")}
             >
               Test button to switch forms
-            </ButtonChakra>
+            </ButtonChakra> */}
             {answerForm == "A" ? (
               <Answer_form_A
                 videoLengthMismatch={videoLengthMismatch}
