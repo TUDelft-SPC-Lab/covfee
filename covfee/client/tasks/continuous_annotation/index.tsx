@@ -170,6 +170,46 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           pausedAt: [],
         },
   )
+
+  useEffect(() => {
+    setNarratives(
+    answerForm == "A"
+      ? {
+          narratives: [
+            {
+              created_at: Date.now(),
+              timestamp_start: 0,
+              timestamp_end: 0,
+              intention_description: "",
+              intention_description_confidence: null,
+              intention_explanation: "",
+              intention_explanation_confidence: null,
+              intention_intensity: "",
+              counterfactual_explanation: "",
+              narrative_index: 0,
+            },
+          ],
+          pausedAt: [],
+        }
+      : {
+          narratives: [
+            {
+              created_at: Date.now(),
+              timestamp_start: 0,
+              timestamp_end: 0,
+              intention_description: "",
+              intention_description_confidence: null,
+              intention_explanation: "",
+              intention_explanation_confidence: null,
+              intention_intensity: "",
+              counterfactual_explanation: "",
+              narrative_index: 0,
+            },
+          ],
+          pausedAt: [],
+        },
+  )}, [currMediaIndex])
+
   const setPausedAt = (item: number) => {
     setNarratives((prev) => {
       return {
@@ -243,6 +283,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     }
     nextCurrMediaIndex()
   }
+
 
   // const PARTICIPANT_AUDIO_SRC = ["https://www.w3schools.com/html/mov_bbb.mp4", "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"]
   // const PARTICIPANT_AUDIO_SRC = props.spec.audioMedia
