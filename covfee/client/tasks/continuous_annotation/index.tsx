@@ -691,6 +691,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     const server_video_length = (await res.json())["duration"]
     console.log("Video length from server:", server_video_length)
     const local_vid_duration = videoPlayerRef.current.duration()
+    console.log("Video length local:", local_vid_duration)
 
     if (Math.abs(server_video_length - local_vid_duration) > 0.002) {
       setVideoLengthMismatch(true)
