@@ -1117,7 +1117,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           >
             <p>
               Annotation is not possible. Please reload the page. If that
-              doesn't work, update your browser or try with a different one.
+              doesn't work, update your browser or try with a different one (Chrome).
             </p>
           </Modal>
         )}
