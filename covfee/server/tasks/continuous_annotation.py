@@ -140,7 +140,7 @@ def get_video_length(video_name):
         )
 
         if result.returncode == 0:
-            duration = float(result.stdout.strip())
+            duration = round(float(result.stdout.strip()), 3)
             return jsonify({"duration": duration})
         else:
             return jsonify({"error": "Failed to get video duration"}), 400
