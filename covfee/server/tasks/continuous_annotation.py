@@ -122,6 +122,7 @@ def delete_annotation(annotid):
 
 @bp.route("/video/<video_name>/length")
 def get_video_length(video_name):
+    print(f"Getting length for video: {video_name}")
     try:
         result = subprocess.run(
             [
@@ -141,12 +142,16 @@ def get_video_length(video_name):
 
         if result.returncode == 0:
             duration = round(float(result.stdout.strip()), 3)
+            print(f"Retrieved duration for video {video_name}: {duration}")
             return jsonify({"duration": duration})
         else:
+            print(f"Failed to get duration for video {video_name}")
             return jsonify({"error": "Failed to get video duration"}), 400
     except subprocess.TimeoutExpired:
+        print(f"Timeout while getting duration for video {video_name}")
         return jsonify({"error": "Timeout while getting video duration"}), 500
     except Exception as e:
+        print(f"Error occurred while getting duration for video {video_name}: {e}")
         return jsonify({"error": str(e)}), 500
 
 
