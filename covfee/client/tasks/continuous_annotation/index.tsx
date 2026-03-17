@@ -294,6 +294,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   const allChecked = audioToggles.every(Boolean)
   const isIndeterminate = audioToggles.some(Boolean) && !allChecked
 
+  const [videoLength, setVideoLength] = useState<{server_video_length: number, client_video_length: number} | null>(null)
+
+
   const postFreetextAnswerToServer = async () => {
     if (!validAnnotationsDataAndSelection) {
       return
@@ -303,9 +306,12 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       ...annotationsDataMirror[selectedAnnotationIndex],
       data_json: [
         narratives.narratives[currentNarrativeIndex],
+        narratives.pausedAt,
         getCurrentVideoTime(),
         Date.now(),
+        videoLength,
         currentNarrativeIndex,
+
       ],
     }
 
@@ -704,7 +710,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     }
     console.log("Video length local:", local_vid_duration)
 
-    if (Math.abs(server_video_length - local_vid_duration) > 0.002) {
+    setVideoLength({server_video_length, client_video_length: local_vid_duration})
+    // TODO: fix the length mismatch issue, currently we just set it to only care about a 1s mismatch.
+    if (Math.abs(server_video_length - local_vid_duration) > 1) {
       setVideoLengthMismatch(true)
       setShowVideoLengthMismatch(true)
       setShowTaskVariantPopupBulletPoints(false)
