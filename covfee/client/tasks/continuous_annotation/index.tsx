@@ -680,6 +680,14 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       node.customApiBase +
       `/video/${video_name_with_extension}/length`
     const res = await fetcher(url)
+    if (!res.ok) {
+      console.error("Error fetching video length from server:", res.status)
+      setVideoLengthMismatch(true)
+      setShowVideoLengthMismatch(true)
+      setShowTaskVariantPopupBulletPoints(false)
+      return
+    }
+
     const server_video_length = (await res.json())["duration"]
     console.log("Video length from server:", server_video_length)
     const local_vid_duration = videoPlayerRef.current.duration()
@@ -1117,8 +1125,18 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           >
             <ModalCloseButton color="white" size="lg" zIndex={2} />
 
-            <ImageChakra boxSize="80%" src={"https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session1_cam6_10_2.png"} />
-            <ImageChakra boxSize="80%" src={"https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session2_cam1_5_2.png"} />
+            <ImageChakra
+              boxSize="80%"
+              src={
+                "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session1_cam6_10_2.png"
+              }
+            />
+            <ImageChakra
+              boxSize="80%"
+              src={
+                "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session2_cam1_5_2.png"
+              }
+            />
           </ModalContent>
         </ChakraModal>
         <div className={styles["action-annotation-task"]}>
