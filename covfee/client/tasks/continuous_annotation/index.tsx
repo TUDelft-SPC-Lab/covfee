@@ -1092,15 +1092,14 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           <Modal
             title={"Video length error"}
             open={showVideoLengthMismatch}
+            closable={false}
             footer={[
               <Button
                 key="submit"
                 type="primary"
-                onClick={() => {
-                  setShowVideoLengthMismatch(false)
-                }}
+                onClick={() => window.location.reload()}
               >
-                Ok
+                Reload page
               </Button>,
             ]}
           >
