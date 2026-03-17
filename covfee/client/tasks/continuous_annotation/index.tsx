@@ -539,7 +539,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     // below.
     setIsVideoPlayerReady(true)
     forceVideoAudioRequirement()
-    checkVideoLengthWithServer()
   }
 
   useEffect(() => {
@@ -554,10 +553,12 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       }
       videoPlayerRef.current.on("ended", handleVideoEnd)
       videoPlayerRef.current.on("loadstart", handleVideoLoadStart)
+      videoPlayerRef.current.on("loadeddata", checkVideoLengthWithServer)
       videoPlayerRef.current.on("volumechange", handleVolumeChange)
       return () => {
         videoPlayerRef.current.off("ended", handleVideoEnd)
         videoPlayerRef.current.off("loadstart", handleVideoLoadStart)
+        videoPlayerRef.current.off("loadeddata", checkVideoLengthWithServer)
         videoPlayerRef.current.off("volumechange", handleVolumeChange)
       }
     }
@@ -670,10 +671,17 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     }
   }, [videoLoadStartEvent, currMediaIndex, current_video_src])
 
-  const checkVideoLengthWithServer = async () => {
-    let video_src = videoPlayerRef.current?.src()
-    let video_name_with_extension = video_src.split("/").pop()
-    console.log("Checking video lenght", video_name_with_extension)
+  const checkVideoLengthWithServer = async (event: any) => {
+    const video_src = videoPlayerRef.current?.src()
+    if (!video_src) {
+      return
+    }
+
+    const video_name_with_extension = video_src.split("/").pop()
+    if (!video_name_with_extension) {
+      return
+    }
+    console.log("Checking video length", video_name_with_extension)
 
     const url =
       Constants.base_url +
@@ -690,7 +698,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
     const server_video_length = (await res.json())["duration"]
     console.log("Video length from server:", server_video_length)
-    const local_vid_duration = videoPlayerRef.current.duration()
+    const local_vid_duration = videoPlayerRef.current?.duration()
+    if (local_vid_duration === undefined) {
+      return
+    }
     console.log("Video length local:", local_vid_duration)
 
     if (Math.abs(server_video_length - local_vid_duration) > 0.002) {
