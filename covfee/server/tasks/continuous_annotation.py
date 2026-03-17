@@ -89,12 +89,14 @@ def update_annotation(annotid):
             if key in ["created_at", "updated_at"]:
                 continue
             if key == "data_json":
-                narrative_data, current_video_time, time_annot, narrative_index = value
+                narrative_data, paused_at, current_video_time, time_annot, video_length, narrative_index = value
                 narrative_index = str(narrative_index)
                 new_data = {
                     "narratives": narrative_data,
-                    "paused_at": current_video_time,
+                    "paused_at": paused_at,
+                    "current_video_time": current_video_time,
                     "time_annot": time_annot,
+                    "video_length": video_length,
                 }
                 if annot.data_json is None:
                     annot.data_json = {}
