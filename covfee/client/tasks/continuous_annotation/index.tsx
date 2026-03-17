@@ -1223,11 +1223,11 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               )}
             </div>
             {/* TODO: Remove this line after testing */}
-            <ButtonChakra
+            {/* <ButtonChakra
               onClick={() => setAnswerForm(answerForm == "A" ? "B" : "A")}
             >
               Test button to switch forms
-            </ButtonChakra>
+            </ButtonChakra> */}
             {answerForm == "A" ? (
               <Answer_form_A
                 videoLengthMismatch={videoLengthMismatch}

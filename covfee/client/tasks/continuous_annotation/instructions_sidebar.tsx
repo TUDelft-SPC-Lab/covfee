@@ -108,81 +108,60 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
     <>
       <div className={styles["sidebar-block"]}>
         <h1>Instructions</h1>
+        <Text fontSize={"md"}>
+          <strong>Welcome!</strong> In this task, you will watch a 30-second
+          video clip. Identify the intentions of the participant indicated
+          below. Then, briefly explain your reasoning.
+        </Text>
         {props.answerForm === "A" && (
           <>
-            <Text fontSize={"md"}>
-              <strong>Welcome!</strong> In this task, you will watch a short
-              video clip (30 seconds). Your goal is to identify the{" "}
-              <strong>intentions</strong> of the participant (shown below) as
-              they happen.
-            </Text>
             <Participant_image participant_id={[props.selected_participant]} />
             <Text fontSize={"md"}>
-              Please rely on your own intuition and understanding of what an
-              intention is. There are no right or wrong answers. We are
-              interested in your immediate impression.
+              Use your first impression and own intuition; there are no right or
+              wrong answers.
             </Text>
             <Text fontSize={"md"}>
-              <strong>
-                Do not look up definitions or use AI tools (e.g., ChatGPT) while
-                completing this task.
-              </strong>
+              Do not look up definitions or use AI tools (e.g., ChatGPT) to
+              complete any of this task.
             </Text>
           </>
         )}
         {props.answerForm === "B" && (
           <>
-            <Text fontSize={"md"}>
-              <strong>Welcome!</strong> In this task, you will watch a short
-              video clip (30 seconds). Your goal is to identify the{" "}
-              <strong>intentions</strong> of the participants (shown below) as
-              they happen and explain why.
-            </Text>
             <Participant_image participant_id={[props.selected_participant]} />
             <Text fontSize={"md"}>
-              An intention is a thought and subsequent planning behavior to
-              ensure their intention is successfully realised. Try to use your
-              thoughts about their beliefs and desires as part of your
-              explanation. Beliefs are what the participant thinks are true
-              about the situation. Desires are goals of the participant.
+              An <strong>intention</strong> is what a person wants to{" "}
+              <strong>achieve</strong>, based on <strong>beliefs</strong>
+              about the situation and what they <strong>desire</strong> to
+              happen.
             </Text>
             <Text fontSize={"md"}>
-              <strong>
-                Do not look up definitions or use AI tools (e.g., ChatGPT) while
-                completing this task.
-              </strong>
+              Use your first impression and own intuition; there are no right or
+              wrong answers.
             </Text>
             <Text fontSize={"md"}>
-              To help construct your explanation, here are some tips that might
-              help.
+              Do not look up definitions or use AI tools (e.g., ChatGPT) to
+              complete any of this task.
+            </Text>
+            <Text fontSize={"md"}>
+              When forming your interpretation, you may consider:
             </Text>
             <OrderedList fontSize="md" pl="20px" spacing={2}>
               <ListItem>
-                <strong>Cues:</strong> Physical objects or cues (e.g., a person
-                looking at their watch, a loud noise, a sofa, a book, a specific
-                location like a "kitchen").
+                <strong>Cues:</strong> Directly observable or audible elements
+                e.g. actions, objects, sounds, or locations, etc.
               </ListItem>
               <ListItem>
-                <strong>Characteristics:</strong> How would you describe the
-                vibe of the situation? (e.g., is it "tense," "casual," “boring”,
-                or "pleasant"?).
+                <strong>Situation characteristics:</strong> The overall feel or
+                tone of the situation (e.g., tense, casual, pleasant).
               </ListItem>
               <ListItem>
-                <strong>Category:</strong> What "type" of situation do they
-                think they are in? (e.g., “changing lanes on the motorway” vs
-                “interaction at zebra crossing” vs. “driving in a pedestrianised
-                area”).
+                <strong>Situation type:</strong> What kind of situation the
+                participant might think they are in.
               </ListItem>
               <ListItem>
-                <strong>Social Scripts:</strong> These are mental "how-to"
-                guides or roadmaps for how an interaction is supposed to go,
-                possibly based on the category. These can be defined by a
-                situation e.g. in the fine dining industry, customers need to
-                wait for a waiter to come and take their order at their table.
-                That is an externalised script. For a customer who has only
-                eaten at fast food restaurants and goes to a fine dining
-                restaurant for the first time might expect the food orders to be
-                made at the kitchen counter. That is an internal script.
+                <strong>Social Scripts:</strong> Typical patterns or mental
+                "how-to" guides for how social interactions usually unfold.
               </ListItem>
             </OrderedList>
           </>
@@ -193,8 +172,7 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
           <strong>pause as soon as you perceive an intention</strong>{" "}
         </Text>
         <Text fontSize={"md"}>
-          It’s normal to pause a few seconds after the moment.{" "}
-          <strong>Adjust the timestamp</strong> to mark the exact start and end
+          Adjust the timestamp to mark <strong>the exact start and end</strong>{" "}
           of the intention.
         </Text>
         {/* <Text fontSize={"md"}><strong>2. Timestamps</strong> Mark the start and end of when you perceive the intention in the video.</Text>
@@ -219,8 +197,7 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
         </Text>
         <Text fontSize={"md"}>
           <strong>3. Answer the questions: </strong>Complete the questionnaire
-          under the video with your{" "}
-          <strong>honest interpretation and reasoning</strong>.
+          under the video with your honest interpretation and reasoning.
         </Text>
       </div>
     </>
