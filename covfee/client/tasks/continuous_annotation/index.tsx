@@ -128,8 +128,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     const clamped = Math.max(0, Math.min(newIndex, 2))
     setCurrMediaIndex(clamped)
   }
-
-  const [answerForm, setAnswerForm] = useState<"A" | "B">("A")
+  console.log("It Works AB", props.spec.annotations[currMediaIndex].AB_test)
+  const [answerForm, setAnswerForm] = useState<"A" | "B">(
+    props.spec.annotations[currMediaIndex].AB_test ?? "A",
+  )
   const [currentNarrativeIndex, setCurrentNarrativeIndex] = useState(0)
 
   //Initialize first narrative based on answer form
