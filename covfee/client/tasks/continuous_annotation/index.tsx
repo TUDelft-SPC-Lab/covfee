@@ -173,42 +173,43 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   useEffect(() => {
     setNarratives(
-    answerForm == "A"
-      ? {
-          narratives: [
-            {
-              created_at: Date.now(),
-              timestamp_start: 0,
-              timestamp_end: 0,
-              intention_description: "",
-              intention_description_confidence: null,
-              intention_explanation: "",
-              intention_explanation_confidence: null,
-              intention_intensity: "",
-              counterfactual_explanation: "",
-              narrative_index: 0,
-            },
-          ],
-          pausedAt: [],
-        }
-      : {
-          narratives: [
-            {
-              created_at: Date.now(),
-              timestamp_start: 0,
-              timestamp_end: 0,
-              intention_description: "",
-              intention_description_confidence: null,
-              intention_explanation: "",
-              intention_explanation_confidence: null,
-              intention_intensity: "",
-              counterfactual_explanation: "",
-              narrative_index: 0,
-            },
-          ],
-          pausedAt: [],
-        },
-  )}, [currMediaIndex])
+      answerForm == "A"
+        ? {
+            narratives: [
+              {
+                created_at: Date.now(),
+                timestamp_start: 0,
+                timestamp_end: 0,
+                intention_description: "",
+                intention_description_confidence: null,
+                intention_explanation: "",
+                intention_explanation_confidence: null,
+                intention_intensity: "",
+                counterfactual_explanation: "",
+                narrative_index: 0,
+              },
+            ],
+            pausedAt: [],
+          }
+        : {
+            narratives: [
+              {
+                created_at: Date.now(),
+                timestamp_start: 0,
+                timestamp_end: 0,
+                intention_description: "",
+                intention_description_confidence: null,
+                intention_explanation: "",
+                intention_explanation_confidence: null,
+                intention_intensity: "",
+                counterfactual_explanation: "",
+                narrative_index: 0,
+              },
+            ],
+            pausedAt: [],
+          },
+    )
+  }, [currMediaIndex])
 
   const setPausedAt = (item: number) => {
     setNarratives((prev) => {
@@ -284,7 +285,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     nextCurrMediaIndex()
   }
 
-
   // const PARTICIPANT_AUDIO_SRC = ["https://www.w3schools.com/html/mov_bbb.mp4", "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"]
   // const PARTICIPANT_AUDIO_SRC = props.spec.audioMedia
   const conversationFloorParticipants = PARTICIPANT_AUDIO_SRC.map(
@@ -335,8 +335,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   const allChecked = audioToggles.every(Boolean)
   const isIndeterminate = audioToggles.some(Boolean) && !allChecked
 
-  const [videoLength, setVideoLength] = useState<{server_video_length: number, client_video_length: number} | null>(null)
-
+  const [videoLength, setVideoLength] = useState<{
+    server_video_length: number
+    client_video_length: number
+  } | null>(null)
 
   const postFreetextAnswerToServer = async () => {
     if (!validAnnotationsDataAndSelection) {
@@ -352,7 +354,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         Date.now(),
         videoLength,
         currentNarrativeIndex,
-
       ],
     }
 
@@ -751,7 +752,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     }
     console.log("Video length local:", local_vid_duration)
 
-    setVideoLength({server_video_length, client_video_length: local_vid_duration})
+    setVideoLength({
+      server_video_length,
+      client_video_length: local_vid_duration,
+    })
     // TODO: fix the length mismatch issue, currently we just set it to only care about a 1s mismatch.
     if (Math.abs(server_video_length - local_vid_duration) > 1) {
       setVideoLengthMismatch(true)
@@ -1166,7 +1170,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           >
             <p>
               Annotation is not possible. Please reload the page. If that
-              doesn't work, update your browser or try with a different one (Chrome).
+              doesn't work, update your browser or try with a different one
+              (Chrome).
             </p>
           </Modal>
         )}
@@ -1367,12 +1372,22 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           </div>
           <div className={`${styles["sidebar"]} ${styles["right-sidebar"]}`}>
             <div className={styles["sidebar-block"]}>
-              <Text>Conversing Participants:</Text>
+              <Text fontSize={"md"}>Conversation partners:</Text>
               <Participant_image
                 participant_id={
                   props.spec.annotations[currMediaIndex].conversation_floor
                 }
               />
+            </div>
+            <div className={styles["sidebar-block"]}>
+              <Text fontSize={"md"}>Find participants:</Text>
+              <ButtonChakra
+                colorScheme={"blue"}
+                size={"lg"}
+                onClick={() => setShowingGallery(true)}
+              >
+                Gallery
+              </ButtonChakra>
             </div>
             <div className={styles["sidebar-block"]}>
               {/* <ActionAnnotationFlashscreen
@@ -1384,7 +1399,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                 annotationsDataMirror[selectedAnnotationIndex].category
               }
             /> */}
-              <Text>Toggle individual audio:</Text>
+              <Text fontSize={"md"}>Toggle individual audio:</Text>
               <CheckboxChakra
                 isChecked={allChecked}
                 isIndeterminate={isIndeterminate}
@@ -1411,16 +1426,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                   </CheckboxChakra>
                 ))}
               </Stack>
-            </div>
-            <div className={styles["sidebar-block"]}>
-              <Text>Show all participants and their id's:</Text>
-              <ButtonChakra
-                colorScheme={"blue"}
-                size={"lg"}
-                onClick={() => setShowingGallery(true)}
-              >
-                Gallery
-              </ButtonChakra>
             </div>
           </div>
         </div>
