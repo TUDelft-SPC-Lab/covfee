@@ -352,7 +352,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         Date.now(),
         videoLength,
         currentNarrativeIndex,
-
+        answerForm,
       ],
     }
 
