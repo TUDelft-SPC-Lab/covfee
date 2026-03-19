@@ -89,7 +89,14 @@ def update_annotation(annotid):
             if key in ["created_at", "updated_at"]:
                 continue
             if key == "data_json":
-                narrative_data, paused_at, current_video_time, time_annot, video_length, narrative_index = value
+                (
+                    narrative_data,
+                    paused_at,
+                    current_video_time,
+                    time_annot,
+                    video_length,
+                    narrative_index,
+                ) = value
                 narrative_index = str(narrative_index)
                 new_data = {
                     "narratives": narrative_data,
@@ -125,10 +132,15 @@ def delete_annotation(annotid):
 @bp.route("/video/<video_name>/length")
 def get_video_length(video_name):
     print(f"Getting length for video: {video_name}")
+
+    ffprobe_path = Path("/home/arthurmercier/miniconda3/envs/ffmpeg-8/bin/ffprobe")
+    if not ffprobe_path.exists():
+        ffprobe_path = Path("/usr/bin/ffprobe")
+
     try:
         result = subprocess.run(
             [
-                "/home/arthurmercier/miniconda3/envs/ffmpeg-8/bin/ffprobe",
+                str(ffprobe_path),
                 "-v",
                 "error",
                 "-show_entries",
