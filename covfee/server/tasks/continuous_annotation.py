@@ -128,7 +128,7 @@ def get_video_length(video_name):
     try:
         result = subprocess.run(
             [
-                "/usr/bin/ffprobe",
+                "/home/arthurmercier/miniconda3/envs/ffmpeg-8/bin/ffprobe",
                 "-v",
                 "error",
                 "-show_entries",
