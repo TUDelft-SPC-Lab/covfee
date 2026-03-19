@@ -175,41 +175,41 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   useEffect(() => {
     setNarratives(
-    answerForm == "A"
-      ? {
-          narratives: [
-            {
-              created_at: Date.now(),
-              timestamp_start: 0,
-              timestamp_end: 0,
-              intention_description: "",
-              intention_description_confidence: null,
-              intention_explanation: "",
-              intention_explanation_confidence: null,
-              intention_intensity: "",
-              counterfactual_explanation: "",
-              narrative_index: 0,
-            },
-          ],
-          pausedAt: [],
-        }
-      : {
-          narratives: [
-            {
-              created_at: Date.now(),
-              timestamp_start: 0,
-              timestamp_end: 0,
-              intention_description: "",
-              intention_description_confidence: null,
-              intention_explanation: "",
-              intention_explanation_confidence: null,
-              intention_intensity: "",
-              counterfactual_explanation: "",
-              narrative_index: 0,
-            },
-          ],
-          pausedAt: [],
-        },
+      answerForm == "A"
+        ? {
+            narratives: [
+              {
+                created_at: Date.now(),
+                timestamp_start: 0,
+                timestamp_end: 0,
+                intention_description: "",
+                intention_description_confidence: null,
+                intention_explanation: "",
+                intention_explanation_confidence: null,
+                intention_intensity: "",
+                counterfactual_explanation: "",
+                narrative_index: 0,
+              },
+            ],
+            pausedAt: [],
+          }
+        : {
+            narratives: [
+              {
+                created_at: Date.now(),
+                timestamp_start: 0,
+                timestamp_end: 0,
+                intention_description: "",
+                intention_description_confidence: null,
+                intention_explanation: "",
+                intention_explanation_confidence: null,
+                intention_intensity: "",
+                counterfactual_explanation: "",
+                narrative_index: 0,
+              },
+            ],
+            pausedAt: [],
+          },
     )
   }, [currMediaIndex])
 
