@@ -6,6 +6,7 @@ export interface AnnotationDataSpec {
   category: string
   participant: string
   conversation_floor: number[]
+  AB_test?: "A" | "B"
   interface: "RankTrace" | "GTrace" | "Binary"
 }
 export interface MediaSpec {
