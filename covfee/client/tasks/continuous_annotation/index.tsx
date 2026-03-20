@@ -375,8 +375,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         Date.now(),
         videoLength,
         narrativeIndexToUse,
-
         answerForm,
+        annotatorMeta.prolificPid
       ],
     }
 

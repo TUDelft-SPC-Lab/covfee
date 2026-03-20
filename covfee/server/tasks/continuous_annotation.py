@@ -97,6 +97,7 @@ def update_annotation(annotid):
                     video_length,
                     narrative_index,
                     form_option,
+                    prolific_pid,
                 ) = value
                 narrative_index = str(narrative_index)
                 new_data = {
@@ -106,6 +107,7 @@ def update_annotation(annotid):
                     "time_annot": time_annot,
                     "video_length": video_length,
                     "form_option": form_option,
+                    "prolific_pid": prolific_pid,
                 }
                 if annot.data_json is None:
                     annot.data_json = {}
