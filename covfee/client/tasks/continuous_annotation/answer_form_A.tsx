@@ -90,13 +90,12 @@ const Answer_form_A: React.FC<Props> = ({
     field: keyof Narrative_typeA,
     value: string,
   ) => {
-    setNarratives(
-      narratives.map((narrative, i) =>
-        i === narrativeIndex && narrative
-          ? { ...narrative, [field]: value }
-          : narrative,
-      ),
+    const nextNarratives = narratives.map((narrative, i) =>
+      i === narrativeIndex && narrative
+        ? { ...narrative, [field]: value }
+        : narrative,
     )
+    setNarratives(nextNarratives)
   }
   //Delete narrative confirmation dialog
   const {
@@ -181,7 +180,11 @@ const Answer_form_A: React.FC<Props> = ({
                   position="absolute"
                   top="5px"
                   right="5px"
-                  onClick={() => {onOpenDelete(); updateNarrativeField(0, "intention_description", "Intention was deleted"); postFreetextAnswerToServer()}}
+                  onClick={() => {
+                    onOpenDelete()
+                    updateNarrativeField(i, "intention_description", "Intention was deleted")
+                  }}
+                  onBlur={postFreetextAnswerToServer}
                   isDisabled={narratives.length === 1}
                 />
                 <Timestamp
@@ -282,8 +285,12 @@ const Answer_form_A: React.FC<Props> = ({
         </ButtonChakra>
         <Checkbox
           paddingBottom={"15px"}
-          onChange={(e) => {setNoIntentionSeen(e.target.checked); updateNarrativeField(0, "intention_description", "No intention was found"); postFreetextAnswerToServer()}}
+          onChange={(e) => {
+            setNoIntentionSeen(e.target.checked)
+            updateNarrativeField(index, "intention_description", "No intention was found")
+          }}
           isChecked={noIntentionSeen}
+          onBlur={postFreetextAnswerToServer}
         >
           <strong>No Intention:</strong> If you watch the entire clip and see no
           clear intention, you may check the box.{" "}

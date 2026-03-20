@@ -86,18 +86,17 @@ const Answer_form_B: React.FC<Props> = ({
   }
 
   const updateNarrativeField = (
-    narrativeIndex: number,
-    field: keyof Narrative_typeB,
-    value: string,
-  ) => {
-    setNarratives(
-      narratives.map((narrative, i) =>
+      narrativeIndex: number,
+      field: keyof Narrative_typeB,
+      value: string,
+    ) => {
+      const nextNarratives = narratives.map((narrative, i) =>
         i === narrativeIndex && narrative
           ? { ...narrative, [field]: value }
           : narrative,
-      ),
-    )
-  }
+      )
+      setNarratives(nextNarratives)
+    }
   //Delete narrative confirmation dialog
   const {
     isOpen: isOpenDelete,
@@ -180,7 +179,11 @@ const Answer_form_B: React.FC<Props> = ({
                   position="absolute"
                   top="8px"
                   right="8px"
-                  onClick={() => {onOpenDelete(); updateNarrativeField(0, "intention_description", "Intention was deleted"); postFreetextAnswerToServer()}}
+                  onClick={() => {
+                    onOpenDelete()
+                    updateNarrativeField(i, "intention_description", "Intention was deleted")
+                  }}
+                  onBlur={postFreetextAnswerToServer}
                   isDisabled={narratives.length === 1}
                 />
                 <Timestamp
@@ -281,8 +284,12 @@ const Answer_form_B: React.FC<Props> = ({
         </ButtonChakra>
         <Checkbox
           paddingBottom={"15px"}
-          onChange={(e) => {setNoIntentionSeen(e.target.checked); updateNarrativeField(0, "intention_description", "No intention was found"); postFreetextAnswerToServer()}}
+          onChange={(e) => {
+            setNoIntentionSeen(e.target.checked)
+            updateNarrativeField(index, "intention_description", "No intention was found")
+          }}
           isChecked={noIntentionSeen}
+          onBlur={postFreetextAnswerToServer}
         >
           <strong>No Intention:</strong> If you watch the entire clip and see no
           clear intention, you may check the box.{" "}

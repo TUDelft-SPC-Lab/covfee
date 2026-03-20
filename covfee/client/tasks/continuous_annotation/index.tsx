@@ -125,10 +125,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   const nextCurrMediaIndex = (add: number = 1) => {
     const newIndex = currMediaIndex + add
-    const clamped = Math.max(0, Math.min(newIndex, 2))
+    const clamped = Math.max(0, Math.min(newIndex, props.spec.media.length - 1))
     setCurrMediaIndex(clamped)
-    taskCompletionPercentage = (100 * (clamped + 1)) / props.spec.media.length
-    props.onUpdateProgress(taskCompletionPercentage)
+    setTaskCompletionPercentage((100 * (clamped)) / props.spec.media.length)
+    props.onUpdateProgress((100 * (clamped)) / props.spec.media.length)
   }
   console.log("It Works AB", props.spec.annotations[currMediaIndex].AB_test)
   const [answerForm, setAnswerForm] = useState<"A" | "B">(
@@ -279,7 +279,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         description: "Please continue with the next one.",
         icon: <InfoCircleFilled style={{ color: "green" }} />,
       })
+      nextCurrMediaIndex()
     } else {
+      props.onUpdateProgress(100)
       notification.open({
         message: "All annotations completed!",
         icon: <InfoCircleFilled style={{ color: "green" }} />,
@@ -289,7 +291,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         window.location.href = redirectUrl
       }
     }
-    nextCurrMediaIndex()
+    
   }
 
   // const PARTICIPANT_AUDIO_SRC = ["https://www.w3schools.com/html/mov_bbb.mp4", "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"]
@@ -453,7 +455,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   var numberOfAnnotationsCompleted = 0
   var numberOfAnnotations = 0
 
-  var taskCompletionPercentage = 0
+  const [taskCompletionPercentage, setTaskCompletionPercentage] = useState(0)
 
   const selectFirstAvailableAnnotationIndexBasedOnParticipantName = (
     participant: string,
