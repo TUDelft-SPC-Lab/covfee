@@ -127,6 +127,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     const newIndex = currMediaIndex + add
     const clamped = Math.max(0, Math.min(newIndex, 2))
     setCurrMediaIndex(clamped)
+    taskCompletionPercentage = (100 * (clamped + 1)) / props.spec.media.length
+    props.onUpdateProgress(taskCompletionPercentage)
   }
   console.log("It Works AB", props.spec.annotations[currMediaIndex].AB_test)
   const [answerForm, setAnswerForm] = useState<"A" | "B">(
@@ -450,20 +452,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   var isEntireTaskCompleted = false
   var numberOfAnnotationsCompleted = 0
   var numberOfAnnotations = 0
+
   var taskCompletionPercentage = 0
-  if (annotationsDataMirror !== undefined) {
-    isEntireTaskCompleted = annotationsDataMirror.every(
-      (annotationData: AnnotationData) =>
-        dataJsonContainsAValidAnnotation(annotationData.data_json),
-    )
-    numberOfAnnotations = annotationsDataMirror.length
-    numberOfAnnotationsCompleted = annotationsDataMirror.filter(
-      (annotationData: AnnotationData) =>
-        dataJsonContainsAValidAnnotation(annotationData.data_json),
-    ).length
-    taskCompletionPercentage =
-      (100 * numberOfAnnotationsCompleted) / numberOfAnnotations
-  }
 
   const selectFirstAvailableAnnotationIndexBasedOnParticipantName = (
     participant: string,
@@ -566,10 +556,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       setSelectedAnnotationIndex(0)
     }
   }, [selectedAnnotationIndex, annotationsDataMirror])
-
-  useEffect(() => {
-    props.onUpdateProgress(taskCompletionPercentage)
-  }, [annotationsDataMirror])
 
   //*************************************************************//
   //----------- Video playback fuctionality -------------------- //
