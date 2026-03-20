@@ -266,7 +266,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   }, [answerForm])
 
   const submitFreeTextToServer = async () => {
-    postFreetextAnswerToServer()
+    for (let narrativeIndex = 0; narrativeIndex < narratives.narratives.length; narrativeIndex++) {
+      setCurrentNarrativeIndex(narrativeIndex)
+      postFreetextAnswerToServer()
+    }
     if (selectedCamViewIndex < props.spec.media.length - 1) {
       setSelectedCamViewIndex(selectedCamViewIndex + 1)
       notification.open({

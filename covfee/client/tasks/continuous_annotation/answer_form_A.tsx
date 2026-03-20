@@ -181,7 +181,7 @@ const Answer_form_A: React.FC<Props> = ({
                   position="absolute"
                   top="5px"
                   right="5px"
-                  onClick={onOpenDelete}
+                  onClick={() => {onOpenDelete(); updateNarrativeField(0, "intention_description", "Intention was deleted"); postFreetextAnswerToServer()}}
                   isDisabled={narratives.length === 1}
                 />
                 <Timestamp
@@ -282,7 +282,7 @@ const Answer_form_A: React.FC<Props> = ({
         </ButtonChakra>
         <Checkbox
           paddingBottom={"15px"}
-          onChange={(e) => setNoIntentionSeen(e.target.checked)}
+          onChange={(e) => {setNoIntentionSeen(e.target.checked); updateNarrativeField(0, "intention_description", "No intention was found"); postFreetextAnswerToServer()}}
           isChecked={noIntentionSeen}
         >
           <strong>No Intention:</strong> If you watch the entire clip and see no
@@ -315,6 +315,7 @@ const Answer_form_A: React.FC<Props> = ({
                 colorScheme="blue"
                 onClick={async () => {
                   await submitFreeTextToServer()
+                  setIndexAndNotify(0)
                   onCloseSubmit()
                 }}
                 ml={3}
