@@ -31,7 +31,10 @@ type Props = {
   videoLengthMismatch?: boolean
   narratives?: (Narrative_typeA | Narrative_typeB | null)[]
   setNarratives: (value: (Narrative_typeA | Narrative_typeB | null)[]) => void
-  postFreetextAnswerToServer: () => void
+  postFreetextAnswerToServer: (payload?: {
+    narratives?: (Narrative_typeA | Narrative_typeB | null)[]
+    currentNarrativeIndex?: number
+  }) => void
   submitFreeTextToServer: () => void
   noIntentionSeen: boolean
   setNoIntentionSeen: (value: boolean) => void
@@ -105,6 +108,18 @@ const Answer_form_A: React.FC<Props> = ({
   } = useDisclosure()
   const deleteTab = () => {
     if (!narratives) return
+
+    const updatedNarratives = narratives.map((narrative, i) =>
+      i === index && narrative
+        ? { ...narrative, intention_description: "Intention was deleted" }
+        : narrative,
+    )
+
+    setNarratives(updatedNarratives)
+    postFreetextAnswerToServer({
+      narratives: updatedNarratives,
+      currentNarrativeIndex: index,
+    })
 
     // remove narrative
     setNarratives(narratives.filter((_, i) => i !== index))
@@ -182,9 +197,7 @@ const Answer_form_A: React.FC<Props> = ({
                   right="5px"
                   onClick={() => {
                     onOpenDelete()
-                    updateNarrativeField(i, "intention_description", "Intention was deleted")
                   }}
-                  onBlur={postFreetextAnswerToServer}
                   isDisabled={narratives.length === 1}
                 />
                 <Timestamp
@@ -290,7 +303,7 @@ const Answer_form_A: React.FC<Props> = ({
             updateNarrativeField(index, "intention_description", "No intention was found")
           }}
           isChecked={noIntentionSeen}
-          onBlur={postFreetextAnswerToServer}
+          onBlur={() => postFreetextAnswerToServer()}
         >
           <strong>No Intention:</strong> If you watch the entire clip and see no
           clear intention, you may check the box.{" "}

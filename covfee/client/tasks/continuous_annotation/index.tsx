@@ -98,6 +98,11 @@ type Narrative_List = {
   pausedAt: number[]
 }
 
+type FreeTextAnswerPayload = {
+  narratives?: Narrative_List["narratives"]
+  currentNarrativeIndex?: number
+}
+
 const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   const args: AllPropsRequired<Props> = React.useMemo(() => {
     return {
@@ -349,20 +354,27 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     client_video_length: number
   } | null>(null)
 
-  const postFreetextAnswerToServer = async () => {
+  const postFreetextAnswerToServer = async (
+    payload?: FreeTextAnswerPayload,
+  ) => {
     if (!validAnnotationsDataAndSelection) {
       return
     }
+
+    const narrativesToUse = payload?.narratives ?? narratives.narratives
+    const narrativeIndexToUse =
+      payload?.currentNarrativeIndex ?? currentNarrativeIndex
+
     console.log("Posting new data to server", narratives, getCurrentVideoTime())
     const freeText_answer_data_to_post = {
       ...annotationsDataMirror[selectedAnnotationIndex],
       data_json: [
-        narratives.narratives[currentNarrativeIndex],
+        narrativesToUse[narrativeIndexToUse],
         narratives.pausedAt,
         getCurrentVideoTime(),
         Date.now(),
         videoLength,
-        currentNarrativeIndex,
+        narrativeIndexToUse,
 
         answerForm,
       ],
