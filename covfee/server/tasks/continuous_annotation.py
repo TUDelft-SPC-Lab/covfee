@@ -96,6 +96,7 @@ def update_annotation(annotid):
                     time_annot,
                     video_length,
                     narrative_index,
+                    form_option,
                 ) = value
                 narrative_index = str(narrative_index)
                 new_data = {
@@ -104,6 +105,7 @@ def update_annotation(annotid):
                     "current_video_time": current_video_time,
                     "time_annot": time_annot,
                     "video_length": video_length,
+                    "form_option": form_option,
                 }
                 if annot.data_json is None:
                     annot.data_json = {}

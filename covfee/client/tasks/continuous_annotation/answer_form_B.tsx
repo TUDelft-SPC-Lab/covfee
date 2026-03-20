@@ -197,7 +197,6 @@ const Answer_form_B: React.FC<Props> = ({
                   which you perceive this intention in the video.
                 </Timestamp>
                 <Free_text
-                  paddingTop={"5px"}
                   narrative={narrative}
                   field={"intention_description"}
                   i={i}
