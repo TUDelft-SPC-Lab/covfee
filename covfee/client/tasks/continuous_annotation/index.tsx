@@ -27,9 +27,6 @@ import {
 // import Ingroupgallery_one from "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session1_cam6_10_2.png"
 // import Ingroupgallery_two from "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session2_cam1_5_2.png"
 
-import { Answer_form_A } from "./answer_form_A"
-import { Answer_form_B } from "./answer_form_B"
-
 import {
   ABORT_ONGOING_ANNOTATION_KEY,
   CHANGE_VIEW_NEXT_KEY,
@@ -38,6 +35,7 @@ import {
   TIP_EMOJI,
 } from "./constants"
 import styles from "./continous_annotation.module.css"
+import KeyPress from "./custom_components/key_press"
 import { Participant_image } from "./custom_components/participant_image"
 import {
   AnnotationOption,
@@ -47,6 +45,23 @@ import {
 import { slice } from "./slice"
 import type { AnnotationDataSpec, ContinuousAnnotationTaskSpec } from "./spec"
 import TaskProgress, { TaskAlreadyCompleted } from "./task_progress"
+
+type Timestamp = {
+  start: number
+  end: number
+  category:
+    | "Still"
+    | "Gesture"
+    | "Raise to lips"
+    | "Drink"
+    | "Return from lips"
+    | "Nodding"
+    | "Uncertain"
+}
+
+type PressData = {
+  data: Timestamp[]
+}
 
 interface Props extends CovfeeTaskProps<ContinuousAnnotationTaskSpec> {}
 
@@ -66,23 +81,6 @@ type AnnotationData = AnnotationDataSpec & {
 type ActionAnnotationDataArray = {
   buffer: number[]
   needs_upload: boolean
-}
-
-type Timestamp = {
-  start: number
-  end: number
-}
-
-type PressData = {
-  category:
-    | "Still"
-    | "Gesture"
-    | "Raise to lips"
-    | "Drink"
-    | "Return from lips"
-    | "Nodding"
-    | "Uncertain"
-  data: Timestamp[]
 }
 
 type Narrative_typeA = {
@@ -138,6 +136,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //*************************************************************//
   //------------------ States definition -------------------- //
   //*************************************************************//
+
+  const [pressData, setPressData] = useState<PressData>({ data: [] })
 
   //Purely to help sampling the video clips. remove immediatly
   const [currMediaIndex, setCurrMediaIndex] = useState<number>(0)
@@ -784,14 +784,14 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       client_video_length: local_vid_duration,
     })
     // TODO: fix the length mismatch issue, currently we just set it to only care about a 1s mismatch.
-    if (Math.abs(server_video_length - local_vid_duration) > 100) {
-      setVideoLengthMismatch(true)
-      setShowVideoLengthMismatch(true)
-      setShowTaskVariantPopupBulletPoints(false)
-    } else {
-      setVideoLengthMismatch(false)
-      setShowVideoLengthMismatch(false)
-    }
+    // if (Math.abs(server_video_length - local_vid_duration) > 100) {
+    //   setVideoLengthMismatch(true)
+    //   setShowVideoLengthMismatch(true)
+    //   setShowTaskVariantPopupBulletPoints(false)
+    // } else {
+    //   setVideoLengthMismatch(false)
+    //   setShowVideoLengthMismatch(false)
+    // }
   }
 
   const forceVideoAudioRequirement = () => {
@@ -1332,70 +1332,15 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                 </div>
               )}
             </div>
-            {/* TODO: Remove this line after testing */}
-            {/* <ButtonChakra
-              onClick={() => setAnswerForm(answerForm == "A" ? "B" : "A")}
-            >
-              Test button to switch forms
-            </ButtonChakra> */}
-            {answerForm == "A" ? (
-              <Answer_form_A
-                videoLengthMismatch={videoLengthMismatch}
-                narratives={narratives.narratives}
-                setNarratives={(value) =>
-                  setNarratives({ ...narratives, narratives: value })
-                }
-                postFreetextAnswerToServer={postFreetextAnswerToServer}
-                submitFreeTextToServer={submitFreeTextToServer}
-                setNoIntentionSeen={(value) => setNoIntentionSeen(value)}
-                noIntentionSeen={noIntentionSeen}
-                getCurrentPausedTime={() =>
-                  Number(
-                    Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(
-                      2,
-                    ),
-                  )
-                }
-                onNarrativeIndexChange={setCurrentNarrativeIndex}
-                submitDialogueText={
-                  currMediaIndex == 2 ? BackToProlificText : NextVideoText
-                }
-              />
-            ) : (
-              <Answer_form_B
-                videoLengthMismatch={videoLengthMismatch}
-                narratives={narratives.narratives}
-                setNarratives={(value) =>
-                  setNarratives({ ...narratives, narratives: value })
-                }
-                postFreetextAnswerToServer={postFreetextAnswerToServer}
-                submitFreeTextToServer={submitFreeTextToServer}
-                setNoIntentionSeen={(value) => setNoIntentionSeen(value)}
-                noIntentionSeen={noIntentionSeen}
-                getCurrentPausedTime={() =>
-                  Number(
-                    Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(
-                      2,
-                    ),
-                  )
-                }
-                onNarrativeIndexChange={setCurrentNarrativeIndex}
-                submitDialogueText={
-                  currMediaIndex == 2 ? BackToProlificText : NextVideoText
-                }
-              />
-            )}
-            {/* <>
-            <h3>Node data:</h3>
-            <p>{JSON.stringify(node)}</p>
-
-            <p>
-              URL of the task API is {Constants.api_url + node.customApiBase}
-            </p>
-
-            <h3>Annotations in the database:</h3>
-            <p>{JSON.stringify(annotationsDataMirror)}</p>
-          </> */}
+            <KeyPress
+              pressData={pressData}
+              setPressData={setPressData}
+              getCurrentPausedTime={() =>
+                Number(
+                  Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2),
+                )
+              }
+            />
           </div>
           <div className={`${styles["sidebar"]} ${styles["right-sidebar"]}`}>
             <div className={styles["sidebar-block"]}>

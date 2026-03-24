@@ -1,27 +1,91 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
-export default function KeyPress(): null {
-  const onPressSpace = () => {
-    console.log("Spacebar pressed")
+type Timestamp = {
+  start: number
+  end: number
+  category:
+    | "Still"
+    | "Gesture"
+    | "Raise to lips"
+    | "Drink"
+    | "Return from lips"
+    | "Nodding"
+    | "Uncertain"
+}
+
+type PressData = {
+  data: Timestamp[]
+}
+
+interface Props {
+  pressData: PressData
+  setPressData: (data: PressData) => void
+  getCurrentPausedTime: () => number
+}
+
+export default function KeyPress({
+  pressData,
+  setPressData,
+  getCurrentPausedTime,
+}: Props): null {
+  const [currTimestamp, setCurrTimestamp] = useState<Timestamp>({
+    start: 0,
+    end: 0,
+    category: "Uncertain",
+  })
+
+  const keyDict = {
+    Digit1: "Still",
+    Digit2: "Gesture",
+    Digit3: "Raise to lips",
+    Digit4: "Drink",
+    Digit5: "Return from lips",
+    Digit6: "Nodding",
+    Digit7: "Uncertain",
+  }
+  type DigitKey = keyof typeof keyDict
+
+  function getValue(key: DigitKey) {
+    return keyDict[key]
   }
 
-  const onReleaseSpace = () => {
-    console.log("Spacebar released")
+  useEffect(() => {
+    if (currTimestamp.start !== 0 && currTimestamp.end !== 0) {
+      setPressData({
+        data: [...pressData.data, currTimestamp],
+      })
+    }
+    console.log("Current Data!!!:", pressData.data)
+  }, [currTimestamp])
+
+  const onPressKey = (key: string) => {
+    console.log("Spacebar pressed")
+    setCurrTimestamp({
+      start: getCurrentPausedTime(),
+      end: 0,
+      category: keyDict[key] || "Uncertain",
+    })
+  }
+
+  const onReleaseKey = (key: string) => {
+    console.log("Spacebar released", getCurrentPausedTime())
+    setCurrTimestamp((prev) => ({
+      ...prev,
+      end: getCurrentPausedTime(),
+    }))
   }
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space" && !e.repeat) {
+      if (!e.repeat) {
         e.preventDefault()
-        onPressSpace()
+        onPressKey(e.code)
       }
     }
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
-        e.preventDefault()
-        onReleaseSpace()
-      }
+      e.preventDefault()
+      onReleaseKey(e.code)
     }
 
     window.addEventListener("keydown", handleKeyDown)
