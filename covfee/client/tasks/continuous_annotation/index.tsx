@@ -16,17 +16,15 @@ import {
   Button as ButtonChakra,
   Modal as ChakraModal,
   ChakraProvider,
-  Checkbox as CheckboxChakra,
   Image as ImageChakra,
   ModalCloseButton,
   ModalContent,
   ModalOverlay,
-  Stack,
-  Text,
 } from "@chakra-ui/react"
 // import Ingroupgallery_one from "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session1_cam6_10_2.png"
 // import Ingroupgallery_two from "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session2_cam1_5_2.png"
 
+import { Answer_form_A } from "./answer_form_A"
 import {
   ABORT_ONGOING_ANNOTATION_KEY,
   CHANGE_VIEW_NEXT_KEY,
@@ -35,8 +33,6 @@ import {
   TIP_EMOJI,
 } from "./constants"
 import styles from "./continous_annotation.module.css"
-import KeyPress from "./custom_components/key_press"
-import { Participant_image } from "./custom_components/participant_image"
 import {
   AnnotationOption,
   InstructionsSidebar,
@@ -46,21 +42,12 @@ import { slice } from "./slice"
 import type { AnnotationDataSpec, ContinuousAnnotationTaskSpec } from "./spec"
 import TaskProgress, { TaskAlreadyCompleted } from "./task_progress"
 
-type Timestamp = {
-  start: number
-  end: number
-  category:
-    | "Still"
-    | "Gesture"
-    | "Raise to lips"
-    | "Drink"
-    | "Return from lips"
-    | "Nodding"
-    | "Uncertain"
-}
-
-type PressData = {
-  data: Timestamp[]
+type GestaltAnnotation = {
+  speaker_intention: string
+  response: string
+  annotation_type?: "A" | "B"
+  video_start_time?: number
+  video_end_time?: number
 }
 
 interface Props extends CovfeeTaskProps<ContinuousAnnotationTaskSpec> {}
@@ -119,6 +106,19 @@ type FreeTextAnswerPayload = {
 }
 
 const ContinuousAnnotationTask: React.FC<Props> = (props) => {
+  // Helper function to format timestamps as human-readable with millisecond precision
+  const formatTimestamp = () => {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, "0")
+    const date = String(now.getDate()).padStart(2, "0")
+    const hours = String(now.getHours()).padStart(2, "0")
+    const minutes = String(now.getMinutes()).padStart(2, "0")
+    const seconds = String(now.getSeconds()).padStart(2, "0")
+    const ms = String(now.getMilliseconds()).padStart(3, "0")
+    return `${year}-${month}-${date} ${hours}:${minutes}:${seconds}.${ms}`
+  }
+
   const args: AllPropsRequired<Props> = React.useMemo(() => {
     return {
       ...props,
@@ -136,8 +136,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //*************************************************************//
   //------------------ States definition -------------------- //
   //*************************************************************//
-
-  const [pressData, setPressData] = useState<PressData>({ data: [] })
 
   //Purely to help sampling the video clips. remove immediatly
   const [currMediaIndex, setCurrMediaIndex] = useState<number>(0)
@@ -159,6 +157,15 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   )
   const [currentNarrativeIndex, setCurrentNarrativeIndex] = useState(0)
 
+  const [gestaltAnnotation, setGestaltAnnotation] = useState<GestaltAnnotation>(
+    {
+      speaker_intention: "",
+      response: "",
+      annotation_type: answerForm,
+      video_start_time: 0,
+      video_end_time: 0,
+    },
+  )
   //Initialize first narrative based on answer form
   const [narratives, setNarratives] = useState<Narrative_List>(
     answerForm == "A"
@@ -198,9 +205,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         },
   )
 
-  useEffect(() => {
-    setPressData({ data: [] })
-  }, [currMediaIndex])
+  // useEffect(() => {
+  //   setGestaltAnnotation({ speaker_intention: "", response: "" })
+  // }, [currMediaIndex])
 
   const setPausedAt = (item: number) => {
     setNarratives((prev) => {
@@ -304,7 +311,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       return
     }
 
-    const narrativesToUse = payload?.narratives ?? pressData
+    const narrativesToUse = payload?.narratives ?? gestaltAnnotation
     const narrativeIndexToUse = selectedCamViewIndex
 
     console.log("Posting new data to server", narratives, getCurrentVideoTime())
@@ -388,6 +395,15 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   const [videoLengthMismatch, setVideoLengthMismatch] = useState(false)
   const [showVideoLengthMismatch, setShowVideoLengthMismatch] = useState(false)
+  const [showInitialModal, setShowInitialModal] = useState(true)
+
+  useEffect(() => {
+    setGestaltAnnotation((prev) => ({
+      ...prev,
+      video_start_time: 0,
+      video_end_time: 0,
+    }))
+  }, [currMediaIndex, selectedCamViewIndex])
 
   const dataJsonContainsAValidAnnotation = (
     data_json: null | object,
@@ -544,15 +560,32 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       const handleVolumeChange = () => {
         forceVideoAudioRequirement()
       }
+      const handleVideoPlay = () => {
+        console.log(
+          "Video play event detected, setting video_start_time if not set",
+          Date.now(),
+        )
+        setGestaltAnnotation((prev) => {
+          if (prev.video_start_time && prev.video_start_time > 0) {
+            return prev
+          }
+          return {
+            ...prev,
+            video_start_time: formatTimestamp(),
+          }
+        })
+      }
       videoPlayerRef.current.on("ended", handleVideoEnd)
       videoPlayerRef.current.on("loadstart", handleVideoLoadStart)
       videoPlayerRef.current.on("loadeddata", checkVideoLengthWithServer)
       videoPlayerRef.current.on("volumechange", handleVolumeChange)
+      videoPlayerRef.current.on("play", handleVideoPlay)
       return () => {
         videoPlayerRef.current.off("ended", handleVideoEnd)
         videoPlayerRef.current.off("loadstart", handleVideoLoadStart)
         videoPlayerRef.current.off("loadeddata", checkVideoLengthWithServer)
         videoPlayerRef.current.off("volumechange", handleVolumeChange)
+        videoPlayerRef.current.off("play", handleVideoPlay)
       }
     }
   }) // No dependencies so all functions are updated with all latest state
@@ -568,8 +601,13 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   }, [isAnnotating])
 
   const handleVideoEnd = () => {
+    console.log("Video ended, handling end of annotation", Date.now())
     handleAnnotationsOnVideoEndEvent()
     setIsAnnotating(false)
+    setGestaltAnnotation((prev) => ({
+      ...prev,
+      video_end_time: formatTimestamp(),
+    }))
   }
 
   // We define the options, more specifically the sources, for the video player
@@ -1121,6 +1159,37 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           </Modal>
         )}
         <ChakraModal
+          isOpen={showInitialModal}
+          onClose={() => setShowInitialModal(false)}
+          isCentered
+          size="lg"
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalCloseButton />
+            <div style={{ padding: "40px", textAlign: "center" }}>
+              <h2 style={{ marginBottom: "20px" }}>
+                Welcome to the Annotation Task
+              </h2>
+              <p style={{ marginBottom: "30px" }}>
+                In the following videos, you will watch an interaction. First,
+                you will be given some context. Then, you will watch a
+                progressively given utterance. For this utterance, think of the
+                following question, even if it’s still incomplete:
+              </p>
+              <p>What is the intended social action of the (last) speaker?</p>
+              <p>What actions could the other side take as a response?</p>
+              <p>Make your best guess if you're uncertain.</p>
+              <ButtonChakra
+                colorScheme="blue"
+                onClick={() => setShowInitialModal(false)}
+              >
+                Continue
+              </ButtonChakra>
+            </div>
+          </ModalContent>
+        </ChakraModal>
+        <ChakraModal
           isOpen={showingGallery}
           onClose={() => setShowingGallery(false)}
           size="full"
@@ -1250,81 +1319,34 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                 </div>
               )}
             </div>
-            <KeyPress
-              pressData={pressData}
-              setPressData={setPressData}
-              getCurrentPausedTime={() =>
-                Number(
-                  Number(videoPlayerRef.current?.currentTime() ?? 0).toFixed(2),
-                )
-              }
-            />
             <div>
-              <ButtonChakra
-                mt="10px"
-                colorScheme="blue"
-                onClick={submitFreeTextToServer}
-              >
-                Submit Annotation
-              </ButtonChakra>
-            </div>
-          </div>
-          <div className={`${styles["sidebar"]} ${styles["right-sidebar"]}`}>
-            <div className={styles["sidebar-block"]}>
-              <Text fontSize={"md"}>Conversation partners:</Text>
-              <Participant_image
-                participant_id={
-                  props.spec.annotations[currMediaIndex].conversation_floor
-                }
-              />
-            </div>
-            <div className={styles["sidebar-block"]}>
-              <Text fontSize={"md"}>Find participants:</Text>
-              <ButtonChakra
-                colorScheme={"blue"}
-                size={"lg"}
-                onClick={() => setShowingGallery(true)}
-              >
-                Gallery
-              </ButtonChakra>
-            </div>
-            <div className={styles["sidebar-block"]}>
-              {/* <ActionAnnotationFlashscreen
-              active={
-                actionAnnotationStartTime !==
-                UNINITIALIZED_ACTION_ANNOTATION_START_TIME
-              }
-              annotation_category={
-                annotationsDataMirror[selectedAnnotationIndex].category
-              }
-            /> */}
-              <Text fontSize={"md"}>Toggle individual audio:</Text>
-              <CheckboxChakra
-                isChecked={allChecked}
-                isIndeterminate={isIndeterminate}
-                onChange={(e) =>
-                  setAudioToggles(audioToggles.map(() => e.target.checked))
-                }
-              >
-                All Participants
-              </CheckboxChakra>
-              <Stack pl={6} mt={1} spacing={1}>
-                {conversationFloorParticipants.map((participantIndex) => (
-                  <CheckboxChakra
-                    key={participantIndex}
-                    isChecked={audioToggles[participantIndex]}
-                    onChange={(e) =>
-                      setAudioToggles((prev) =>
-                        prev.map((value, index) =>
-                          index === participantIndex ? e.target.checked : value,
-                        ),
-                      )
-                    }
-                  >
-                    Participant {participantIndex + 1}
-                  </CheckboxChakra>
-                ))}
-              </Stack>
+              {answerForm === "A" && (
+                <Answer_form_A
+                  videoLengthMismatch={videoLengthMismatch}
+                  gestaltAnnotation={gestaltAnnotation}
+                  setGestaltAnnotation={setGestaltAnnotation}
+                  postFreetextAnswerToServer={postFreetextAnswerToServer}
+                  submitFreeTextToServer={submitFreeTextToServer}
+                  noIntentionSeen={noIntentionSeen}
+                  setNoIntentionSeen={(value) => setNoIntentionSeen(value)}
+                  getCurrentPausedTime={() =>
+                    Number(
+                      Number(
+                        videoPlayerRef.current?.currentTime() ?? 0,
+                      ).toFixed(2),
+                    )
+                  }
+                />
+              )}
+              {answerForm === "B" && (
+                <ButtonChakra
+                  mt="10px"
+                  colorScheme="blue"
+                  onClick={submitFreeTextToServer}
+                >
+                  Submit Annotation
+                </ButtonChakra>
+              )}
             </div>
           </div>
         </div>
