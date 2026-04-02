@@ -141,6 +141,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   //Purely to help sampling the video clips. remove immediatly
   const [currMediaIndex, setCurrMediaIndex] = useState<number>(0)
+  console.log("Videos in spec:", props.spec.media)
   const current_video_src = props.spec.media[currMediaIndex]?.src
   console.log("Current video src:", current_video_src)
   const PARTICIPANT_AUDIO_SRC = props.spec.audioMedia[currMediaIndex].src ?? []
@@ -151,8 +152,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     setCurrMediaIndex(clamped)
     setTaskCompletionPercentage((100 * clamped) / props.spec.media.length)
     props.onUpdateProgress((100 * clamped) / props.spec.media.length)
+    setSelectedCamViewIndex(clamped)
   }
-  console.log("It Works AB", props.spec.annotations[currMediaIndex].AB_test)
   const [answerForm, setAnswerForm] = useState<"A" | "B">(
     props.spec.annotations[currMediaIndex].AB_test ?? "A",
   )
@@ -198,43 +199,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   )
 
   useEffect(() => {
-    setNarratives(
-      answerForm == "A"
-        ? {
-            narratives: [
-              {
-                created_at: Date.now(),
-                timestamp_start: 0,
-                timestamp_end: 0,
-                intention_description: "",
-                intention_description_confidence: null,
-                intention_explanation: "",
-                intention_explanation_confidence: null,
-                intention_intensity: "",
-                counterfactual_explanation: "",
-                narrative_index: 0,
-              },
-            ],
-            pausedAt: [],
-          }
-        : {
-            narratives: [
-              {
-                created_at: Date.now(),
-                timestamp_start: 0,
-                timestamp_end: 0,
-                intention_description: "",
-                intention_description_confidence: null,
-                intention_explanation: "",
-                intention_explanation_confidence: null,
-                intention_intensity: "",
-                counterfactual_explanation: "",
-                narrative_index: 0,
-              },
-            ],
-            pausedAt: [],
-          },
-    )
+    setPressData({ data: [] })
   }, [currMediaIndex])
 
   const setPausedAt = (item: number) => {
@@ -246,48 +211,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     })
   }
   const [noIntentionSeen, setNoIntentionSeen] = useState<boolean>(false)
-
-  // TODO:Remove this useEffect after testing
-  React.useEffect(() => {
-    //Reset narratives when answer form changes
-    if (answerForm == "A") {
-      setNarratives({
-        narratives: [
-          {
-            created_at: Date.now(),
-            timestamp_start: 0,
-            timestamp_end: 0,
-            intention_description: "",
-            intention_description_confidence: null,
-            intention_explanation: "",
-            intention_explanation_confidence: null,
-            intention_intensity: "",
-            counterfactual_explanation: "",
-            narrative_index: 0,
-          },
-        ],
-        pausedAt: [],
-      })
-    } else {
-      setNarratives({
-        narratives: [
-          {
-            created_at: Date.now(),
-            timestamp_start: 0,
-            timestamp_end: 0,
-            intention_description: "",
-            intention_description_confidence: null,
-            intention_explanation: "",
-            intention_explanation_confidence: null,
-            intention_intensity: "",
-            counterfactual_explanation: "",
-            narrative_index: 0,
-          },
-        ],
-        pausedAt: [],
-      })
-    }
-  }, [answerForm])
 
   const submitFreeTextToServer = async () => {
     for (
@@ -381,22 +304,17 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       return
     }
 
-    const narrativesToUse = payload?.narratives ?? narratives.narratives
-    const narrativeIndexToUse =
-      payload?.currentNarrativeIndex ?? currentNarrativeIndex
+    const narrativesToUse = payload?.narratives ?? pressData
+    const narrativeIndexToUse = selectedCamViewIndex
 
     console.log("Posting new data to server", narratives, getCurrentVideoTime())
     const freeText_answer_data_to_post = {
-      ...annotationsDataMirror[selectedAnnotationIndex],
       data_json: [
-        narrativesToUse[narrativeIndexToUse],
-        narratives.pausedAt,
+        narrativesToUse,
         getCurrentVideoTime(),
         Date.now(),
         videoLength,
         narrativeIndexToUse,
-        answerForm,
-        annotatorMeta.prolificPid,
       ],
     }
 
@@ -405,7 +323,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         Constants.base_url +
         node.customApiBase +
         "/annotations/" +
-        (freeText_answer_data_to_post.id + selectedCamViewIndex)
+        annotationsDataMirror[selectedCamViewIndex].id
       const res = await fetcher(url, {
         method: "UPDATE",
         headers: {
@@ -1341,6 +1259,15 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                 )
               }
             />
+            <div>
+              <ButtonChakra
+                mt="10px"
+                colorScheme="blue"
+                onClick={submitFreeTextToServer}
+              >
+                Submit Annotation
+              </ButtonChakra>
+            </div>
           </div>
           <div className={`${styles["sidebar"]} ${styles["right-sidebar"]}`}>
             <div className={styles["sidebar-block"]}>

@@ -59,7 +59,7 @@ export default function KeyPress({
   }, [currTimestamp])
 
   const onPressKey = (key: string) => {
-    console.log("Spacebar pressed")
+    console.log("Key pressed")
     setCurrTimestamp({
       start: getCurrentPausedTime(),
       end: 0,
@@ -68,7 +68,7 @@ export default function KeyPress({
   }
 
   const onReleaseKey = (key: string) => {
-    console.log("Spacebar released", getCurrentPausedTime())
+    console.log("Key released", getCurrentPausedTime())
     setCurrTimestamp((prev) => ({
       ...prev,
       end: getCurrentPausedTime(),

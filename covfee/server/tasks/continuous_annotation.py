@@ -84,21 +84,24 @@ def update_annotation(annotid):
     updates = request.json
     for key, value in updates.items():
         if hasattr(annot, key):
-            if key in ["created_at", "updated_at"]:
+            # Never allow client payloads to mutate identity or managed fields.
+            if key in ["id", "task_id", "created_at", "updated_at"]:
                 continue
             if key == "data_json":
-                narrative_data, current_video_time, time_annot, narrative_index = value
-                narrative_index = str(narrative_index)
+                pressData, current_video_time, time_annot, video_length, video_index = value
+                video_index = str(video_index)
                 new_data = {
-                    "narratives": narrative_data,
-                    "paused_at": current_video_time,
+                    "press_data": pressData,
+                    "current_video_time": current_video_time,
                     "time_annot": time_annot,
+                    "video_length": video_length,
+                    "video_index": video_index,
                 }
                 if annot.data_json is None:
                     annot.data_json = {}
-                if narrative_index not in annot.data_json:
-                    annot.data_json[narrative_index] = []
-                annot.data_json[narrative_index].append(new_data)
+                if video_index not in annot.data_json:
+                    annot.data_json[video_index] = []
+                annot.data_json[video_index].append(new_data)
                 flag_modified(annot, "data_json")
             else:
                 setattr(annot, key, value)
