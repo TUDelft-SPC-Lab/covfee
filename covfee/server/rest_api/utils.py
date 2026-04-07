@@ -51,7 +51,12 @@ def fetch_prolific_ids_for_invalid_participants(study_id: str, token: str) -> Li
         "Authorization": f"Token {token}",
     }
 
-    params = {"study": study_id}
+    params = {
+        "study": study_id,
+        # Return data for the first 100000 participants.
+        # The default is 20 participants per page and one page, i.e. only 20 participants.
+        "page_size": "100000",
+    }
 
     try:
         response = requests.get(
