@@ -45,3 +45,4 @@ conflab-gallery.svg
 
 # FIXME: #CONFLAB ignore the deployment files that now live in the private gitlab repo
 samples/continuous_annotation/*
+covfee/client/art/*
