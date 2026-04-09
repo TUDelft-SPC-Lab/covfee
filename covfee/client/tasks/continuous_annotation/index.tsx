@@ -639,7 +639,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       autoplay: false,
       controls: true,
       responsive: true,
-      fluid: true,
+      fluid: false,
       muted: true,
       sources: [
         {

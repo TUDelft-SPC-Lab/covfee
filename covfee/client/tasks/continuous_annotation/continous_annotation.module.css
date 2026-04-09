@@ -105,19 +105,26 @@
 
 .video-player-container {
   width: 100%;
+  height: 75vh;
   max-height: 75vh;
+  overflow: hidden;
 }
 
 .video-player-container :global([data-vjs-player]) {
   width: 100%;
-  max-height: 75vh;
+  height: 100%;
+  max-height: 100%;
 }
 
 .video-player-container :global(.video-js),
 .video-player-container :global(video-js) {
   width: 100% !important;
-  max-height: 75vh !important;
-  height: min(75vh, 100%) !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+.video-player-container :global(.vjs-fluid:not(.vjs-audio-only-mode)) {
+  padding-top: 0 !important;
 }
 
 .video-player-container :global(.video-js .vjs-tech) {
