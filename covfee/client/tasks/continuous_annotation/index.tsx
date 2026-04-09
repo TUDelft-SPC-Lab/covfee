@@ -1273,13 +1273,15 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           <div style={{ backgroundColor: "blue" }} /> {/* <--- Filler div */}
           <div className={styles["main-content"]}>
             <div className={styles["main-content-video-and-guide"]}>
-              <VideoJSFC
-                options={videoPlayerOptions}
-                audioSrc={PARTICIPANT_AUDIO_SRC}
-                audioToggles={audioToggles}
-                onReady={handleVideoPlayerReady}
-                onPausedAt={setPausedAt}
-              />
+              <div className={styles["video-player-container"]}>
+                <VideoJSFC
+                  options={videoPlayerOptions}
+                  audioSrc={PARTICIPANT_AUDIO_SRC}
+                  audioToggles={audioToggles}
+                  onReady={handleVideoPlayerReady}
+                  onPausedAt={setPausedAt}
+                />
+              </div>
 
               {showingAnnotationTips && (
                 <div className={styles["instructions-box-overlay"]}>
