@@ -85,6 +85,15 @@
       "justMyCode": false,
       "args": ["--debug-covfee-command", "start", "--deploy"],
       "env": { "PYTHONPATH": "${workspaceFolder}/libs/" }
+    },
+    {
+      "name": "generate json gesbench",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/samples/continuous_annotation/generate_annotation1_json.py",
+      "cwd": "${workspaceFolder}/samples/continuous_annotation",
+      "console": "integratedTerminal",
+      "args": ["--seed", "2026"]
     }
 
   ]
