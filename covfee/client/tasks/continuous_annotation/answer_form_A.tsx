@@ -1,4 +1,4 @@
-import { Button as ButtonChakra, Checkbox, VStack } from "@chakra-ui/react"
+import { Button as ButtonChakra, VStack } from "@chakra-ui/react"
 import React from "react"
 
 import { Narrative_typeA } from "../annotation_types/narrative_typeA"
@@ -85,14 +85,6 @@ const Answer_form_A: React.FC<Props> = ({
         >
           Submit Annotation
         </ButtonChakra>
-        <Checkbox
-          paddingBottom={"15px"}
-          onChange={(e) => setNoIntentionSeen(e.target.checked)}
-          isChecked={noIntentionSeen}
-        >
-          <strong>No Intention:</strong> If you watch the entire clip and see no
-          clear intention, you may check the box.{" "}
-        </Checkbox>
       </VStack>
     </>
   )

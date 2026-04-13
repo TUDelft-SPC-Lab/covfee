@@ -1291,6 +1291,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                   audioToggles={audioToggles}
                   onReady={handleVideoPlayerReady}
                   onPausedAt={setPausedAt}
+                  answerForm={answerForm}
                 />
               </div>
 
