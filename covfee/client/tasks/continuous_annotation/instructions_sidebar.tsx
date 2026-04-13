@@ -25,6 +25,7 @@ type Props = {
   annotation_options: AnnotationOption[]
   video_tutorial_url?: string
   answerForm: React.ReactNode
+  mediaIndex: number
 
   onCantFindParticipant: () => void
   onParticipantSelected: (participant: string) => void
@@ -104,21 +105,43 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
 
   return (
     <>
-      <div className={styles["sidebar-block"]}>
-        <h1>Instructions</h1>
-        <h2 style={{ marginBottom: "20px" }}>Welcome to the Annotation Task</h2>
-        <p style={{ marginBottom: "30px" }}>
-          In the following videos, you will watch an interaction. First, you
-          will be given some context. Then, you will watch a progressively given
-          utterance. For this utterance, think of the following question, even
-          if it’s still incomplete:
-        </p>
-        <OrderedList style={{ marginBottom: "30px" }}>
-          <li>What is the intended social action of the (last) speaker?</li>
-          <li>What actions could the other side take as a response?</li>
-        </OrderedList>
-        <p>Make your best guess if you're uncertain.</p>
-      </div>
+      {props.mediaIndex > 15 && props.answerForm === "A" ? (
+        <div className={styles["sidebar-block"]}>
+          <h1>Instructions</h1>
+          <h2 style={{ marginBottom: "20px" }}>
+            Welcome to the Annotation Task part 2
+          </h2>
+          <p style={{ marginBottom: "30px" }}>
+            In the following videos, you will watch an interaction. First, you
+            will be given some context. Then, you will watch a progressively
+            given utterance. For this utterance, think of the following
+            question, even if it’s still incomplete:
+          </p>
+          <OrderedList style={{ marginBottom: "30px" }}>
+            <li>What is the intended social action of the (last) speaker?</li>
+            <li>What actions could the other side take as a response?</li>
+          </OrderedList>
+          <p>Make your best guess if you're uncertain.</p>
+        </div>
+      ) : (
+        <div className={styles["sidebar-block"]}>
+          <h1>Instructions</h1>
+          <h2 style={{ marginBottom: "20px" }}>
+            Welcome to the Annotation Task
+          </h2>
+          <p style={{ marginBottom: "30px" }}>
+            In the following videos, you will watch an interaction. First, you
+            will be given some context. Then, you will watch a progressively
+            given utterance. For this utterance, think of the following
+            question, even if it’s still incomplete:
+          </p>
+          <OrderedList style={{ marginBottom: "30px" }}>
+            <li>What is the intended social action of the (last) speaker?</li>
+            <li>What actions could the other side take as a response?</li>
+          </OrderedList>
+          <p>Make your best guess if you're uncertain.</p>
+        </div>
+      )}
     </>
   )
 }
