@@ -62,8 +62,8 @@ const Answer_form_A: React.FC<Props> = ({
         postFreetextAnswerToServer={postFreetextAnswerToServer}
       >
         What is the intended social action of the (last) speaker? Make your best
-        guess if you're uncertain. Also, specify updates, if any, compared to
-        your previous answer(s).
+        guess if you're uncertain. If you have no updates compared to your previous answer, 
+        you can reuse the last one.
       </Free_text>
       <Free_text
         gestaltAnnotation={gestaltAnnotation}
@@ -72,8 +72,8 @@ const Answer_form_A: React.FC<Props> = ({
         postFreetextAnswerToServer={postFreetextAnswerToServer}
       >
         What actions could the other side take as a response? Make your best
-        guess if you're uncertain. Also, specify updates, if any, compared to
-        your previous answer(s).
+        guess if you're uncertain. If you have no updates compared to your previous answer, 
+        you can reuse the last one.
       </Free_text>
 
       <VStack spacing={4} align="stretch" mt="40px">
@@ -85,6 +85,14 @@ const Answer_form_A: React.FC<Props> = ({
         >
           Submit Annotation
         </ButtonChakra>
+        {/* <Checkbox
+          paddingBottom={"15px"}
+          onChange={(e) => setNoIntentionSeen(e.target.checked)}
+          isChecked={noIntentionSeen}
+        >
+          <strong>No Intention:</strong> If you watch the entire clip and see no
+          clear intention, you may check the box.{" "}
+        </Checkbox> */}
       </VStack>
     </>
   )

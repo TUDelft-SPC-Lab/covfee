@@ -18,14 +18,22 @@ type AnnotationOption = {
   completed: boolean
 }
 
+type AnswerForm = "A" | "B"
+type InstructionVariant =
+  | "section-one-form-a"
+  | "section-one-form-b"
+  | "section-two-form-a"
+  | "section-two-form-b"
+
 type Props = {
   selected_participant: number
   selected_annotation: AnnotationOption
   participant_options: ParticipantOption[]
   annotation_options: AnnotationOption[]
   video_tutorial_url?: string
-  answerForm: React.ReactNode
+  answerForm: AnswerForm
   mediaIndex: number
+  batchItemId?: number
 
   onCantFindParticipant: () => void
   onParticipantSelected: (participant: string) => void
@@ -103,47 +111,119 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
   const multiple_annotations_for_selected_participant =
     props.annotation_options.length > 1
 
-  return (
-    <>
-      {props.mediaIndex > 15 && props.answerForm === "A" ? (
-        <div className={styles["sidebar-block"]}>
-          <h1>Instructions</h1>
-          <h2 style={{ marginBottom: "20px" }}>
-            Welcome to the Annotation Task part 2
-          </h2>
-          <p style={{ marginBottom: "30px" }}>
-            In the following videos, you will watch an interaction. First, you
-            will be given some context. Then, you will watch a progressively
-            given utterance. For this utterance, think of the following
-            question, even if it’s still incomplete:
-          </p>
-          <OrderedList style={{ marginBottom: "30px" }}>
-            <li>What is the intended social action of the (last) speaker?</li>
-            <li>What actions could the other side take as a response?</li>
-          </OrderedList>
-          <p>Make your best guess if you're uncertain.</p>
-        </div>
-      ) : (
-        <div className={styles["sidebar-block"]}>
-          <h1>Instructions</h1>
-          <h2 style={{ marginBottom: "20px" }}>
-            Welcome to the Annotation Task
-          </h2>
-          <p style={{ marginBottom: "30px" }}>
-            In the following videos, you will watch an interaction. First, you
-            will be given some context. Then, you will watch a progressively
-            given utterance. For this utterance, think of the following
-            question, even if it’s still incomplete:
-          </p>
-          <OrderedList style={{ marginBottom: "30px" }}>
-            <li>What is the intended social action of the (last) speaker?</li>
-            <li>What actions could the other side take as a response?</li>
-          </OrderedList>
-          <p>Make your best guess if you're uncertain.</p>
-        </div>
-      )}
-    </>
+  const sectionItemId = props.batchItemId ?? props.mediaIndex
+  const sectionOneItemCount = props.answerForm === "A" ? 15 : 30
+  const instructionVariant: InstructionVariant =
+    sectionItemId < sectionOneItemCount
+      ? props.answerForm === "A"
+        ? "section-one-form-a"
+        : "section-one-form-b"
+      : props.answerForm === "A"
+      ? "section-two-form-a"
+      : "section-two-form-b"
+
+  const renderSectionOneFormAInstructions = () => (
+    <div className={styles["sidebar-block"]}>
+      <h1>Instructions</h1>
+      <h2 style={{ marginBottom: "20px" }}>
+        Welcome to the GesBench Annotation Task 1 Section 1 of 2
+      </h2>
+      <p>
+        In the following video, you will see an utterance. Think of the
+        following question, even if the utterance is incomplete, and then
+        provide the answer:
+      </p>
+      <OrderedList style={{ marginBottom: "30px" }}>
+        <li>What is the intended social action of the speaker?</li>
+        <li>What actions could the other side take as a response?</li>
+      </OrderedList>
+      <p>Make your best guess if you're uncertain.</p>
+      <p>After you finish typing, click "Submit Annotation" button to proceed.</p>
+    </div>
   )
+
+  const renderSectionTwoFormAInstructions = () => (
+    <div className={styles["sidebar-block"]}>
+      <h1>Instructions</h1>
+      <h2 style={{ marginBottom: "20px" }}>
+        Welcome to the GesBench Annotation Task 1 Section 2 of 2
+      </h2>
+      <p>
+        In the following video, you will see an interaction. Think of the
+        following question with regard to the <strong>last utterance</strong>{" "}
+        you see (and its speaker), even if it's incomplete, and then provide the
+        answer:
+      </p>
+      <OrderedList style={{ marginBottom: "30px" }}>
+        <li>What is the intended social action of the <strong>last</strong>{" "}
+          speaker?</li>
+        <li>What actions could the other side take as a response?</li>
+      </OrderedList>
+      <p>Make your best guess if you're uncertain.</p>
+      <p>After you finish typing, click "Submit Annotation" button to proceed.</p>
+    </div>
+  )
+
+  const renderSectionOneFormBInstructions = () => (
+    <div className={styles["sidebar-block"]}>
+      <h1>Instructions</h1>
+      <h2 style={{ marginBottom: "20px" }}>
+        Welcome to the GesBench Annotation Task 2 Section 1 of 2
+      </h2>
+      <p style={{ marginBottom: "30px" }}>
+        In the following video, you will see an utterance. Think of the
+        following question when you watch the video, even if the utterance is incomplete:
+      </p>
+      <OrderedList style={{ marginBottom: "30px" }}>
+        <li>
+          What is the intended social action of the speaker?
+        </li>
+        <li>What actions could the other side(s) take as a response?</li>
+      </OrderedList>
+      <p>Make your best guess if you're uncertain.</p>
+      <p><strong>You don't need to submit any text in this section. Click "Submit Annotation" button to proceed to next video.</strong></p>
+      <p><strong>There is no playback option in this task, so be sure you focus on the video as you watch it.</strong></p>
+    </div>
+  )
+
+  const renderSectionTwoFormBInstructions = () => (
+    <div className={styles["sidebar-block"]}>
+      <h1>Instructions</h1>
+      <h2 style={{ marginBottom: "20px" }}>
+        Welcome to the GesBench Annotation Task 2 Section 2 of 2
+      </h2>
+      <p style={{ marginBottom: "30px" }}>
+        In the following video, you will see an interaction. Think of the
+        following question with regard to the <strong>last utterance</strong>{" "}
+        you see (and its speaker), even if it's incomplete:
+      </p>
+      <OrderedList style={{ marginBottom: "30px" }}>
+        <li>
+          What is the intended social action of the <strong>last</strong>{" "}
+          speaker?
+        </li>
+        <li>What actions could the other side take as a response?</li>
+      </OrderedList>
+      <p>Make your best guess if you're uncertain.</p>
+      <p><strong>You don't need to submit any text in this section. Click "Submit Annotation" button to proceed to next video.</strong></p>
+      <p><strong>There is no playback option in this task, so be sure you focus on the video as you watch it.</strong></p>
+    </div>
+  )
+
+  const renderInstructions = () => {
+    switch (instructionVariant) {
+      case "section-one-form-a":
+        return renderSectionOneFormAInstructions()
+      case "section-one-form-b":
+        return renderSectionOneFormBInstructions()
+      case "section-two-form-a":
+        return renderSectionTwoFormAInstructions()
+      case "section-two-form-b":
+        return renderSectionTwoFormBInstructions()
+    }
+  }
+
+  return <>{renderInstructions()}</>
 }
 
 export { AnnotationOption, InstructionsSidebar, ParticipantOption }

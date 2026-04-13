@@ -6,6 +6,9 @@ export interface AnnotationDataSpec {
   category: string
   participant: string
   interface: "RankTrace" | "GTrace" | "Binary"
+  conversation_floor?: number[]
+  AB_test?: "A" | "B"
+  batch_item_id?: number
 }
 export interface MediaSpec {
   type: "video/mp4"

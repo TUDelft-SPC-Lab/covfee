@@ -155,6 +155,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   const [answerForm, setAnswerForm] = useState<"A" | "B">(
     props.spec.annotations[currMediaIndex].AB_test ?? "A",
   )
+  const currentBatchItemId =
+    props.spec.annotations[currMediaIndex]?.batch_item_id ?? currMediaIndex
+  const sectionOneItemCount = answerForm === "A" ? 15 : 30
+  const isSectionOne = currentBatchItemId < sectionOneItemCount
   const [currentNarrativeIndex, setCurrentNarrativeIndex] = useState(0)
 
   const [gestaltAnnotation, setGestaltAnnotation] = useState<GestaltAnnotation>(
@@ -235,8 +239,15 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         description: "Please continue with the next one.",
         icon: <InfoCircleFilled style={{ color: "green" }} />,
       })
+      const nextMediaIndex = selectedCamViewIndex + 1
+      const nextBatchItemId =
+        props.spec.annotations[nextMediaIndex]?.batch_item_id ?? nextMediaIndex
       nextCurrMediaIndex()
-      if (currMediaIndex === 15 && answerForm === "A") {
+      if (
+        answerForm === "A" &&
+        currentBatchItemId < sectionOneItemCount &&
+        nextBatchItemId >= sectionOneItemCount
+      ) {
         setShowInitialModal(true)
       }
     } else {
@@ -1106,6 +1117,74 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     "&HIT_GLOBAL_ID=" +
     encodeURIComponent(hit_global_unique_id)
 
+  const initialModalContent = (() => {
+    if (answerForm === "A" && isSectionOne) {
+      return {
+        title: "Welcome to the GesBench Annotation Task 1 Section 1 of 2",
+        body: (
+          <>
+            In the following video, you will see an utterance. Think of the
+            following question, even if the utterance is incomplete, and then
+            provide the answer:
+          </>
+        ),
+        firstQuestion: "What is the intended social action of the speaker?",
+        secondQuestion: "What actions could the other side take as a response?",
+        note: null,
+      }
+    }
+
+    if (answerForm === "A") {
+      return {
+        title: "Welcome to the GesBench Annotation Task 1 Section 2 of 2",
+        body: (
+          <>
+            In the following video, you will see an interaction. Think of the
+            following question with regard to the <strong>last utterance</strong>{" "}
+            you see (and its speaker), even if it's incomplete, and then provide
+            the answer:
+          </>
+        ),
+        firstQuestion: "What is the intended social action of the speaker?",
+        secondQuestion: "What actions could the other side take as a response?",
+        note: null,
+      }
+    }
+
+    if (isSectionOne) {
+      return {
+        title: "Welcome to the GesBench Annotation Task 2 Section 1 of 2",
+        body: (
+          <>
+            In the following video, you will see an utterance. Think of the
+            following question when you watch the video, even if the utterance is
+            incomplete:
+          </>
+        ),
+        firstQuestion: "What is the intended social action of the speaker?",
+        secondQuestion:
+          "What actions could the other side(s) take as a response?",
+        note:
+          "There is no playback option in this task, so be sure you focus on the video as you watch it.",
+      }
+    }
+
+    return {
+      title: "Welcome to the GesBench Annotation Task 2 Section 2 of 2",
+      body: (
+        <>
+          In the following video, you will see an interaction. Think of the
+          following question with regard to the <strong>last utterance</strong>{" "}
+          you see (and its speaker), even if it's incomplete:
+        </>
+      ),
+      firstQuestion: "What is the intended social action of the last speaker?",
+      secondQuestion: "What actions could the other side take as a response?",
+      note:
+        "There is no playback option in this task, so be sure you focus on the video as you watch it.",
+    }
+  })()
+
   if (args.response.submitted && isEntireTaskCompleted) {
     return <TaskAlreadyCompleted redirectUrl={redirectUrl} />
   }
@@ -1172,24 +1251,22 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           <ModalContent>
             <ModalCloseButton />
             <div style={{ padding: "40px", textAlign: "center" }}>
-              {currMediaIndex < 15 && answerForm === "A" ? (
-                <h2 style={{ marginBottom: "20px" }}>
-                  Welcome to the Annotation Task
-                </h2>
-              ) : (
-                <h2 style={{ marginBottom: "20px" }}>
-                  Welcome to the Annotation Task Part 2
-                </h2>
-              )}
-              <p style={{ marginBottom: "30px" }}>
-                In the following videos, you will watch an interaction. First,
-                you will be given some context. Then, you will watch a
-                progressively given utterance. For this utterance, think of the
-                following question, even if it’s still incomplete:
+              <h2 style={{ marginBottom: "20px" }}>
+                {initialModalContent.title}
+              </h2>
+              <p>{initialModalContent.body}</p>
+              <p style={{ fontWeight: "bold" }}>
+                {initialModalContent.firstQuestion}
               </p>
-              <p>What is the intended social action of the (last) speaker?</p>
-              <p>What actions could the other side take as a response?</p>
+              <p style={{ fontWeight: "bold" }}>
+                {initialModalContent.secondQuestion}
+              </p>
               <p>Make your best guess if you're uncertain.</p>
+              {initialModalContent.note && (
+                <p>
+                  <strong>{initialModalContent.note}</strong>
+                </p>
+              )}
               <ButtonChakra
                 colorScheme="blue"
                 onClick={() => setShowInitialModal(false)}
@@ -1279,6 +1356,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               }}
               answerForm={answerForm}
               mediaIndex={currMediaIndex}
+              batchItemId={currentBatchItemId}
             />
           </div>
           <div style={{ backgroundColor: "blue" }} /> {/* <--- Filler div */}
