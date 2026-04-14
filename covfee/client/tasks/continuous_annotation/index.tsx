@@ -171,7 +171,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       video_start_time: 0,
       video_end_time: 0,
       video_path: props.spec.media[currMediaIndex]?.src ?? "",
-      audio_path: props.spec.audioMedia[currMediaIndex]?.src ?? "",
+      audio_path: props.spec.audioMedia[currMediaIndex]?.src?.[0] ?? "",
     },
   )
   //Initialize first narrative based on answer form
