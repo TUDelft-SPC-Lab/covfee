@@ -48,6 +48,8 @@ type GestaltAnnotation = {
   annotation_type?: "A" | "B"
   video_start_time?: number
   video_end_time?: number
+  video_path?: string
+  audio_path?: string
 }
 
 interface Props extends CovfeeTaskProps<ContinuousAnnotationTaskSpec> {}
@@ -168,6 +170,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       annotation_type: answerForm,
       video_start_time: 0,
       video_end_time: 0,
+      video_path: props.spec.media[currMediaIndex]?.src ?? "",
+      audio_path: props.spec.audioMedia[currMediaIndex]?.src ?? "",
     },
   )
   //Initialize first narrative based on answer form

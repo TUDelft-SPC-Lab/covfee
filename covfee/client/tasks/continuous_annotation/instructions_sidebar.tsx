@@ -172,7 +172,7 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
       </h2>
       <p style={{ marginBottom: "30px" }}>
         In the following video, you will see an utterance. Think of the
-        following question when you watch the video, even if the utterance is incomplete:
+        following question when you watch the video:
       </p>
       <OrderedList style={{ marginBottom: "30px" }}>
         <li>
@@ -195,7 +195,7 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
       <p style={{ marginBottom: "30px" }}>
         In the following video, you will see an interaction. Think of the
         following question with regard to the <strong>last utterance</strong>{" "}
-        you see (and its speaker), even if it's incomplete:
+        you see (and its speaker):
       </p>
       <OrderedList style={{ marginBottom: "30px" }}>
         <li>
