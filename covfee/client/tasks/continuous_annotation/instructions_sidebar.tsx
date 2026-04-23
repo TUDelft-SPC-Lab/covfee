@@ -38,6 +38,7 @@ type Props = {
 
 const InstructionsSidebar: React.FC<Props> = (props) => {
   // Modal dialogs control
+  console.log("selected annotation in sidebar", props.selected_participant)
   const [checkingWhetherToRedoAnnotation, setCheckingWhetherToRedoAnnotation] =
     useState(false)
   const [isMarkParticipantModalOpen, setIsMarkParticipantModalOpen] =
@@ -110,52 +111,56 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
         <h1>Instructions</h1>
         <>
           <Text fontSize={"md"}>
-            <strong>Welcome!</strong> In this task, you will watch a short video
-            clip (30 seconds). Your goal is to identify the{" "}
-            <strong>intentions</strong> of the participant (shown below) as they
-            happen.
+            <strong>Welcome!</strong> In this task, you will watch a video. Your
+            goal is to identify the <strong>actions</strong> of the participant
+            (shown below) as they happen.
           </Text>
           <Participant_image participant_id={[props.selected_participant]} />
         </>
-
+        <Text fontSize={"md"}>
+          Key Map:(1: Gesture, 2: Drinking, 3: Toasting, 4: Nodding)
+        </Text>
+        <Text fontSize={"md"}>
+          <strong>Classes of Actions:</strong>
+        </Text>
+        <Text fontSize={"md"}>
+          <strong>Gesture</strong>: The participant is making a communicative
+          gesture, such as waving or pointing. This includes the moment they
+          start moving their hand to make the gesture, until the moment they
+          finish the gesture and return their hand to rest.
+        </Text>
+        <Text fontSize={"md"}>
+          <strong>Drinking</strong>: The participant is drinking from a cup.
+          This includes the moment they bring the cup to their mouth, until the
+          moment they move the cup away from their mouth after taking a sip.
+        </Text>
+        <Text fontSize={"md"}>
+          <strong>Toasting</strong>: The participant is raising a cup to make a
+          toast. This includes the moment they start raising the cup, until the
+          moment they finish the toast and return the cup to rest.
+        </Text>
+        <Text fontSize={"md"}>
+          <strong>Nodding</strong>: The participant is nodding their head. This
+          includes the moment they start moving their head to make the nodding,
+          until the moment they finish the nodding sequence and return their
+          head to rest.
+        </Text>
         <Text fontSize={"md"} marginBottom={"5px"}>
-          <strong>1. Watch and pause:</strong> Please watch the clip carefully.{" "}
+          <strong>1. Watch and press:</strong> Please watch the clip carefully.{" "}
           <strong>
-            Pause the clip as soon as you witness what you perceive to be an
-            intention.
+            Annotation is done by press and hold the corresponding key on your
+            keyboard. For example, if you perceive a gesture, press and hold "1"
+            from the moment you witness the gesture until the moment you think
+            the gesture finishes.
           </strong>{" "}
         </Text>
+
         <Text fontSize={"md"}>
-          <i>Note:</i> It is natural to take a few seconds to process what you
-          see; if you pause slightly after the moment, please use the timestamp
-          adjustment tool to mark the exact start and end of the intention.
-        </Text>
-        {/* <Text fontSize={"md"}><strong>2. Timestamps</strong> Mark the start and end of when you perceive the intention in the video.</Text>
-        <Text fontSize={"md"}>You can either:</Text>
-        <OrderedList fontSize="md" pl="20px" spacing={2}>
-          <ListItem>
-            <strong>Click the Start or End button</strong> to automatically insert the video’s current time, or
-          </ListItem>
-          <ListItem>
-            <strong>Manually enter a timestamp</strong> in the corresponding text box.
-          </ListItem>
-        </OrderedList> */}
-        <Text fontSize={"md"}>
-          To select a precise moment, adjust the video using the progress bar,
-          then click the appropriate button.
-        </Text>
-        <Text fontSize={"md"}>
-          Make sure both a start and end time are provided.
-        </Text>
-        <Text fontSize={"md"}>
-          <strong>3. Multiple Intentions: </strong>If you believe the
-          participant is acting on multiple intentions at once, or if several
-          interpretations are possible, click the "+" to fill out a separate set
-          of questions for each.
-        </Text>
-        <Text fontSize={"md"}>
-          <strong>4. Fill in the questionaire under the video: </strong>There is
-          no right answer, just your honest interpretation.
+          <i>Note:</i> If you are unsure about the exact moment, or if you think
+          multiple interpretations are possible, please go with your best guess
+          and mark the timestamps as accurately as you can. You can also mark
+          multiple annotations for the same participant if you think multiple
+          interpretations are possible.
         </Text>
       </div>
     </>

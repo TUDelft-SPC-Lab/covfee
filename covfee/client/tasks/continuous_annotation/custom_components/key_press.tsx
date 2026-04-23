@@ -3,14 +3,7 @@ import { useEffect, useState } from "react"
 type Timestamp = {
   start: number
   end: number
-  category:
-    | "Still"
-    | "Gesture"
-    | "Raise to lips"
-    | "Drink"
-    | "Return from lips"
-    | "Nodding"
-    | "Uncertain"
+  category: "Gesture" | "Drinking" | "Toasting" | "Nodding" | "Uncertain"
 }
 
 type PressData = {
@@ -35,14 +28,13 @@ export default function KeyPress({
   })
 
   const keyDict = {
-    Digit1: "Still",
-    Digit2: "Gesture",
-    Digit3: "Raise to lips",
-    Digit4: "Drink",
-    Digit5: "Return from lips",
-    Digit6: "Nodding",
-    Digit7: "Uncertain",
+    Digit1: "Gesture",
+    Digit2: "Drinking",
+    Digit3: "Toasting",
+    Digit4: "Nodding",
+    Digit5: "Uncertain",
   }
+
   type DigitKey = keyof typeof keyDict
 
   function getValue(key: DigitKey) {

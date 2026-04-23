@@ -16,13 +16,10 @@ import {
   Button as ButtonChakra,
   Modal as ChakraModal,
   ChakraProvider,
-  Checkbox as CheckboxChakra,
   Image as ImageChakra,
   ModalCloseButton,
   ModalContent,
   ModalOverlay,
-  Stack,
-  Text,
 } from "@chakra-ui/react"
 // import Ingroupgallery_one from "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session1_cam6_10_2.png"
 // import Ingroupgallery_two from "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session2_cam1_5_2.png"
@@ -36,7 +33,6 @@ import {
 } from "./constants"
 import styles from "./continous_annotation.module.css"
 import KeyPress from "./custom_components/key_press"
-import { Participant_image } from "./custom_components/participant_image"
 import {
   AnnotationOption,
   InstructionsSidebar,
@@ -1267,64 +1263,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               >
                 Submit Annotation
               </ButtonChakra>
-            </div>
-          </div>
-          <div className={`${styles["sidebar"]} ${styles["right-sidebar"]}`}>
-            <div className={styles["sidebar-block"]}>
-              <Text fontSize={"md"}>Conversation partners:</Text>
-              <Participant_image
-                participant_id={
-                  props.spec.annotations[currMediaIndex].conversation_floor
-                }
-              />
-            </div>
-            <div className={styles["sidebar-block"]}>
-              <Text fontSize={"md"}>Find participants:</Text>
-              <ButtonChakra
-                colorScheme={"blue"}
-                size={"lg"}
-                onClick={() => setShowingGallery(true)}
-              >
-                Gallery
-              </ButtonChakra>
-            </div>
-            <div className={styles["sidebar-block"]}>
-              {/* <ActionAnnotationFlashscreen
-              active={
-                actionAnnotationStartTime !==
-                UNINITIALIZED_ACTION_ANNOTATION_START_TIME
-              }
-              annotation_category={
-                annotationsDataMirror[selectedAnnotationIndex].category
-              }
-            /> */}
-              <Text fontSize={"md"}>Toggle individual audio:</Text>
-              <CheckboxChakra
-                isChecked={allChecked}
-                isIndeterminate={isIndeterminate}
-                onChange={(e) =>
-                  setAudioToggles(audioToggles.map(() => e.target.checked))
-                }
-              >
-                All Participants
-              </CheckboxChakra>
-              <Stack pl={6} mt={1} spacing={1}>
-                {conversationFloorParticipants.map((participantIndex) => (
-                  <CheckboxChakra
-                    key={participantIndex}
-                    isChecked={audioToggles[participantIndex]}
-                    onChange={(e) =>
-                      setAudioToggles((prev) =>
-                        prev.map((value, index) =>
-                          index === participantIndex ? e.target.checked : value,
-                        ),
-                      )
-                    }
-                  >
-                    Participant {participantIndex + 1}
-                  </CheckboxChakra>
-                ))}
-              </Stack>
             </div>
           </div>
         </div>
