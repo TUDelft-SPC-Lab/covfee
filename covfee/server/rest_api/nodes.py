@@ -15,7 +15,8 @@ from .utils import jsonify_or_404
 # TASKS
 
 
-MEDIA_DIR = "/home/arthur/Documents/Repos/covfee/samples/continuous_annotation/data"
+# MEDIA_DIR = "/home/arthur/Documents/Repos/covfee/samples/continuous_annotation/data"
+MEDIA_DIR = "/home/zonghuan/tudelft/projects/covfee/samples/continuous_annotation/data"
 
 @api.route("/media/<path:filename>")
 def media(filename):

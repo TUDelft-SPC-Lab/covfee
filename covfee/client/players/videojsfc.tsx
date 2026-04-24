@@ -8,6 +8,7 @@ interface Props {
   audioToggles?: boolean[]
   onReady?: (player: videojs.Player) => void
   onPausedAt?: (time: number) => void
+  answerForm?: "A" | "B"
 }
 
 export const VideoJSFC: React.FC<Props> = ({
@@ -16,10 +17,30 @@ export const VideoJSFC: React.FC<Props> = ({
   audioToggles = [],
   onReady,
   onPausedAt,
+  answerForm,
 }) => {
   const videoRef = React.useRef<HTMLDivElement | null>(null)
   const playerRef = React.useRef<videojs.Player | null>(null)
   const audioRefs = React.useRef<HTMLAudioElement[]>([])
+
+  const playerOptions: VideoJsPlayerOptions = React.useMemo(() => {
+    const controlBarOptions =
+      options.controlBar && typeof options.controlBar === "object"
+        ? options.controlBar
+        : {}
+
+    if (answerForm !== "B") {
+      return options
+    }
+
+    return {
+      ...options,
+      controlBar: {
+        ...controlBarOptions,
+        progressControl: false,
+      },
+    }
+  }, [options, answerForm])
 
   // Initialize Video.js
   React.useEffect(() => {
@@ -28,23 +49,27 @@ export const VideoJSFC: React.FC<Props> = ({
       videoElement.classList.add("vjs-big-play-centered")
       videoRef.current.appendChild(videoElement)
 
-      const player = (playerRef.current = videojs(videoElement, options, () => {
-        onReady?.(player)
-      }))
+      const player = (playerRef.current = videojs(
+        videoElement,
+        playerOptions,
+        () => {
+          onReady?.(player)
+        },
+      ))
 
       // Mute video audio
       player.muted(true)
 
       // Play/pause/seeking sync for all audio tracks
-      player.on("play", () => audioRefs.current.forEach(a => a.play()))
+      player.on("play", () => audioRefs.current.forEach((a) => a.play()))
       player.on("pause", () => {
         const currentTime = player.currentTime()
-        audioRefs.current.forEach(a => a.pause())
+        audioRefs.current.forEach((a) => a.pause())
         onPausedAt?.(currentTime)
       })
       player.on("seeking", () => {
         const time = player.currentTime()
-        audioRefs.current.forEach(a => {
+        audioRefs.current.forEach((a) => {
           a.currentTime = time
         })
       })
@@ -52,7 +77,7 @@ export const VideoJSFC: React.FC<Props> = ({
       // Smooth 3-second interval sync
       const interval = setInterval(() => {
         const time = player.currentTime()
-        audioRefs.current.forEach(a => {
+        audioRefs.current.forEach((a) => {
           const drift = time - a.currentTime
           if (Math.abs(drift) > 0.2) a.currentTime = time
         })
@@ -60,7 +85,7 @@ export const VideoJSFC: React.FC<Props> = ({
 
       return () => clearInterval(interval)
     }
-    }, [])
+  }, [])
   // }, [options, audioSrc, onReady])
 
   React.useEffect(() => {
@@ -87,7 +112,6 @@ export const VideoJSFC: React.FC<Props> = ({
     }
   }, [options.sources])
 
-
   // Dispose Video.js on unmount
   React.useEffect(() => {
     const player = playerRef.current
@@ -99,7 +123,7 @@ export const VideoJSFC: React.FC<Props> = ({
     }
   }, [])
   React.useEffect(() => {
-    audioRefs.current.forEach(a => {
+    audioRefs.current.forEach((a) => {
       a.pause()
       a.currentTime = 0
     })
@@ -114,7 +138,7 @@ export const VideoJSFC: React.FC<Props> = ({
     return sources.map((src, index) => (
       <audio
         key={index}
-        ref={el => {
+        ref={(el) => {
           if (el) audioRefs.current[index] = el
         }}
         src={src}

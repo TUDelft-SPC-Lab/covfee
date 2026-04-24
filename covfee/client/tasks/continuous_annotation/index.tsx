@@ -236,6 +236,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         icon: <InfoCircleFilled style={{ color: "green" }} />,
       })
       nextCurrMediaIndex()
+      if (currMediaIndex === 15 && answerForm === "A") {
+        setShowInitialModal(true)
+      }
     } else {
       props.onUpdateProgress(100)
       notification.open({
@@ -355,6 +358,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   const submitFinal = async () => {
     await props.onSubmit({})
     setSubmitted(true)
+    console.log("Final submission completed.")
   }
 
   React.useEffect(() => {
@@ -639,7 +643,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       autoplay: false,
       controls: true,
       responsive: true,
-      fluid: true,
+      fluid: false,
       muted: true,
       sources: [
         {
@@ -1168,9 +1172,15 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
           <ModalContent>
             <ModalCloseButton />
             <div style={{ padding: "40px", textAlign: "center" }}>
-              <h2 style={{ marginBottom: "20px" }}>
-                Welcome to the Annotation Task
-              </h2>
+              {currMediaIndex < 15 && answerForm === "A" ? (
+                <h2 style={{ marginBottom: "20px" }}>
+                  Welcome to the Annotation Task
+                </h2>
+              ) : (
+                <h2 style={{ marginBottom: "20px" }}>
+                  Welcome to the Annotation Task Part 2
+                </h2>
+              )}
               <p style={{ marginBottom: "30px" }}>
                 In the following videos, you will watch an interaction. First,
                 you will be given some context. Then, you will watch a
@@ -1268,18 +1278,22 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                 setShowTaskVariantPopupBulletPoints(true)
               }}
               answerForm={answerForm}
+              mediaIndex={currMediaIndex}
             />
           </div>
           <div style={{ backgroundColor: "blue" }} /> {/* <--- Filler div */}
           <div className={styles["main-content"]}>
             <div className={styles["main-content-video-and-guide"]}>
-              <VideoJSFC
-                options={videoPlayerOptions}
-                audioSrc={PARTICIPANT_AUDIO_SRC}
-                audioToggles={audioToggles}
-                onReady={handleVideoPlayerReady}
-                onPausedAt={setPausedAt}
-              />
+              <div className={styles["video-player-container"]}>
+                <VideoJSFC
+                  options={videoPlayerOptions}
+                  audioSrc={PARTICIPANT_AUDIO_SRC}
+                  audioToggles={audioToggles}
+                  onReady={handleVideoPlayerReady}
+                  onPausedAt={setPausedAt}
+                  answerForm={answerForm}
+                />
+              </div>
 
               {showingAnnotationTips && (
                 <div className={styles["instructions-box-overlay"]}>
