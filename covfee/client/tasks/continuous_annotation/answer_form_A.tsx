@@ -151,19 +151,19 @@ const Answer_form_A: React.FC<Props> = ({
       setSubmittable(false)
       return
     }
-    setSubmittable(narratives.every(isNarrativeComplete))
+    setSubmittable(
+      narratives.every(isNarrativeComplete) &&
+        narratives.every(
+          (narrative) => narrative?.timestamp_start < narrative?.timestamp_end,
+        ),
+    )
   }, [narratives])
 
   /* ---------------- render ---------------- */
 
   return (
     <>
-      <Tabs
-        index={index}
-        onChange={setIndexAndNotify}
-        variant="enclosed"
-        height="100%"
-      >
+      <Tabs index={index} onChange={setIndexAndNotify} variant="enclosed">
         <TabList position={"sticky"} top={0} zIndex={1}>
           {narratives.map((narrative, i) => (
             <Tab key={narrative?.created_at}>Intention {i + 1}</Tab>
@@ -223,7 +223,7 @@ const Answer_form_A: React.FC<Props> = ({
                   <strong>Describe the Intention:</strong> What intention do you
                   see at this moment? <br />
                   Provide a brief description of what you think the person is
-                  trying to do.
+                  trying to do/achieve.
                 </Free_text>
                 <Likert_scale
                   narrative={narrative}
@@ -242,8 +242,14 @@ const Answer_form_A: React.FC<Props> = ({
                   updateNarrativeField={updateNarrativeField}
                   postFreetextAnswerToServer={postFreetextAnswerToServer}
                 >
-                  <strong>Why?</strong> Provide the evidence from the video or
-                  audio that led you to this conclusion.
+                  <strong>Why?</strong>What did you see or hear (observable
+                  cues), and how did you interpret them to arrive at this
+                  intention (assumptions about the participant’s beliefs or
+                  desires or the situation, e.g., situation type,
+                  characteristic, or scripts)?
+                  <br />
+                  Do not just list cues, explain how they led you to your
+                  conclusion.
                 </Free_text>
                 <Likert_scale
                   narrative={narrative}
@@ -287,9 +293,8 @@ const Answer_form_A: React.FC<Props> = ({
           })}
         </TabPanels>
       </Tabs>
-      <VStack spacing={4} align="stretch" mt="40px">
+      <VStack spacing={4} align="stretch" mt={5}>
         <ButtonChakra
-          mt="10px"
           colorScheme="blue"
           onClick={() => setIsOpenSubmit(true)}
           isDisabled={!submittable && !noIntentionSeen}
@@ -300,7 +305,11 @@ const Answer_form_A: React.FC<Props> = ({
           paddingBottom={"15px"}
           onChange={(e) => {
             setNoIntentionSeen(e.target.checked)
-            updateNarrativeField(index, "intention_description", "No intention was found")
+            updateNarrativeField(
+              index,
+              "intention_description",
+              "No intention was found",
+            )
           }}
           isChecked={noIntentionSeen}
           onBlur={() => postFreetextAnswerToServer()}

@@ -1,7 +1,7 @@
 .action-annotation-task {
   display: flex;
   justify-content: flex-end;
-  height: 100%;
+  height: auto;
 }
 
 .gallery-overlay {
@@ -30,7 +30,7 @@
 }
 .sidebar {
   font-size: 1em;
-  height: 100%;
+  height: auto;
   display: flex;
   flex-direction: column;
   background-color: #f0f0f0; /* Example background color */
@@ -39,6 +39,7 @@
 .left-sidebar {
   min-width: 300px; /* Set a minimum width */
   width: 22%;
+  overflow-y: visible;
   transition: margin 0.3s ease;
 }
 

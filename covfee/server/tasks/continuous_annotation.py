@@ -89,20 +89,35 @@ def update_annotation(annotid):
             if key in ["created_at", "updated_at"]:
                 continue
             if key == "data_json":
-                (
-                    narrative_data,
-                    paused_at,
-                    current_video_time,
-                    time_annot,
-                    video_length,
-                    narrative_index,
-                    form_option,
-                    prolific_pid,
-                ) = value
+                if len(value) == 8:
+                    (
+                        narrative_data,
+                        paused_at,
+                        current_video_time,
+                        time_annot,
+                        video_length,
+                        narrative_index,
+                        form_option,
+                        prolific_pid,
+                    ) = value
+                    tooltip_observed_at = []
+                else:
+                    (
+                        narrative_data,
+                        paused_at,
+                        tooltip_observed_at,
+                        current_video_time,
+                        time_annot,
+                        video_length,
+                        narrative_index,
+                        form_option,
+                        prolific_pid,
+                    ) = value
                 narrative_index = str(narrative_index)
                 new_data = {
                     "narratives": narrative_data,
                     "paused_at": paused_at,
+                    "tooltip_observed_at": tooltip_observed_at,
                     "current_video_time": current_video_time,
                     "time_annot": time_annot,
                     "video_length": video_length,

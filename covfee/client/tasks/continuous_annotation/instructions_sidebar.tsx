@@ -2,9 +2,24 @@ import type { MenuProps } from "antd"
 import { MenuInfo, Modal } from "antd"
 import React, { useEffect, useState } from "react"
 
-import { BorderOutlined, CheckSquareTwoTone } from "@ant-design/icons"
+import {
+  BorderOutlined,
+  CheckSquareTwoTone,
+  QuestionCircleTwoTone,
+} from "@ant-design/icons"
 
-import { ListItem, OrderedList, Text } from "@chakra-ui/react"
+import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
+  ListItem,
+  Text,
+  Tooltip,
+  UnorderedList,
+} from "@chakra-ui/react"
 
 import styles from "./continous_annotation.module.css"
 import { Participant_image } from "./custom_components/participant_image"
@@ -27,6 +42,13 @@ type Props = {
   annotation_options: AnnotationOption[]
   video_tutorial_url?: string
   answerForm: React.ReactNode
+  onTooltipObserved: (
+    tooltip:
+      | "Cues"
+      | "Situation characteristics"
+      | "Situation type"
+      | "Social Scripts",
+  ) => void
 
   onCantFindParticipant: () => void
   onParticipantSelected: (participant: string) => void
@@ -104,6 +126,37 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
   const multiple_annotations_for_selected_participant =
     props.annotation_options.length > 1
 
+  const handleRubricAccordionChange = (expandedIndex: number | number[]) => {
+    const hasOpenPanel = Array.isArray(expandedIndex)
+      ? expandedIndex.length > 0
+      : expandedIndex >= 0
+
+    if (!hasOpenPanel) {
+      return
+    }
+
+    // Wait for accordion expansion to affect layout before scrolling.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const scrollContainer = document.getElementById(
+          "JourneyContentContainer",
+        )
+
+        if (scrollContainer) {
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollHeight,
+            behavior: "smooth",
+          })
+        }
+
+        window.scrollTo({
+          top: document.documentElement.scrollHeight,
+          behavior: "smooth",
+        })
+      })
+    })
+  }
+
   return (
     <>
       <div className={styles["sidebar-block"]}>
@@ -111,94 +164,200 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
         <Text fontSize={"md"}>
           <strong>Welcome!</strong> In this task, you will watch a 30-second
           video clip. Identify the intentions of the participant indicated
-          below. Then, briefly explain your reasoning.
+          below. Then, briefly explain your reasoning. Your answers will be
+          graded according to the rubric provided. High-quality responses can
+          earn you an additional monetary bonus.
         </Text>
-        {props.answerForm === "A" && (
-          <>
-            <Participant_image participant_id={[props.selected_participant]} />
-            <Text fontSize={"md"}>
-              Use your first impression and own intuition; there are no right or
-              wrong answers.
-            </Text>
-            <Text fontSize={"md"}>
-              Do not look up definitions or use AI tools (e.g., ChatGPT) to
-              complete any of this task.
-            </Text>
-          </>
-        )}
-        {props.answerForm === "B" && (
-          <>
-            <Participant_image participant_id={[props.selected_participant]} />
-            <Text fontSize={"md"}>
-              An <strong>intention</strong> is what a person wants to{" "}
-              <strong>achieve</strong>, based on <strong>beliefs</strong>
-              about the situation and what they <strong>desire</strong> to
-              happen.
-            </Text>
-            <Text fontSize={"md"}>
-              Use your first impression and own intuition; there are no right or
-              wrong answers.
-            </Text>
-            <Text fontSize={"md"}>
-              Do not look up definitions or use AI tools (e.g., ChatGPT) to
-              complete any of this task.
-            </Text>
-            <Text fontSize={"md"}>
-              When forming your interpretation, you may consider:
-            </Text>
-            <OrderedList fontSize="md" pl="20px" spacing={2}>
-              <ListItem>
-                <strong>Cues:</strong> Directly observable or audible elements
-                e.g. actions, objects, sounds, or locations, etc.
-              </ListItem>
-              <ListItem>
-                <strong>Situation characteristics:</strong> The overall feel or
-                tone of the situation (e.g., tense, casual, pleasant).
-              </ListItem>
-              <ListItem>
-                <strong>Situation type:</strong> What kind of situation the
-                participant might think they are in.
-              </ListItem>
-              <ListItem>
-                <strong>Social Scripts:</strong> Typical patterns or mental
-                "how-to" guides for how social interactions usually unfold.
-              </ListItem>
-            </OrderedList>
-          </>
-        )}
-
-        <Text fontSize={"md"} marginBottom={"5px"}>
-          <strong>1. Watch and pause:</strong> Watch the clip and{" "}
-          <strong>pause as soon as you perceive an intention</strong>{" "}
+        <Participant_image participant_id={[props.selected_participant]} />
+        <Text fontSize={"md"}>
+          An <strong>intention</strong> is what a person wants to{" "}
+          <strong>achieve</strong>, based on <strong>beliefs</strong> about the
+          situation and what they <strong>desire</strong> to happen.
         </Text>
         <Text fontSize={"md"}>
-          Adjust the timestamp to mark <strong>the exact start and end</strong>{" "}
+          Use your first impression and own intuition; there are no right or
+          wrong answers.
+        </Text>
+        <Text>
+          Do not look up definitions or use AI tools (e.g., ChatGPT) to complete
+          any of this task.
+        </Text>
+        <Text fontSize={"lg"} marginBottom={"5px"}>
+          <strong>Interpreting the Situation </strong>
+        </Text>
+        <Text fontSize={"md"}>
+          When forming your interpretation, you may consider:
+        </Text>
+        <UnorderedList fontSize="md" pl="20px" spacing={2}>
+          <ListItem>
+            <strong>Cues:</strong>Directly observable or audible elements.{" "}
+            <br /> This includes actions, gestures, speech, objects, sounds, and
+            locations.{" "}
+            <Tooltip
+              hasArrow
+              onOpen={() => props.onTooltipObserved("Cues")}
+              label={
+                <>
+                  <strong>Ask yourself:</strong> What can I directly see or
+                  hear?
+                </>
+              }
+              bg="gray.300"
+              color="black"
+            >
+              <QuestionCircleTwoTone />
+            </Tooltip>
+          </ListItem>
+          <ListItem>
+            <strong>Situation characteristics:</strong> The general feel or
+            atmosphere of the interaction as a whole.
+            <Tooltip
+              hasArrow
+              onOpen={() =>
+                props.onTooltipObserved("Situation characteristics")
+              }
+              label={
+                <>
+                  <strong>Ask yourself:</strong> How does the situation feel
+                  overall?
+                  <br />
+                  Examples: tense, relaxed, awkward, friendly, formal, hostile.
+                </>
+              }
+              bg="gray.300"
+              color="black"
+            >
+              <QuestionCircleTwoTone />
+            </Tooltip>
+          </ListItem>
+          <ListItem>
+            <strong>Situation type:</strong> The category or context of the
+            interaction, including assumptions about roles or relationships.
+            <Tooltip
+              hasArrow
+              onOpen={() => props.onTooltipObserved("Situation type")}
+              label={
+                <>
+                  <strong>Ask yourself:</strong> What kind of situation is this?
+                  <br />
+                  Examples: job interview, casual conversation, negotiation,
+                  strangers meeting, boss–employee interaction.
+                </>
+              }
+              bg="gray.300"
+              color="black"
+            >
+              <QuestionCircleTwoTone />
+            </Tooltip>
+          </ListItem>
+          <ListItem>
+            <strong>Social Scripts:</strong> The step-by-step mental plan people
+            follow to achieve a goal in a social setting or expected playbook of
+            the situation.
+            <Tooltip
+              hasArrow
+              onOpen={() => props.onTooltipObserved("Social Scripts")}
+              label={
+                <>
+                  <strong>Ask yourself:</strong> What is the expected sequence
+                  of events here? Who usually does what?
+                  <br />
+                  Examples: greeting → introduction → conversation, ordering →
+                  paying → leaving, turn-taking in conversation
+                </>
+              }
+              bg="gray.300"
+              color="black"
+            >
+              <QuestionCircleTwoTone />
+            </Tooltip>
+          </ListItem>
+        </UnorderedList>
+        <Text fontSize={"lg"} marginBottom={"5px"}>
+          <strong>How to Annotate </strong>
+        </Text>
+        <Text fontSize={"md"} marginBottom={"5px"}>
+          <strong>1. Watch and Pause: </strong>Watch the clip and pause as soon
+          as you notice an intention.
+          <br />
+          Adjust the timestamp to mark <strong>
+            the exact start and end
+          </strong>{" "}
           of the intention.
         </Text>
-        {/* <Text fontSize={"md"}><strong>2. Timestamps</strong> Mark the start and end of when you perceive the intention in the video.</Text>
-        <Text fontSize={"md"}>You can either:</Text>
-        <OrderedList fontSize="md" pl="20px" spacing={2}>
-          <ListItem>
-            <strong>Click the Start or End button</strong> to automatically insert the video’s current time, or
-          </ListItem>
-          <ListItem>
-            <strong>Manually enter a timestamp</strong> in the corresponding text box.
-          </ListItem>
-        </OrderedList> */}
-        {/* <Text fontSize={"md"}>
-          To select a precise moment, adjust the video using the progress bar,
-          then click the appropriate button.
-        </Text> */}
-        <Text fontSize={"md"}>
-          <strong>2. Multiple Intentions: </strong>If you think{" "}
-          <strong>multiple intentions</strong> are present or several
-          interpretations are possible, click “<strong>+</strong>” to add
-          another entry.
+        <Text fontSize={"md"} marginBottom={"5px"}>
+          <strong>2. Do you see multiple possibilities?</strong> Click “
+          <strong>+</strong>” to add more entries if you see multiple intentions
+          or interpretations.
         </Text>
-        <Text fontSize={"md"}>
-          <strong>3. Answer the questions: </strong>Complete the questionnaire
-          under the video with your honest interpretation and reasoning.
+        <Text fontSize={"md"} marginBottom={"5px"}>
+          <strong>3. Give your reasoning: </strong>Complete the questionnaire
+          under the video. Use your first impression and intuition; there is no
+          right or wrong answer.
         </Text>
+        <Text fontSize={"md"} marginBottom={"5px"}>
+          <strong>4. Continue the search: </strong>Resume the video and repeat
+          this process for every new intention you see until the clip ends. If
+          you have annotated the full video, you may submit.
+        </Text>
+
+        <Accordion
+          defaultIndex={[]}
+          allowMultiple
+          onChange={handleRubricAccordionChange}
+        >
+          <AccordionItem>
+            <h2>
+              <AccordionButton>
+                <Box as="span" flex="1" textAlign="left">
+                  <Text fontSize={"lg"} marginBottom={"5px"}>
+                    <strong>Grading rubric: </strong>
+                  </Text>
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel pb={4}>
+              <Text fontSize={"md"} marginBottom={"5px"}>
+                Your response will be evaluated based on the following criteria:{" "}
+              </Text>
+              <UnorderedList fontSize="md" pl="20px" spacing={2}>
+                <ListItem>
+                  <strong>Intention (not just actions):</strong> Describe what
+                  the participant is trying to achieve, not just what they are
+                  doing. Actions alone (cues) are not enough you must also
+                  include a goal.
+                </ListItem>
+                <ListItem>
+                  <strong>Assumptions about the participant:</strong> Include
+                  what you assume about the participant’s beliefs or desires.
+                  What do they think is happening? What do they want?
+                </ListItem>
+                <ListItem>
+                  <strong>Assumptions about the situation: </strong> Use your
+                  interpretation of the situation to support your answer, based
+                  on:
+                  <UnorderedList styleType="-">
+                    <ListItem>
+                      <strong>Situation type</strong> (what kind of situation
+                      this is) 
+                    </ListItem>
+                    <ListItem>
+                      <strong>Social scripts</strong> (what typically happens in
+                      this situation)
+                    </ListItem>
+                    <ListItem>
+                      <strong>Situation characteristics</strong> (overall tone)
+                    </ListItem>
+                  </UnorderedList>
+                </ListItem>
+              </UnorderedList>
+              <Text fontSize={"md"} marginBottom={"5px"}>
+                Show how the context or social norms inform your interpretation.
+              </Text>
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
       </div>
     </>
   )

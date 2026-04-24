@@ -96,6 +96,14 @@ type Narrative_typeB = {
 type Narrative_List = {
   narratives: (Narrative_typeA | Narrative_typeB)[]
   pausedAt: number[]
+  tooltipObservedAt: {
+    tooltip:
+      | "Cues"
+      | "Situation characteristics"
+      | "Situation type"
+      | "Social Scripts"
+    observedAt: number
+  }[]
 }
 
 type FreeTextAnswerPayload = {
@@ -132,8 +140,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     const newIndex = currMediaIndex + add
     const clamped = Math.max(0, Math.min(newIndex, props.spec.media.length - 1))
     setCurrMediaIndex(clamped)
-    setTaskCompletionPercentage((100 * (clamped)) / props.spec.media.length)
-    props.onUpdateProgress((100 * (clamped)) / props.spec.media.length)
+    setTaskCompletionPercentage((100 * clamped) / props.spec.media.length)
+    props.onUpdateProgress((100 * clamped) / props.spec.media.length)
   }
   console.log("It Works AB", props.spec.annotations[currMediaIndex].AB_test)
   const [answerForm, setAnswerForm] = useState<"A" | "B">(
@@ -141,90 +149,59 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   )
   const [currentNarrativeIndex, setCurrentNarrativeIndex] = useState(0)
 
+  const createInitialNarrativeList = (): Narrative_List => ({
+    narratives: [
+      {
+        created_at: Date.now(),
+        timestamp_start: 0,
+        timestamp_end: 0,
+        intention_description: "",
+        intention_description_confidence: null,
+        intention_explanation: "",
+        intention_explanation_confidence: null,
+        intention_intensity: "",
+        counterfactual_explanation: "",
+        narrative_index: 0,
+      },
+    ],
+    pausedAt: [],
+    tooltipObservedAt: [],
+  })
+
   //Initialize first narrative based on answer form
   const [narratives, setNarratives] = useState<Narrative_List>(
-    answerForm == "A"
-      ? {
-          narratives: [
-            {
-              created_at: Date.now(),
-              timestamp_start: 0,
-              timestamp_end: 0,
-              intention_description: "",
-              intention_description_confidence: null,
-              intention_explanation: "",
-              intention_explanation_confidence: null,
-              intention_intensity: "",
-              counterfactual_explanation: "",
-              narrative_index: 0,
-            },
-          ],
-          pausedAt: [],
-        }
-      : {
-          narratives: [
-            {
-              created_at: Date.now(),
-              timestamp_start: 0,
-              timestamp_end: 0,
-              intention_description: "",
-              intention_description_confidence: null,
-              intention_explanation: "",
-              intention_explanation_confidence: null,
-              intention_intensity: "",
-              counterfactual_explanation: "",
-              narrative_index: 0,
-            },
-          ],
-          pausedAt: [],
-        },
+    createInitialNarrativeList(),
   )
 
   useEffect(() => {
-    setNarratives(
-      answerForm == "A"
-        ? {
-            narratives: [
-              {
-                created_at: Date.now(),
-                timestamp_start: 0,
-                timestamp_end: 0,
-                intention_description: "",
-                intention_description_confidence: null,
-                intention_explanation: "",
-                intention_explanation_confidence: null,
-                intention_intensity: "",
-                counterfactual_explanation: "",
-                narrative_index: 0,
-              },
-            ],
-            pausedAt: [],
-          }
-        : {
-            narratives: [
-              {
-                created_at: Date.now(),
-                timestamp_start: 0,
-                timestamp_end: 0,
-                intention_description: "",
-                intention_description_confidence: null,
-                intention_explanation: "",
-                intention_explanation_confidence: null,
-                intention_intensity: "",
-                counterfactual_explanation: "",
-                narrative_index: 0,
-              },
-            ],
-            pausedAt: [],
-          },
-    )
+    setNarratives(createInitialNarrativeList())
   }, [currMediaIndex])
+
+  const recordTooltipObservation = (
+    tooltip:
+      | "Cues"
+      | "Situation characteristics"
+      | "Situation type"
+      | "Social Scripts",
+  ) => {
+    setNarratives((prev) => ({
+      ...prev,
+      tooltipObservedAt: [
+        ...prev.tooltipObservedAt,
+        {
+          tooltip,
+          observedAt: Date.now(),
+        },
+      ],
+    }))
+  }
 
   const setPausedAt = (item: number) => {
     setNarratives((prev) => {
       return {
         narratives: prev.narratives,
         pausedAt: [...prev.pausedAt, item],
+        tooltipObservedAt: prev.tooltipObservedAt,
       }
     })
   }
@@ -233,47 +210,15 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   // TODO:Remove this useEffect after testing
   React.useEffect(() => {
     //Reset narratives when answer form changes
-    if (answerForm == "A") {
-      setNarratives({
-        narratives: [
-          {
-            created_at: Date.now(),
-            timestamp_start: 0,
-            timestamp_end: 0,
-            intention_description: "",
-            intention_description_confidence: null,
-            intention_explanation: "",
-            intention_explanation_confidence: null,
-            intention_intensity: "",
-            counterfactual_explanation: "",
-            narrative_index: 0,
-          },
-        ],
-        pausedAt: [],
-      })
-    } else {
-      setNarratives({
-        narratives: [
-          {
-            created_at: Date.now(),
-            timestamp_start: 0,
-            timestamp_end: 0,
-            intention_description: "",
-            intention_description_confidence: null,
-            intention_explanation: "",
-            intention_explanation_confidence: null,
-            intention_intensity: "",
-            counterfactual_explanation: "",
-            narrative_index: 0,
-          },
-        ],
-        pausedAt: [],
-      })
-    }
+    setNarratives(createInitialNarrativeList())
   }, [answerForm])
 
   const submitFreeTextToServer = async () => {
-    for (let narrativeIndex = 0; narrativeIndex < narratives.narratives.length; narrativeIndex++) {
+    for (
+      let narrativeIndex = 0;
+      narrativeIndex < narratives.narratives.length;
+      narrativeIndex++
+    ) {
       setCurrentNarrativeIndex(narrativeIndex)
       postFreetextAnswerToServer()
     }
@@ -296,7 +241,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         window.location.href = redirectUrl
       }
     }
-    
   }
 
   // const PARTICIPANT_AUDIO_SRC = ["https://www.w3schools.com/html/mov_bbb.mp4", "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"]
@@ -371,12 +315,13 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       data_json: [
         narrativesToUse[narrativeIndexToUse],
         narratives.pausedAt,
+        narratives.tooltipObservedAt,
         getCurrentVideoTime(),
         Date.now(),
         videoLength,
         narrativeIndexToUse,
         answerForm,
-        annotatorMeta.prolificPid
+        annotatorMeta.prolificPid,
       ],
     }
 
@@ -1241,6 +1186,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               participant_options={participant_options}
               annotation_options={annotation_options}
               video_tutorial_url={props.spec.videoTutorialUrl}
+              onTooltipObserved={recordTooltipObservation}
               // Callbacks
               onCantFindParticipant={handleParticipantNotAppearingInVideos}
               onParticipantSelected={(participant: string) => {
@@ -1263,7 +1209,6 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               answerForm={answerForm}
             />
           </div>
-          <div style={{ backgroundColor: "blue" }} /> {/* <--- Filler div */}
           <div className={styles["main-content"]}>
             <div className={styles["main-content-video-and-guide"]}>
               <VideoJSFC
