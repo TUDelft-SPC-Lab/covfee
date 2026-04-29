@@ -50,7 +50,12 @@ def admin_required(fn):
 
 def user_loader_callback(jwt_header, jwt_payload) -> User:
     identity = jwt_payload["sub"]
-    user = app.session.query(User).get(int(identity))
+    # JWT "sub" must be a string. Cast back to int for DB lookup.
+    try:
+        identity = int(identity)
+    except (TypeError, ValueError):
+        return None
+    user = app.session.query(User).get(identity)
     return user
 
 

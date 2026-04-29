@@ -60,7 +60,9 @@ const Participant_image: React.FC<Props> = ({ participant_id }: Props) => {
   //   "32": Participant_32,
   // }
   const participant_images: { [key: string]: string } = {
+    "1": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_1.png",
     "2": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_2.png",
+    "3": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_3.png",
     "4": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_4.png",
     "5": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_5.png",
     "6": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_6.png",
@@ -73,17 +75,22 @@ const Participant_image: React.FC<Props> = ({ participant_id }: Props) => {
     "13": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_13.png",
     "14": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_14.png",
     "15": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_15.png",
+    "16": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_16.png",
     "17": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_17.png",
     "18": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_18.png",
     "19": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_19.png",
     "20": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_20.png",
+    "21": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_21.png",
     "22": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_22.png",
     "23": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_23.png",
+    "24": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_24.png",
     "25": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_25.png",
+    "26": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_26.png",
     "27": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_27.png",
     "28": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_28.png",
     "29": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_29.png",
     "30": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_30.png",
+    "31": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_31.png",
     "32": "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/participant_imgs/participant_32.png",
     }
 

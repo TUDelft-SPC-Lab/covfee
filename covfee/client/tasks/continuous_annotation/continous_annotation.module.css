@@ -78,7 +78,7 @@
   flex-direction: column;
   width: 12%;
   min-width: 200px; /* Set a minimum width */
-  align-self: flex-end;
+  align-self: flex-start;
 }
 
 .sidebarBottom {

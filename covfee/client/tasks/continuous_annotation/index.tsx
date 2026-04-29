@@ -370,6 +370,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     number | null
   >(null)
   const [showingGallery, setShowingGallery] = useState(false)
+  const [showingTutorialVideo, setShowingTutorialVideo] = useState(true)
   const [showAnnotationTipsOnStart, setShowAnnotationTipsOnStart] =
     useState(true)
   const [showingAnnotationTips, setShowingAnnotationTips] = useState(false)
@@ -1156,6 +1157,37 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             />
           </ModalContent>
         </ChakraModal>
+        <ChakraModal
+          isOpen={showingTutorialVideo}
+          onClose={() => setShowingTutorialVideo(false)}
+          size="full"
+        >
+          <ModalOverlay bg="blackAlpha.800" />
+
+          <ModalContent
+            bg="transparent"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <ModalCloseButton color="white" size="lg" zIndex={2} />
+
+            <video
+              style={{ width: "95%", height: "95vh", maxWidth: "1600px", objectFit: "contain" }}
+              controls
+              autoPlay
+              playsInline
+            >
+              <source
+                src={
+                  "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/video_segs/Annotation_tutorial.mp4"
+                }
+                type="video/mp4"
+              />
+              Your browser does not support the video tag.
+            </video>
+          </ModalContent>
+        </ChakraModal>
         <div className={styles["action-annotation-task"]}>
           <div
             className={`${styles["sidebar"]} ${styles["left-sidebar"]} ${
@@ -1342,6 +1374,18 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               </ButtonChakra>
             </div>
             <div className={styles["sidebar-block"]}>
+              <Text fontSize={"md"}>Show Tutorial Video:</Text>
+              <ButtonChakra
+                colorScheme={"blue"}
+                size={"lg"}
+                width="100%"
+                mb={2}
+                onClick={() => setShowingTutorialVideo(true)}
+              >
+                Tutorial Video
+              </ButtonChakra>
+            </div>
+            <div className={styles["sidebar-block"]}>
               {/* <ActionAnnotationFlashscreen
               active={
                 actionAnnotationStartTime !==
@@ -1353,6 +1397,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
             /> */}
               <Text fontSize={"md"}>Toggle individual audio:</Text>
               <CheckboxChakra
+              borderColor="gray.400"
                 isChecked={allChecked}
                 isIndeterminate={isIndeterminate}
                 onChange={(e) =>
@@ -1364,6 +1409,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               <Stack pl={6} mt={1} spacing={1}>
                 {conversationFloorParticipants.map((participantIndex) => (
                   <CheckboxChakra
+                  borderColor="gray.400"
                     key={participantIndex}
                     isChecked={audioToggles[participantIndex]}
                     onChange={(e) =>

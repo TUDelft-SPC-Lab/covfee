@@ -164,9 +164,7 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
         <Text fontSize={"md"}>
           <strong>Welcome!</strong> In this task, you will watch a 30-second
           video clip. Identify the intentions of the participant indicated
-          below. Then, briefly explain your reasoning. Your answers will be
-          graded according to the rubric provided. High-quality responses can
-          earn you an additional monetary bonus.
+          below. Then, briefly explain your reasoning.
         </Text>
         <Participant_image participant_id={[props.selected_participant]} />
         <Text fontSize={"md"}>
@@ -176,7 +174,7 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
         </Text>
         <Text fontSize={"md"}>
           Use your first impression and own intuition; there are no right or
-          wrong answers.
+          wrong answers. Please use the provided guidelines and give your best effort, even in cases where intentions may be subtle or uncertain.
         </Text>
         <Text>
           Do not look up definitions or use AI tools (e.g., ChatGPT) to complete
@@ -311,7 +309,7 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
               <AccordionButton>
                 <Box as="span" flex="1" textAlign="left">
                   <Text fontSize={"lg"} marginBottom={"5px"}>
-                    <strong>Grading rubric: </strong>
+                    <strong>What we are looking for: </strong>
                   </Text>
                 </Box>
                 <AccordionIcon />

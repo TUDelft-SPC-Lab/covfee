@@ -152,11 +152,27 @@ def delete_annotation(annotid):
 def get_video_length(video_name):
     print(f"Getting length for video: {video_name}")
 
+    # Extract timestamps from video_name to construct seg folder
+    # Format: camera_XX_XXXXXXXX_XXXXXXXX.mp4
+    # Folder format: seg_{start_ts_without_last_2_digits}_{end_ts_without_last_2_digits}
+    parts = video_name.replace('.mp4', '').split('_')
+    if len(parts) >= 4:
+        start_ts = parts[-2]
+        end_ts = parts[-1]
+        # Remove last 2 digits from each timestamp
+        start_ts_short = start_ts[:-2]
+        end_ts_short = end_ts[:-2]
+        seg_folder = f"seg_{start_ts_short}_{end_ts_short}"
+    else:
+        # Fallback if naming doesn't match expected pattern
+        seg_folder = ""
+
     ffprobe_path = Path("/home/arthurmercier/miniconda3/envs/ffmpeg-8/bin/ffprobe")
     if not ffprobe_path.exists():
         ffprobe_path = Path("/usr/bin/ffprobe")
 
     try:
+        video_path = Path(f"/data/ingroup/video_segs/{seg_folder}/{video_name}")
         result = subprocess.run(
             [
                 str(ffprobe_path),
@@ -166,7 +182,7 @@ def get_video_length(video_name):
                 "format=duration",
                 "-of",
                 "default=noprint_wrappers=1:nokey=1",
-                str(Path(f"/data/ingroup/video_segs/{video_name}")),
+                str(video_path),
             ],
             capture_output=True,
             text=True,
