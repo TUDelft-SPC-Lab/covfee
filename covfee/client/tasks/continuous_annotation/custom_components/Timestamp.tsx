@@ -22,7 +22,15 @@ interface Props {
     field: keyof Narrative_typeA | keyof Narrative_typeB,
     value: string,
   ) => void
-  postFreetextAnswerToServer: () => void
+  updateNarrativeFieldAndSave: (
+    narrativeIndex: number,
+    field: keyof Narrative_typeA | keyof Narrative_typeB,
+    value: string,
+  ) => void
+  postFreetextAnswerToServer: (payload?: {
+    narratives?: (Narrative_typeA | Narrative_typeB | null)[]
+    currentNarrativeIndex?: number
+  }) => void
   paddingTop?: string
   children?: React.ReactNode
 
@@ -35,6 +43,7 @@ const Timestamp: React.FC<Props> = ({
   field_end,
   i,
   updateNarrativeField,
+  updateNarrativeFieldAndSave,
   postFreetextAnswerToServer,
   paddingTop = "40px",
   children,
@@ -59,12 +68,11 @@ const Timestamp: React.FC<Props> = ({
         <Button
           colorScheme="blue"
           onClick={() => {
-            updateNarrativeField(
+            updateNarrativeFieldAndSave(
               i,
               field_start,
               getCurrentPausedTime().toString(),
             )
-            postFreetextAnswerToServer()
           }}
         >
           Start
@@ -85,9 +93,10 @@ const Timestamp: React.FC<Props> = ({
             onBlur={(e) => {
               const value = parseFloat(e.target.value)
               if (!isNaN(value)) {
-                updateNarrativeField(i, field_start, value.toFixed(2))
+                updateNarrativeFieldAndSave(i, field_start, value.toFixed(2))
+              } else {
+                postFreetextAnswerToServer()
               }
-              postFreetextAnswerToServer()
             }}
           />
           <InputRightElement pointerEvents="none">s</InputRightElement>
@@ -95,12 +104,11 @@ const Timestamp: React.FC<Props> = ({
         <Button
           colorScheme="blue"
           onClick={() => {
-            updateNarrativeField(
+            updateNarrativeFieldAndSave(
               i,
               field_end,
               getCurrentPausedTime().toString(),
             )
-            postFreetextAnswerToServer()
           }}
         >
           End
@@ -119,9 +127,10 @@ const Timestamp: React.FC<Props> = ({
             onBlur={(e) => {
               const value = parseFloat(e.target.value)
               if (!isNaN(value)) {
-                updateNarrativeField(i, field_end, value.toFixed(2))
+                updateNarrativeFieldAndSave(i, field_end, value.toFixed(2))
+              } else {
+                postFreetextAnswerToServer()
               }
-              postFreetextAnswerToServer()
             }}
           />
           <InputRightElement pointerEvents="none">s</InputRightElement>

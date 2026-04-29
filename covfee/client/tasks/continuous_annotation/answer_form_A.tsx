@@ -99,6 +99,34 @@ const Answer_form_A: React.FC<Props> = ({
         : narrative,
     )
     setNarratives(nextNarratives)
+    setSubmittable(
+      nextNarratives.every(isNarrativeComplete) &&
+        nextNarratives.every(
+          (narrative) => narrative?.timestamp_start < narrative?.timestamp_end,
+        ),
+    )
+  }
+  const updateNarrativeFieldAndSave = (
+    narrativeIndex: number,
+    field: keyof Narrative_typeA,
+    value: string,
+  ) => {
+    const nextNarratives = narratives.map((narrative, i) =>
+      i === narrativeIndex && narrative
+        ? { ...narrative, [field]: value }
+        : narrative,
+    )
+    setNarratives(nextNarratives)
+    setSubmittable(
+      nextNarratives.every(isNarrativeComplete) &&
+        nextNarratives.every(
+          (narrative) => narrative?.timestamp_start < narrative?.timestamp_end,
+        ),
+    )
+    postFreetextAnswerToServer({
+      narratives: nextNarratives,
+      currentNarrativeIndex: narrativeIndex,
+    })
   }
   //Delete narrative confirmation dialog
   const {
@@ -154,7 +182,9 @@ const Answer_form_A: React.FC<Props> = ({
     setSubmittable(
       narratives.every(isNarrativeComplete) &&
         narratives.every(
-          (narrative) => narrative?.timestamp_start < narrative?.timestamp_end,
+          (narrative) =>
+            Number(narrative?.timestamp_start) <
+            Number(narrative?.timestamp_end),
         ),
     )
   }, [narratives])
@@ -207,6 +237,7 @@ const Answer_form_A: React.FC<Props> = ({
                   field_end={"timestamp_end"}
                   i={i}
                   updateNarrativeField={updateNarrativeField}
+                  updateNarrativeFieldAndSave={updateNarrativeFieldAndSave}
                   postFreetextAnswerToServer={postFreetextAnswerToServer}
                   getCurrentPausedTime={getCurrentPausedTime}
                 >
