@@ -1108,14 +1108,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       level: "debug" | "info" | "warning" | "error" | "critical",
       message: string,
     ) => {
-      const logId = annotatorMeta.prolificPid
-      if (!logId) {
-        console.warn(
-          "logToServer: no prolificPid yet, skipping remote log:",
-          message,
-        )
-        return
-      }
+      const logId = annotatorMeta.prolificPid || "0"
       try {
         const url =
           Constants.base_url +
