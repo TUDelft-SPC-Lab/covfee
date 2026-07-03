@@ -8,6 +8,7 @@ interface Props {
   audioToggles?: boolean[]
   onReady?: (player: videojs.Player) => void
   onPausedAt?: (time: number) => void
+  onError?: (source: "video" | "audio", detail: unknown) => void
 }
 
 export const VideoJSFC: React.FC<Props> = ({
@@ -16,10 +17,17 @@ export const VideoJSFC: React.FC<Props> = ({
   audioToggles = [],
   onReady,
   onPausedAt,
+  onError,
 }) => {
   const videoRef = React.useRef<HTMLDivElement | null>(null)
   const playerRef = React.useRef<videojs.Player | null>(null)
   const audioRefs = React.useRef<HTMLAudioElement[]>([])
+  // The init effect below intentionally runs once ([] deps), so we read
+  // onError through a ref to always call the latest version passed in.
+  const onErrorRef = React.useRef(onError)
+  React.useEffect(() => {
+    onErrorRef.current = onError
+  }, [onError])
 
   // Initialize Video.js
   React.useEffect(() => {
@@ -35,8 +43,22 @@ export const VideoJSFC: React.FC<Props> = ({
       // Mute video audio
       player.muted(true)
 
+      player.on("error", () => {
+        onErrorRef.current?.("video", player.error())
+      })
+
       // Play/pause/seeking sync for all audio tracks
-      player.on("play", () => audioRefs.current.forEach((a) => a.play()))
+      player.on("play", () =>
+        audioRefs.current.forEach((a) =>
+          a.play().catch((error) => {
+            onErrorRef.current?.("audio", {
+              message: "audio play() rejected",
+              src: a.src,
+              error: String(error),
+            })
+          }),
+        ),
+      )
       player.on("pause", () => {
         const currentTime = player.currentTime()
         audioRefs.current.forEach((a) => a.pause())
@@ -79,7 +101,12 @@ export const VideoJSFC: React.FC<Props> = ({
 
       // Optional: resume playback state
       if (!wasPaused) {
-        player.play().catch(() => {})
+        player.play().catch((error) => {
+          onErrorRef.current?.("video", {
+            message: "resume play() rejected after src change",
+            error: String(error),
+          })
+        })
       }
 
       // Optional: reset time if you want
@@ -120,6 +147,13 @@ export const VideoJSFC: React.FC<Props> = ({
         src={src}
         preload="auto"
         muted={audioToggles[index] === false} // false = muted
+        onError={(e) => {
+          onErrorRef.current?.("audio", {
+            message: "audio element error",
+            src,
+            error: e.currentTarget.error,
+          })
+        }}
       />
     ))
   }, [audioSrc, audioToggles])

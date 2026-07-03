@@ -535,6 +535,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
 
   const handleVideoPlayerReady = (player: VideoJsPlayer) => {
     videoPlayerRef.current = player
+    logToServer("info", `Video player ready. src: ${player.currentSrc()}`)
     // We associate a dummy state to trigger a render when the video player is ready
     // and thus execution of the code in the useEffect hook connecting event listeners
     // below.
@@ -545,6 +546,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   useEffect(() => {
     if (videoPlayerRef.current) {
       const handleVideoLoadStart = (event: any) => {
+        logToServer(
+          "debug",
+          `Video loadstart (src: ${videoPlayerRef.current?.currentSrc()})`,
+        )
         // enqueues a useEffect call
         setVideoLoadStartEvent(event)
         forceVideoAudioRequirement()
@@ -552,15 +557,40 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       const handleVolumeChange = () => {
         forceVideoAudioRequirement()
       }
+      const handleVideoError = () => {
+        const err = videoPlayerRef.current?.error()
+        logToServer(
+          "error",
+          `Video player error: ${JSON.stringify(err)} (src: ${videoPlayerRef.current?.currentSrc()})`,
+        )
+      }
+      const handleVideoStalled = () => {
+        logToServer(
+          "warning",
+          `Video stalled (src: ${videoPlayerRef.current?.currentSrc()})`,
+        )
+      }
+      const handleVideoWaiting = () => {
+        logToServer(
+          "warning",
+          `Video waiting/buffering (src: ${videoPlayerRef.current?.currentSrc()})`,
+        )
+      }
       videoPlayerRef.current.on("ended", handleVideoEnd)
       videoPlayerRef.current.on("loadstart", handleVideoLoadStart)
       videoPlayerRef.current.on("loadeddata", checkVideoLengthWithServer)
       videoPlayerRef.current.on("volumechange", handleVolumeChange)
+      videoPlayerRef.current.on("error", handleVideoError)
+      videoPlayerRef.current.on("stalled", handleVideoStalled)
+      videoPlayerRef.current.on("waiting", handleVideoWaiting)
       return () => {
         videoPlayerRef.current.off("ended", handleVideoEnd)
         videoPlayerRef.current.off("loadstart", handleVideoLoadStart)
         videoPlayerRef.current.off("loadeddata", checkVideoLengthWithServer)
         videoPlayerRef.current.off("volumechange", handleVolumeChange)
+        videoPlayerRef.current.off("error", handleVideoError)
+        videoPlayerRef.current.off("stalled", handleVideoStalled)
+        videoPlayerRef.current.off("waiting", handleVideoWaiting)
       }
     }
   }) // No dependencies so all functions are updated with all latest state
@@ -666,6 +696,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         } else {
           videoPlayerRef.current.play().catch((error) => {
             console.log("Error playing video: ", error)
+            logToServer("error", `Error resuming video playback: ${error}`)
           })
         }
       }
@@ -691,6 +722,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     const res = await fetcher(url)
     if (!res.ok) {
       console.error("Error fetching video length from server:", res.status)
+      logToServer(
+        "error",
+        `Error fetching video length from server (status ${res.status}) for ${video_name_with_extension}`,
+      )
       setVideoLengthMismatch(true)
       setShowVideoLengthMismatch(true)
       setShowTaskVariantPopupBulletPoints(false)
@@ -701,6 +736,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     console.log("Video length from server:", server_video_length)
     const local_vid_duration = videoPlayerRef.current?.duration()
     if (local_vid_duration === undefined) {
+      logToServer(
+        "warning",
+        `Could not read local video duration for ${video_name_with_extension}`,
+      )
       return
     }
     console.log("Video length local:", local_vid_duration)
@@ -711,6 +750,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     })
     // TODO: fix the length mismatch issue, currently we just set it to only care about a 1s mismatch.
     if (Math.abs(server_video_length - local_vid_duration) > 1) {
+      logToServer(
+        "warning",
+        `Video length mismatch for ${video_name_with_extension}: server=${server_video_length}s, client=${local_vid_duration}s`,
+      )
       setVideoLengthMismatch(true)
       setShowVideoLengthMismatch(true)
       setShowTaskVariantPopupBulletPoints(false)
@@ -874,6 +917,10 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         // This is the result of failure to load the video.
         message.error(
           "There was an error loading the video. Please refresh the page and try again.",
+        )
+        logToServer(
+          "error",
+          `Failed to start annotation: video did not load (0 frames). src: ${current_video_src}`,
         )
         return
       }
@@ -1042,12 +1089,159 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       })
       .catch((error) => {
         console.error("Failed to fetch annotator data:", error)
+        logToServer("error", `Failed to fetch annotator data: ${error}`)
       })
 
     return () => {
       mounted = false
     }
   }, [node.journey_id])
+
+  //*************************************************************//
+  //----------------- Remote diagnostic logging ----------------- //
+  //*************************************************************//
+  // Ships diagnostic info to POST /logs/<prolificPid> (see write_log in
+  // continuous_annotation.py) so that audio/video loading issues reported by
+  // participants can be investigated after the fact.
+  const logToServer = useCallback(
+    async (
+      level: "debug" | "info" | "warning" | "error" | "critical",
+      message: string,
+    ) => {
+      const logId = annotatorMeta.prolificPid
+      if (!logId) {
+        console.warn(
+          "logToServer: no prolificPid yet, skipping remote log:",
+          message,
+        )
+        return
+      }
+      try {
+        const url =
+          Constants.base_url +
+          node.customApiBase +
+          `/logs/${encodeURIComponent(logId)}`
+        const res = await fetcher(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ level, message }),
+        })
+        if (!res.ok) {
+          console.error("logToServer: server rejected log entry:", res.status)
+        }
+      } catch (error) {
+        console.error("logToServer: failed to reach logging endpoint:", error)
+      }
+    },
+    [annotatorMeta.prolificPid, node.customApiBase],
+  )
+
+  // Everything we can cheaply learn about the participant's machine/browser.
+  const logSystemInfo = useCallback(() => {
+    const nav = navigator as any
+    const conn = nav.connection ?? nav.mozConnection ?? nav.webkitConnection
+
+    const systemInfo = {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      vendor: navigator.vendor,
+      language: navigator.language,
+      languages: navigator.languages,
+      hardwareConcurrency: navigator.hardwareConcurrency,
+      deviceMemory: nav.deviceMemory ?? "unknown",
+      cookieEnabled: navigator.cookieEnabled,
+      onLine: navigator.onLine,
+      doNotTrack: navigator.doNotTrack,
+      screen: {
+        width: window.screen.width,
+        height: window.screen.height,
+        availWidth: window.screen.availWidth,
+        availHeight: window.screen.availHeight,
+        colorDepth: window.screen.colorDepth,
+        pixelDepth: window.screen.pixelDepth,
+        orientation: window.screen.orientation?.type,
+      },
+      viewport: {
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        devicePixelRatio: window.devicePixelRatio,
+      },
+      connection: conn
+        ? {
+            effectiveType: conn.effectiveType,
+            downlink: conn.downlink,
+            rtt: conn.rtt,
+            saveData: conn.saveData,
+          }
+        : "unavailable",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      url: window.location.href,
+    }
+    logToServer("info", `System info: ${JSON.stringify(systemInfo)}`)
+  }, [logToServer])
+
+  // Audio/video specific capabilities - this is where we're currently seeing
+  // loading issues, so we want as much detail here as we can get.
+  const logAudioVideoInfo = useCallback(async () => {
+    const probeVideo = document.createElement("video")
+    const probeAudio = document.createElement("audio")
+
+    const avInfo: Record<string, unknown> = {
+      videoCanPlay: {
+        mp4_h264: probeVideo.canPlayType('video/mp4; codecs="avc1.42E01E"'),
+        webm_vp9: probeVideo.canPlayType('video/webm; codecs="vp9"'),
+      },
+      audioCanPlay: {
+        mp3: probeAudio.canPlayType("audio/mpeg"),
+        aac: probeAudio.canPlayType('audio/mp4; codecs="mp4a.40.2"'),
+      },
+      mediaSourceSupported: typeof MediaSource !== "undefined",
+      webAudioSupported:
+        typeof AudioContext !== "undefined" ||
+        typeof (window as any).webkitAudioContext !== "undefined",
+      participantAudioSources: PARTICIPANT_AUDIO_SRC,
+      currentVideoSrc: current_video_src,
+      audioToggles,
+    }
+
+    try {
+      if (navigator.mediaDevices?.enumerateDevices) {
+        const devices = await navigator.mediaDevices.enumerateDevices()
+        avInfo.mediaDevices = devices.map((d) => ({
+          kind: d.kind,
+          label: d.label || "(no permission to see label)",
+        }))
+      } else {
+        avInfo.mediaDevices = "enumerateDevices unavailable"
+      }
+    } catch (error) {
+      avInfo.mediaDevices = `error enumerating devices: ${error}`
+    }
+
+    logToServer("info", `Audio/Video info: ${JSON.stringify(avInfo)}`)
+  }, [logToServer, audioToggles, current_video_src])
+
+  // Surfaces "error" events from the video player and from the individual
+  // <audio> elements rendered inside VideoJSFC.
+  const handleMediaError = useCallback(
+    (source: "video" | "audio", detail: unknown) => {
+      logToServer("error", `${source} error: ${JSON.stringify(detail)}`)
+    },
+    [logToServer],
+  )
+
+  // Once we know who the participant is, ship system info first, then
+  // audio/video specific info, so that if media fails to load we already
+  // have context on the participant's machine to help debug it.
+  useEffect(() => {
+    if (!annotatorMeta.prolificPid) {
+      return
+    }
+    logToServer("info", "Annotator identified, starting diagnostic logging.")
+    logSystemInfo()
+    logAudioVideoInfo()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [annotatorMeta.prolificPid])
 
   // ********************************************************************//
   //----------------------- JSX rendering logic ------------------------//
@@ -1249,6 +1443,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
                 audioToggles={audioToggles}
                 onReady={handleVideoPlayerReady}
                 onPausedAt={setPausedAt}
+                onError={handleMediaError}
               />
 
               {showingAnnotationTips && (
