@@ -173,8 +173,7 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
           situation and what they <strong>desire</strong> to happen.
         </Text>
         <Text fontSize={"md"}>
-          Use your first impression and own intuition; there are no right or
-          wrong answers. Please use the provided guidelines and give your best effort, even in cases where intentions may be subtle or uncertain.
+          Please use the provided guidelines and express your best intuition, even in cases where the intentions may be subtle. Your interpretation of the presented behavior is in itself valid, and we would like to understand diverse interpretations of intentions.
         </Text>
         <Text>
           Do not look up definitions or use AI tools (e.g., ChatGPT) to complete
@@ -309,7 +308,7 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
               <AccordionButton>
                 <Box as="span" flex="1" textAlign="left">
                   <Text fontSize={"lg"} marginBottom={"5px"}>
-                    <strong>What we are looking for: </strong>
+                    <strong>Guidelines: </strong>
                   </Text>
                 </Box>
                 <AccordionIcon />
@@ -345,13 +344,13 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
                       this situation)
                     </ListItem>
                     <ListItem>
-                      <strong>Situation characteristics</strong> (overall tone)
+                      <strong>Situation characteristics</strong> (the overall tone)
                     </ListItem>
                   </UnorderedList>
                 </ListItem>
               </UnorderedList>
               <Text fontSize={"md"} marginBottom={"5px"}>
-                Show how the context or social norms inform your interpretation.
+                Dont spend too much time per question. your initial response is valid.
               </Text>
             </AccordionPanel>
           </AccordionItem>

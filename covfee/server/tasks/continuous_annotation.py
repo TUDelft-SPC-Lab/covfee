@@ -11,6 +11,9 @@ from sqlalchemy import ForeignKey, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.orm.attributes import flag_modified
 
+import logging
+import os
+
 from covfee.server.orm import Base
 from covfee.server.tasks.base import BaseCovfeeTask
 
@@ -46,6 +49,29 @@ class ContinuousAnnotationTask(BaseCovfeeTask):
 
 bp = Blueprint("ContinuousAnnotationTask", __name__)
 
+@bp.route("/logs/<log_id>", methods=["POST"])
+def write_log(log_id):
+    data = request.json
+    if not data or "message" not in data:
+        return jsonify({"msg": "missing 'message' in request body"}), 400
+
+    log_path = Path(f"/data/ingroup/logs/{log_id}.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger = logging.getLogger(log_id)
+    if not logger.handlers:
+        handler = logging.FileHandler(log_path)
+        handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+
+    level = data.get("level", "info").lower()
+    message = data.get("message")
+
+    log_fn = getattr(logger, level, logger.info)
+    log_fn(message)
+
+    return jsonify({"msg": "logged", "file": str(log_path)}), 200
 
 @bp.route("/tasks/<tid>/annotations/all")
 def fetch_all(tid):
