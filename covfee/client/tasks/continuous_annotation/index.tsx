@@ -342,7 +342,13 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
         narrativeIndexToUse,
       ],
     }
-
+    // setGestaltAnnotation((prev) => ({
+    //   ...prev,
+    //   video_start_time: 0,
+    //   video_end_time: 0,
+    //   video_path: props.spec.media[currMediaIndex]?.src ?? "",
+    //   audio_path: props.spec.audioMedia[currMediaIndex]?.src?.[0] ?? "",
+    // }))
     try {
       const url =
         Constants.base_url +
@@ -421,6 +427,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       ...prev,
       video_start_time: 0,
       video_end_time: 0,
+      video_path: props.spec.media[currMediaIndex]?.src ?? "",
+      audio_path: props.spec.audioMedia[currMediaIndex]?.src?.[0] ?? "",
     }))
   }, [currMediaIndex, selectedCamViewIndex])
 
