@@ -28,6 +28,11 @@ class ContinuousAnnotationTaskSpec(CovfeeTask):
     prolificCompletionCode: str
     # If true, this node must have a valid submission before the HIT can be submitted
     required: bool
+    # Number of leading batch items that belong to instruction "section one".
+    # Items at or past this index get the section-two instructions instead.
+    # When omitted, falls back to the legacy 15 (form A) / 30 (form B) split.
+    # Set it to the number of items in the task to keep everything in section one.
+    sectionOneItemCount: float
     taskVariantPopupBulletPoints: List[str]
     # Time to complete the task
     timer: float
@@ -46,7 +51,7 @@ class ContinuousAnnotationTaskSpec(CovfeeTask):
     videoTutorialUrl: str
     # If true, all journeys must click ready to start the task
     wait_for_ready: bool
-    def __init__(self, annotations, audioMedia, media, name, userCanAdd, audioRequirement = None, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, prolificCompletionCode = None, required = True, taskVariantPopupBulletPoints = None, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, videoTutorialUrl = None, wait_for_ready = None):
+    def __init__(self, annotations, audioMedia, media, name, userCanAdd, audioRequirement = None, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, prolificCompletionCode = None, required = True, sectionOneItemCount = None, taskVariantPopupBulletPoints = None, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, videoTutorialUrl = None, wait_for_ready = None):
         """
         ### Parameters
         0. annotations : List[Any]
@@ -74,23 +79,28 @@ Prerrequisite nodes must be completed before the rests of the nodes in the HIT a
         13. prolificCompletionCode : str
         14. required : bool
             - If true, this node must have a valid submission before the HIT can be submitted
-        15. taskVariantPopupBulletPoints : List[str]
-        16. timer : float
+        15. sectionOneItemCount : float
+            - Number of leading batch items that belong to instruction "section one".
+Items at or past this index get the section-two instructions instead.
+When omitted, falls back to the legacy 15 (form A) / 30 (form B) split.
+Set it to the number of items in the task to keep everything in section one.
+        16. taskVariantPopupBulletPoints : List[str]
+        17. timer : float
             - Time to complete the task
-        17. timer_empty : float
+        18. timer_empty : float
             - Empty timer is started everytime the task is empty (no journeys online)
 If the timer reaches zero, the task is set to finished state.
-        18. timer_pausable : bool
+        19. timer_pausable : bool
             - If true, the timer will pause when the task is paused.
-        19. timer_pause : float
+        20. timer_pause : float
             - Pause timer is started every time the task enters paused state
 If timer reaches zero, the task is set to finished state.
-        20. useSharedState : bool
+        21. useSharedState : bool
             - If true, the task state will be synced between clients.
 This applies both to multiple clients in the same journey and across journeys.
 Internally covfee uses socketio to synchronize task state.
-        21. videoTutorialUrl : str
-        22. wait_for_ready : bool
+        22. videoTutorialUrl : str
+        23. wait_for_ready : bool
             - If true, all journeys must click ready to start the task
         """
 
@@ -111,6 +121,7 @@ Internally covfee uses socketio to synchronize task state.
         self.prerequisite = prerequisite
         self.prolificCompletionCode = prolificCompletionCode
         self.required = required
+        self.sectionOneItemCount = sectionOneItemCount
         self.taskVariantPopupBulletPoints = taskVariantPopupBulletPoints
         self.timer = timer
         self.timer_empty = timer_empty

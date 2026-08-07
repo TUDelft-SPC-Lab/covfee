@@ -34,6 +34,7 @@ type Props = {
   answerForm: AnswerForm
   mediaIndex: number
   batchItemId?: number
+  sectionOneItemCount?: number
 
   onCantFindParticipant: () => void
   onParticipantSelected: (participant: string) => void
@@ -112,7 +113,8 @@ const InstructionsSidebar: React.FC<Props> = (props) => {
     props.annotation_options.length > 1
 
   const sectionItemId = props.batchItemId ?? props.mediaIndex
-  const sectionOneItemCount = props.answerForm === "A" ? 15 : 30
+  const sectionOneItemCount =
+    props.sectionOneItemCount ?? (props.answerForm === "A" ? 15 : 30)
   const instructionVariant: InstructionVariant =
     sectionItemId < sectionOneItemCount
       ? props.answerForm === "A"

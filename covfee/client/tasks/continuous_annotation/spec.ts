@@ -36,4 +36,11 @@ export interface ContinuousAnnotationTaskSpec extends BaseTaskSpec {
    */
   audioRequirement?: boolean
   videoTutorialUrl?: string
+  /**
+   * Number of leading batch items that belong to instruction "section one".
+   * Items at or past this index get the section-two instructions instead.
+   * When omitted, falls back to the legacy 15 (form A) / 30 (form B) split.
+   * Set it to the number of items in the task to keep everything in section one.
+   */
+  sectionOneItemCount?: number
 }

@@ -159,7 +159,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   )
   const currentBatchItemId =
     props.spec.annotations[currMediaIndex]?.batch_item_id ?? currMediaIndex
-  const sectionOneItemCount = answerForm === "A" ? 15 : 30
+  const sectionOneItemCount =
+    props.spec.sectionOneItemCount ?? (answerForm === "A" ? 15 : 30)
   const isSectionOne = currentBatchItemId < sectionOneItemCount
   const [currentNarrativeIndex, setCurrentNarrativeIndex] = useState(0)
 
@@ -1369,6 +1370,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               answerForm={answerForm}
               mediaIndex={currMediaIndex}
               batchItemId={currentBatchItemId}
+              sectionOneItemCount={sectionOneItemCount}
             />
           </div>
           <div style={{ backgroundColor: "blue" }} /> {/* <--- Filler div */}
