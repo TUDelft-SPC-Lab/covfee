@@ -46,6 +46,15 @@ DATABASE_PATH = os.path.join(os.getcwd(), DATABASE_RELPATH)
 # project www and bundle location
 PROJECT_WWW_PATH = os.path.join(os.getcwd(), "www")
 
+# Where media recorded by annotators (eg. spoken answers) is written.
+# Deliberately outside the folder served by the public /api/media route, since
+# recorded voice is personal data.
+RECORDINGS_PATH = os.path.join(os.getcwd(), "recordings")
+
+# Maximum accepted size for a single uploaded recording (bytes). Flask is
+# unbounded by default.
+MAX_RECORDING_SIZE_BYTES = 32 * 1024 * 1024
+
 # enables the www server
 SERVE_WWW = True
 

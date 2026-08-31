@@ -43,4 +43,10 @@ export interface ContinuousAnnotationTaskSpec extends BaseTaskSpec {
    * Set it to the number of items in the task to keep everything in section one.
    */
   sectionOneItemCount?: number
+  /**
+   * When true, form A shows a microphone record/stop button for every clip and a
+   * recording must be captured before the clip can be submitted.
+   * @default false
+   */
+  audioRecordingEnabled?: boolean
 }

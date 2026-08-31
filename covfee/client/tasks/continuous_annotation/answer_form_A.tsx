@@ -1,4 +1,4 @@
-import { Button as ButtonChakra, VStack } from "@chakra-ui/react"
+import { Button as ButtonChakra, Text, VStack } from "@chakra-ui/react"
 import React from "react"
 
 import { Narrative_typeA } from "../annotation_types/narrative_typeA"
@@ -14,6 +14,9 @@ type Props = {
   noIntentionSeen: boolean
   setNoIntentionSeen: (value: boolean) => void
   getCurrentPausedTime: () => number
+  /** When true, a spoken recording is needed before this clip can be submitted. */
+  recordingRequired?: boolean
+  hasRecording?: boolean
 }
 
 const Answer_form_A: React.FC<Props> = ({
@@ -25,6 +28,8 @@ const Answer_form_A: React.FC<Props> = ({
   noIntentionSeen,
   setNoIntentionSeen,
   getCurrentPausedTime,
+  recordingRequired = false,
+  hasRecording = false,
 }) => {
   /* ---------------- helpers ---------------- */
 
@@ -81,10 +86,19 @@ const Answer_form_A: React.FC<Props> = ({
           mt="10px"
           colorScheme="blue"
           onClick={submitFreeTextToServer}
-          isDisabled={videoLengthMismatch || (!submittable && !noIntentionSeen)}
+          isDisabled={
+            videoLengthMismatch ||
+            (!submittable && !noIntentionSeen) ||
+            (recordingRequired && !hasRecording)
+          }
         >
           Submit Annotation
         </ButtonChakra>
+        {recordingRequired && !hasRecording && (
+          <Text fontSize="sm" color="gray.600">
+            Record your spoken answer before continuing.
+          </Text>
+        )}
         {/* <Checkbox
           paddingBottom={"15px"}
           onChange={(e) => setNoIntentionSeen(e.target.checked)}

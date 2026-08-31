@@ -8,6 +8,9 @@ class ContinuousAnnotationTaskSpec(CovfeeTask):
     media: List[Any]
     name: str
     userCanAdd: bool
+    # When true, form A shows a microphone record/stop button for every clip and a
+    # recording must be captured before the clip can be submitted.
+    audioRecordingEnabled: bool
     # When specified: True, means audio on is mandatory, False means audio off (muted) is mandatory.
     audioRequirement: bool
     # Seconds countdown after start condition met.
@@ -51,7 +54,7 @@ class ContinuousAnnotationTaskSpec(CovfeeTask):
     videoTutorialUrl: str
     # If true, all journeys must click ready to start the task
     wait_for_ready: bool
-    def __init__(self, annotations, audioMedia, media, name, userCanAdd, audioRequirement = None, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, prolificCompletionCode = None, required = True, sectionOneItemCount = None, taskVariantPopupBulletPoints = None, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, videoTutorialUrl = None, wait_for_ready = None):
+    def __init__(self, annotations, audioMedia, media, name, userCanAdd, audioRecordingEnabled = False, audioRequirement = None, countdown = 0, instructions = None, instructions_type = 'default', max_submissions = 0, n_pause = None, n_start = None, prerequisite = False, prolificCompletionCode = None, required = True, sectionOneItemCount = None, taskVariantPopupBulletPoints = None, timer = None, timer_empty = None, timer_pausable = None, timer_pause = None, useSharedState = None, videoTutorialUrl = None, wait_for_ready = None):
         """
         ### Parameters
         0. annotations : List[Any]
@@ -59,48 +62,51 @@ class ContinuousAnnotationTaskSpec(CovfeeTask):
         2. media : List[Any]
         3. name : str
         4. userCanAdd : bool
-        5. audioRequirement : bool
+        5. audioRecordingEnabled : bool
+            - When true, form A shows a microphone record/stop button for every clip and a
+recording must be captured before the clip can be submitted.
+        6. audioRequirement : bool
             - When specified: True, means audio on is mandatory, False means audio off (muted) is mandatory.
-        6. countdown : float
+        7. countdown : float
             - Seconds countdown after start condition met.
-        7. instructions : str
+        8. instructions : str
             - Instructions to be displayed for the node
-        8. instructions_type : str
+        9. instructions_type : str
             - How the instructions will be displayed
-        9. max_submissions : float
+        10. max_submissions : float
             - Maximum number of submissions a user can make for the task.
-        10. n_pause : float
+        11. n_pause : float
             - If the number of subjects is n_pause or less, the task will be paused
-        11. n_start : float
+        12. n_start : float
             - Number of jorneys required to start task
-        12. prerequisite : bool
+        13. prerequisite : bool
             - Node is marked as a prerrequisite
 Prerrequisite nodes must be completed before the rests of the nodes in the HIT are revealed.
-        13. prolificCompletionCode : str
-        14. required : bool
+        14. prolificCompletionCode : str
+        15. required : bool
             - If true, this node must have a valid submission before the HIT can be submitted
-        15. sectionOneItemCount : float
+        16. sectionOneItemCount : float
             - Number of leading batch items that belong to instruction "section one".
 Items at or past this index get the section-two instructions instead.
 When omitted, falls back to the legacy 15 (form A) / 30 (form B) split.
 Set it to the number of items in the task to keep everything in section one.
-        16. taskVariantPopupBulletPoints : List[str]
-        17. timer : float
+        17. taskVariantPopupBulletPoints : List[str]
+        18. timer : float
             - Time to complete the task
-        18. timer_empty : float
+        19. timer_empty : float
             - Empty timer is started everytime the task is empty (no journeys online)
 If the timer reaches zero, the task is set to finished state.
-        19. timer_pausable : bool
+        20. timer_pausable : bool
             - If true, the timer will pause when the task is paused.
-        20. timer_pause : float
+        21. timer_pause : float
             - Pause timer is started every time the task enters paused state
 If timer reaches zero, the task is set to finished state.
-        21. useSharedState : bool
+        22. useSharedState : bool
             - If true, the task state will be synced between clients.
 This applies both to multiple clients in the same journey and across journeys.
 Internally covfee uses socketio to synchronize task state.
-        22. videoTutorialUrl : str
-        23. wait_for_ready : bool
+        23. videoTutorialUrl : str
+        24. wait_for_ready : bool
             - If true, all journeys must click ready to start the task
         """
 
@@ -111,6 +117,7 @@ Internally covfee uses socketio to synchronize task state.
         self.media = media
         self.name = name
         self.userCanAdd = userCanAdd
+        self.audioRecordingEnabled = audioRecordingEnabled
         self.audioRequirement = audioRequirement
         self.countdown = countdown
         self.instructions = instructions

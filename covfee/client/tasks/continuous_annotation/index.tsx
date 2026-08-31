@@ -26,6 +26,11 @@ import {
 
 import { Answer_form_A } from "./answer_form_A"
 import {
+  AudioRecorder,
+  type AudioRecorderHandle,
+  type RecordingMeta,
+} from "./audio_recorder"
+import {
   ABORT_ONGOING_ANNOTATION_KEY,
   CHANGE_VIEW_NEXT_KEY,
   CHANGE_VIEW_PREV_KEY,
@@ -228,7 +233,38 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   }
   const [noIntentionSeen, setNoIntentionSeen] = useState<boolean>(false)
 
+  //*************************************************************//
+  //------------------ Spoken answer recording ----------------- //
+  //*************************************************************//
+  const audioRecordingEnabled = props.spec.audioRecordingEnabled ?? false
+  const audioRecorderRef = useRef<AudioRecorderHandle>(null)
+  const [recordingsByClip, setRecordingsByClip] = useState<
+    Record<number, RecordingMeta[]>
+  >({})
+  const [isRecordingInProgress, setIsRecordingInProgress] = useState(false)
+
+  const registerRecording = useCallback((meta: RecordingMeta) => {
+    setRecordingsByClip((prev) => ({
+      ...prev,
+      [meta.clip_index]: [...(prev[meta.clip_index] ?? []), meta],
+    }))
+  }, [])
+
   const submitFreeTextToServer = async () => {
+    // The recording belongs to the clip being left, so it has to be stopped and
+    // uploaded before any of the advancing logic below runs. A failed upload aborts
+    // the submit rather than silently dropping what the annotator said.
+    if (audioRecordingEnabled && audioRecorderRef.current) {
+      try {
+        // On success the recorder reports the take through onRecordingSaved, so
+        // there is nothing to register here.
+        await audioRecorderRef.current.stopAndFlush()
+      } catch (error) {
+        console.error("Not advancing: the recording could not be saved.", error)
+        return
+      }
+    }
+
     for (
       let narrativeIndex = 0;
       narrativeIndex < narratives.narratives.length;
@@ -248,6 +284,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       const nextBatchItemId =
         props.spec.annotations[nextMediaIndex]?.batch_item_id ?? nextMediaIndex
       nextCurrMediaIndex()
+      audioRecorderRef.current?.reset()
       if (
         answerForm === "A" &&
         currentBatchItemId < sectionOneItemCount &&
@@ -313,6 +350,9 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       ),
     )
     setNoIntentionSeen(false)
+    // Covers navigation that does not go through submitFreeTextToServer (e.g. the
+    // sidebar), so a clip never opens with a recording still running.
+    audioRecorderRef.current?.reset()
   }, [currMediaIndex])
 
   const allChecked = audioToggles.every(Boolean)
@@ -405,6 +445,8 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     number | null
   >(UNINITIALIZED_ACTION_ANNOTATION_START_TIME)
   const [selectedCamViewIndex, setSelectedCamViewIndex] = useState(0)
+  const hasRecordingForCurrentClip =
+    (recordingsByClip[selectedCamViewIndex] ?? []).length > 0
   const [activeAnnotationDataArray, setActiveAnnotationDataArray] =
     React.useState<ActionAnnotationDataArray>({
       buffer: [],
@@ -487,6 +529,35 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   React.useEffect(() => {
     fetchAnnotationsServerData()
   }, [fetchAnnotationsServerData])
+
+  // Recordings already uploaded for this task, so a page reload mid-journey does not
+  // re-block clips the annotator has already spoken for.
+  const fetchRecordingsServerData = React.useCallback(async () => {
+    const url =
+      Constants.base_url + node.customApiBase + `/tasks/${node.id}/recordings`
+    try {
+      const res = await fetcher(url)
+      if (!res.ok) {
+        console.error("Error fetching recordings:", res.status)
+        return
+      }
+      const rows: RecordingMeta[] = await res.json()
+      setRecordingsByClip(
+        rows.reduce<Record<number, RecordingMeta[]>>((acc, row) => {
+          acc[row.clip_index] = [...(acc[row.clip_index] ?? []), row]
+          return acc
+        }, {}),
+      )
+    } catch (error) {
+      console.error("Error fetching recordings:", error)
+    }
+  }, [node.customApiBase, node.id])
+
+  React.useEffect(() => {
+    if (audioRecordingEnabled) {
+      fetchRecordingsServerData()
+    }
+  }, [audioRecordingEnabled, fetchRecordingsServerData])
 
   const postActiveAnnotationDataArrayToServer = async () => {
     if (!validAnnotationsDataAndSelection) {
@@ -1426,8 +1497,28 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               )}
             </div>
             <div>
+              {answerForm === "A" && audioRecordingEnabled && (
+                <AudioRecorder
+                  ref={audioRecorderRef}
+                  annotationId={
+                    annotationsDataMirror[selectedCamViewIndex].id
+                  }
+                  clipIndex={selectedCamViewIndex}
+                  batchItemId={currentBatchItemId}
+                  mediaSrc={current_video_src}
+                  disabled={videoLengthMismatch}
+                  onRecordingSaved={registerRecording}
+                  onRecordingStateChange={setIsRecordingInProgress}
+                />
+              )}
               {answerForm === "A" && (
                 <Answer_form_A
+                  recordingRequired={audioRecordingEnabled}
+                  // A take still running counts: pressing submit stops, uploads
+                  // and only then advances.
+                  hasRecording={
+                    hasRecordingForCurrentClip || isRecordingInProgress
+                  }
                   videoLengthMismatch={videoLengthMismatch}
                   gestaltAnnotation={gestaltAnnotation}
                   setGestaltAnnotation={setGestaltAnnotation}
