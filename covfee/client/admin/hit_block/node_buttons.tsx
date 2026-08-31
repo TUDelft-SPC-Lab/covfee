@@ -62,6 +62,12 @@ export const NodeButtons = ({ node }: NodeButtonsProps) => {
   const { setNodeId: openNode } = React.useContext(adminContext)
   const { setManualStatus, restart } = useNodeFns(node)
 
+  // This button drives the *manual* pause, so its icon, its highlight and its
+  // wording all have to read node.manual. node.paused is a different thing —
+  // the automatic pause from the node's n_pause condition — and using it for
+  // the icon made the icon disagree with the action the button performs.
+  const isManuallyPaused = node.manual == "PAUSED"
+
   return (
     <ButtonsContainer>
       <li>
@@ -85,26 +91,21 @@ export const NodeButtons = ({ node }: NodeButtonsProps) => {
       <li>
         <ButtonManualCtrl
           disabled={node.status == "FINISHED"}
-          $active={node.manual == "PAUSED"}
+          $active={isManuallyPaused}
           onClick={() => {
             confirm({
-              title:
-                node.manual == "PAUSED"
-                  ? "Are you sure you want to unpause?"
-                  : "Are you sure you want to pause this node?",
+              title: isManuallyPaused
+                ? "Are you sure you want to unpause?"
+                : "Are you sure you want to pause this node?",
               content: "Data collection might be affected.",
               onOk() {
-                if (node.manual == "PAUSED") {
-                  setManualStatus("DISABLED")
-                } else {
-                  setManualStatus("PAUSED")
-                }
+                setManualStatus(isManuallyPaused ? "DISABLED" : "PAUSED")
               },
               onCancel() {},
             })
           }}
         >
-          {node.paused ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
+          {isManuallyPaused ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
         </ButtonManualCtrl>
       </li>
       <li>

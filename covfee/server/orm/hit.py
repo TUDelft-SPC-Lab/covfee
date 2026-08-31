@@ -6,6 +6,7 @@ import hmac
 import binascii
 import hashlib
 import datetime
+import re
 import secrets
 from typing import List, TYPE_CHECKING, Optional, ClassVar
 from hashlib import sha256
@@ -111,6 +112,25 @@ class HITSpec(Base):
         return pformat(
             {"id": self.id, "name": self.name, "project_id": self.project_id}
         )
+
+
+def node_order_key(node: NodeInstance):
+    """Sort key putting a HIT's nodes in the order their names read.
+
+    Node instance ids are not usable for this: SQLAlchemy assigns them in flush
+    order, which does not follow the order the journeys were declared in, so a
+    HIT with journeys annotator_0/1/2 can end up with instance ids naming
+    annotator_0, annotator_2, annotator_1. The spec order does follow the
+    declaration, and the name carries it.
+
+    Digit runs are zero-padded before comparing so annotator_2 sorts before
+    annotator_10 rather than after it. Padding keeps the key a plain string,
+    which stays comparable across names of any shape.
+    """
+    name = (node.spec.settings or {}).get("name") or ""
+    padded_name = re.sub(r"\d+", lambda m: m.group().zfill(12), name)
+    # nodespec_id then id break ties for nodes whose names match or are unset.
+    return (padded_name, node.nodespec_id, node.id)
 
 
 class HITInstance(Base):
@@ -232,20 +252,23 @@ class HITInstance(Base):
 
         if with_nodes:
             # Get the nodes, deduplicated (a node can be shared by several
-            # journeys) and ordered by id. Sorting matters: iterating the set
+            # journeys) and ordered by name. Sorting matters: iterating the set
             # directly ordered the nodes by object hash, which is the memory
             # address and therefore differs between runs, so the admin panel's
             # node list never lined up with its journey list.
             nodes = sorted(
-                {n for j in self.journeys for n in j.nodes}, key=lambda n: n.id
+                {n for j in self.journeys for n in j.nodes}, key=node_order_key
             )
             instance_dict["nodes"] = [n.to_dict() for n in nodes]
 
             # Ordered by the journey's first node, so the two admin panel columns
             # read in the same order when each journey has its own node.
+            node_position = {n.id: i for i, n in enumerate(nodes)}
             journeys = sorted(
                 self.journeys,
-                key=lambda j: min((n.id for n in j.nodes), default=0),
+                key=lambda j: min(
+                    (node_position.get(n.id, 0) for n in j.nodes), default=0
+                ),
             )
             instance_dict["journeys"] = [j.to_dict() for j in journeys]
 

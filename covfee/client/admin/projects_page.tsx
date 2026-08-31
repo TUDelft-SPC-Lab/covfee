@@ -28,24 +28,41 @@ const ProjectsPage = (props: Props) => {
   const { clearChats, addChats, clearChatListeners, addChatListeners } =
     React.useContext(chatContext)
 
+  // Identifies the most recent load, so a slow response for a project the user
+  // has already navigated away from cannot overwrite the current one.
+  const loadSeq = React.useRef(0)
+
   const handleChangeProject = React.useCallback(
     (projectIndex: number) => {
+      if (!projects || !projects[projectIndex]) return
+
+      // Record the choice straight away. This used to be set to null until the
+      // fetch came back, which left the Select with no value and re-triggered
+      // the "nothing selected yet" effect below, so every selection was
+      // immediately overridden by a reload of the first project.
+      setCurrentProjectIndex(projectIndex)
       setIsLoadingProject(true)
-      setCurrentProjectIndex(null)
-      getProject(projects[projectIndex].id).then((proj) => {
-        setProject(proj)
 
-        setIsLoadingProject(false)
-        setCurrentProjectIndex(projectIndex)
+      const seq = ++loadSeq.current
+      getProject(projects[projectIndex].id)
+        .then((proj) => {
+          if (seq !== loadSeq.current) return // superseded by a newer selection
+          setProject(proj)
+          setIsLoadingProject(false)
 
-        const chat_ids = [].concat.apply(
-          [],
-          proj.hits.map((inst) => inst.journeys.map((j) => j.chat_id))
-        ) as number[]
-        clearChatListeners()
+          const chat_ids = [].concat.apply(
+            [],
+            proj.hits.map((inst) => inst.journeys.map((j) => j.chat_id))
+          ) as number[]
+          clearChatListeners()
 
-        addChatListeners(chat_ids)
-      })
+          addChatListeners(chat_ids)
+        })
+        .catch((error) => {
+          if (seq !== loadSeq.current) return
+          setIsLoadingProject(false)
+          myerror("Error loading project.", error)
+        })
     },
     [projects, addChatListeners, clearChatListeners]
   )
@@ -62,8 +79,9 @@ const ProjectsPage = (props: Props) => {
       })
   }, [projects])
 
+  // Select the first project once, when the project list first arrives.
   React.useEffect(() => {
-    if (projects && currentProjectIndex == null) {
+    if (projects && projects.length > 0 && currentProjectIndex == null) {
       handleChangeProject(0)
     }
   }, [currentProjectIndex, handleChangeProject, projects])
@@ -134,7 +152,13 @@ const ProjectsPage = (props: Props) => {
         </Select>
       </div>
 
-      {!isLoadingProject && <Project project={project} />}
+      {/* Keyed by project id on purpose: useProject/useHitInstances seed their
+          state from props with useState, which ignores later prop changes, so
+          without a remount switching projects kept showing the previous
+          project's HITs. */}
+      {!isLoadingProject && project && (
+        <Project key={project.id} project={project} />
+      )}
     </>
   )
 }

@@ -128,13 +128,18 @@ export const HitBlock = (props: Props) => {
         </JourneyStatusSummary>
       </Header>
       {!collapsed && (
-        <div style={{ display: "flex", flexDirection: "row" }}>
+        <div
+          style={{ display: "flex", flexDirection: "row", gap: "1em" }}
+        >
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
+              // "center" left the node list only as wide as its content, which
+              // is what produced the large empty margins either side.
+              alignItems: "stretch",
               width: "60%",
+              minWidth: 0,
             }}
           >
             <NodesList>
@@ -177,7 +182,7 @@ export const HitBlock = (props: Props) => {
             </GraphContainer>
           </div>
 
-          <div style={{ width: "40%" }}>
+          <div style={{ width: "40%", minWidth: 0, display: "flex" }}>
             <JourneysList>
               <h2>Journeys</h2>
 
@@ -264,7 +269,8 @@ const GraphContainer = styled.div`
   height: 0px;
 `
 const NodesList = styled.div`
-  flex: 1 0 auto;
+  width: 100%;
+  min-width: 0;
   padding: 3px;
 
   > ul {
@@ -281,8 +287,8 @@ const NodesList = styled.div`
 `
 
 const JourneysList = styled.div`
-  max-width: 50%;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
+  min-width: 0;
   padding: 3px;
 
   > ul {
@@ -291,24 +297,32 @@ const JourneysList = styled.div`
   }
 
   > ul > li {
-    display: block;
     margin: 0;
     padding: 5px 0;
     display: flex;
     flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
 
+    /* Same fix as the node Row: the buttons keep their size, the journey id
+       and the progress block share what is left, and nothing overflows into
+       the buttons. */
     > * {
-      flex: 1 0 auto;
+      flex: 0 0 auto;
     }
 
     > a {
-      width: 150px;
-      max-width: 200px;
+      flex: 0 1 auto;
+      min-width: 0;
+      overflow-wrap: anywhere;
     }
 
-    > .button {
-      flex: 0 0 auto;
-      width: 30px;
+    > ul {
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: 22em;
+      margin: 0;
+      padding-left: 1.5em;
     }
 
     &.focus {
