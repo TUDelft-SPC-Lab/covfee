@@ -231,12 +231,23 @@ class HITInstance(Base):
         instance_dict["api_url"] = self.get_api_url()
 
         if with_nodes:
-            # get the nodes
-            nodes = set([n for j in self.journeys for n in j.nodes])
+            # Get the nodes, deduplicated (a node can be shared by several
+            # journeys) and ordered by id. Sorting matters: iterating the set
+            # directly ordered the nodes by object hash, which is the memory
+            # address and therefore differs between runs, so the admin panel's
+            # node list never lined up with its journey list.
+            nodes = sorted(
+                {n for j in self.journeys for n in j.nodes}, key=lambda n: n.id
+            )
             instance_dict["nodes"] = [n.to_dict() for n in nodes]
 
-            # get the journeys
-            instance_dict["journeys"] = [j.to_dict() for j in self.journeys]
+            # Ordered by the journey's first node, so the two admin panel columns
+            # read in the same order when each journey has its own node.
+            journeys = sorted(
+                self.journeys,
+                key=lambda j: min((n.id for n in j.nodes), default=0),
+            )
+            instance_dict["journeys"] = [j.to_dict() for j in journeys]
 
         return instance_dict
 
