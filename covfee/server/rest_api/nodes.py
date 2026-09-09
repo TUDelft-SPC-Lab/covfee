@@ -15,16 +15,12 @@ from .utils import jsonify_or_404
 # TASKS
 
 
-# MEDIA_DIR = "/home/arthur/Documents/Repos/covfee/samples/continuous_annotation/data"
-MEDIA_DIR = "/home/zonghuan/tudelft/projects/covfee/samples/continuous_annotation/data"
-
+# Read per request rather than at import: app is current_app, which only
+# resolves inside an application context, and MEDIA_DIR is set per deployment
+# (the covfee server points it at the media volume, not at the project folder).
 @api.route("/media/<path:filename>")
 def media(filename):
-    file_path = os.path.join(MEDIA_DIR, filename)
-    print("Looking for file:", file_path)
-    if not os.path.exists(file_path):
-        print("File not found!")
-    return send_from_directory(MEDIA_DIR, filename)
+    return send_from_directory(app.config["MEDIA_DIR"], filename)
 
 
 @api.route("/nodes/<nid>")

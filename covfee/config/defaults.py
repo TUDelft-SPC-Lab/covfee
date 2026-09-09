@@ -38,7 +38,7 @@ WEBPACK_DEVSERVER_HOST = "localhost"
 DEV_BUNDLES_URL = "http://localhost:8085"
 
 # PROJECT FOLDER PATHS
-
+MEDIA_DIR = os.path.join(os.getcwd(), "data")
 # database
 DATABASE_RELPATH = os.path.join(os.getcwd(), ".covfee", "database.covfee.db")
 DATABASE_PATH = os.path.join(os.getcwd(), DATABASE_RELPATH)
