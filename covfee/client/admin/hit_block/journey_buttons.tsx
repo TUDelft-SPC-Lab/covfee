@@ -1,11 +1,12 @@
 import {
   ApiOutlined,
   DeleteOutlined,
+  InfoCircleOutlined,
   LinkOutlined,
   PauseOutlined,
   WechatOutlined,
 } from "@ant-design/icons"
-import { Modal } from "antd"
+import { Modal, Popover } from "antd"
 import classNames from "classnames"
 import * as React from "react"
 import { styled } from "styled-components"
@@ -101,15 +102,44 @@ export const JourneyRow = ({
         <span>{journey.id.substring(0, 10)} </span> <LinkOutlined />
       </a>
 
-      <ul>
+      {/* Kept to one line. The annotator id and start date were three stacked
+          list items per journey, which on a project whose journeys are mostly
+          imported -- every one of them carrying a long provenance id -- pushed
+          the actual journey links off the visible column. They move into a
+          popover on the info icon, which only appears when there is something
+          to show. */}
+      <InfoLine>
+        <span>{progress.toFixed(1)}&#37;</span>
         {annotator != null && (
-          <li>Prolific PID: &quot;{annotator.prolific_id}&quot;</li>
+          <Popover
+            trigger="click"
+            placement="right"
+            title="Annotator"
+            content={
+              <PopoverBody>
+                <div>
+                  <b>Prolific PID</b>
+                  <br />
+                  {annotator.prolific_id}
+                </div>
+                <div>
+                  <b>Start date</b>
+                  <br />
+                  {annotator.created_at.toLocaleString()}
+                </div>
+              </PopoverBody>
+            }
+          >
+            <InfoButton
+              type="button"
+              aria-label="Annotator details"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <InfoCircleOutlined />
+            </InfoButton>
+          </Popover>
         )}
-        {annotator != null && (
-          <li>Start date: {annotator.created_at.toLocaleString()}</li>
-        )}
-        <li>Progress: {progress.toFixed(1)}&#37;</li>
-      </ul>
+      </InfoLine>
 
       <ButtonsContainer>
         <li>
@@ -156,3 +186,28 @@ export const JourneyRow = ({
 }
 
 const LinkContainer = styled.span``
+
+const InfoLine = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9em;
+  opacity: 0.75;
+`
+
+const InfoButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: 1;
+  color: inherit;
+`
+
+const PopoverBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 340px;
+  word-break: break-word;
+`
