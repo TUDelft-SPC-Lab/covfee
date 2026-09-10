@@ -81,10 +81,7 @@ const ExampleAnswer: React.FC<{
   </Box>
 )
 
-const ExampleClip: React.FC<{ clip: ExampleClipSpec; total: number }> = ({
-  clip,
-  total,
-}) => {
+const ExampleClip: React.FC<{ clip: ExampleClipSpec }> = ({ clip }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
 
   // Reload when the clip changes: the <video> keeps the old buffer otherwise.
@@ -96,9 +93,13 @@ const ExampleClip: React.FC<{ clip: ExampleClipSpec; total: number }> = ({
 
   return (
     <Box>
+      {/* Numbered by its position in the source ladder, not by its position in
+          the example, so an example built from a subset of the clips still
+          names them the way the annotator will meet them. The footer carries
+          the "how far through the example am I" counter. */}
       <HStack spacing={3}>
         <Text fontSize="lg" fontWeight="bold">
-          Clip {clip.clip_number} of {total}
+          Clip {clip.clip_number}
         </Text>
         {!showChanged && (
           <Badge colorScheme="green">first clip — nothing to compare yet</Badge>
@@ -179,7 +180,7 @@ const ExamplePage: React.FC<Props> = ({ example, isOpen, onClose }) => {
               <Divider my="12px" />
             </>
           )}
-          <ExampleClip clip={clip} total={clips.length} />
+          <ExampleClip clip={clip} />
         </ModalBody>
         <ModalFooter>
           <VStack align="stretch" spacing={2} w="100%">
