@@ -30,6 +30,7 @@ import {
   type FormAQuestionKey,
 } from "./answer_form_A"
 import type { SpokenQuestionAnswer } from "./spoken_question"
+import { ExamplePage } from "./example_page"
 import type { AudioRecorderHandle, RecordingMeta } from "./audio_recorder"
 import {
   ABORT_ONGOING_ANNOTATION_KEY,
@@ -259,6 +260,13 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     }),
     [],
   )
+
+  // Worked example. Opens itself once when the task loads and stays reachable
+  // from the button below it, so an annotator can re-read it mid-journey
+  // without losing their place.
+  const exampleSpec = props.spec.example
+  const hasExample = (exampleSpec?.clips?.length ?? 0) > 0
+  const [showExample, setShowExample] = useState(hasExample)
 
   const resetAllRecorders = useCallback(() => {
     for (const { key } of FORM_A_QUESTIONS) {
@@ -1641,6 +1649,24 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               )}
             </div>
             <div>
+              {hasExample && (
+                <>
+                  <ButtonChakra
+                    size="sm"
+                    variant="outline"
+                    colorScheme="blue"
+                    mt="10px"
+                    onClick={() => setShowExample(true)}
+                  >
+                    See example
+                  </ButtonChakra>
+                  <ExamplePage
+                    example={exampleSpec}
+                    isOpen={showExample}
+                    onClose={() => setShowExample(false)}
+                  />
+                </>
+              )}
               {answerForm === "A" && (
                 <Answer_form_A
                   spokenAnswers={audioRecordingEnabled}

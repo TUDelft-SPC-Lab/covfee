@@ -27,6 +27,40 @@ export interface AudioMediaSpec {
   src: string
 }
 
+/**
+ * One clip of the worked example shown before annotation starts, with the
+ * answers a good annotator would have given for it.
+ * @TJS-additionalProperties false
+ */
+export interface ExampleClipSpec {
+  video: string
+  audio?: string
+  /** 1-based position in the example's own ladder. */
+  clip_number: number
+  /** Example answer to "what is the intended social action of the speaker?" */
+  speaker_intention: string
+  /** Example answer to "what could the other side do in response?" */
+  response: string
+  speaker_intention_confidence?: number
+  response_confidence?: number
+  /** Whether the example answer changed from the previous clip. */
+  speaker_intention_changed?: boolean
+  response_changed?: boolean
+  /** Why the example answer moved (or did not) on this clip. */
+  note?: string
+}
+
+/**
+ * A worked example walked through clip by clip. Deliberately built from a video
+ * that appears in no HIT, so seeing it cannot prime a real annotation.
+ * @TJS-additionalProperties false
+ */
+export interface ExampleSpec {
+  title?: string
+  intro?: string
+  clips: ExampleClipSpec[]
+}
+
 export interface ContinuousAnnotationTaskSpec extends BaseTaskSpec {
   /**
    * @default "ContinuousAnnotationTask"
@@ -59,4 +93,10 @@ export interface ContinuousAnnotationTaskSpec extends BaseTaskSpec {
    * @default false
    */
   audioRecordingEnabled?: boolean
+  /**
+   * Worked example shown once when the task opens, and reachable afterwards
+   * from the "See example" button. Omitted entirely when there is nothing to
+   * show, in which case no button appears.
+   */
+  example?: ExampleSpec
 }
