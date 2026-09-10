@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, send_from_directory
 from flask import current_app as app
 from sqlalchemy import ForeignKey, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -140,6 +140,12 @@ def _recording_extension(mime: str) -> Optional[str]:
     return ALLOWED_RECORDING_MIME_TYPES.get(base_mime)
 
 
+# Form A asks two questions per clip and each is answered by its own spoken take,
+# so clip_index alone no longer identifies a recording. Whitelisted rather than
+# taken as given: the value becomes part of the path the take is written to.
+ALLOWED_QUESTION_KEYS = ("speaker_intention", "response")
+
+
 def _optional_int(form, key: str) -> Optional[int]:
     value = form.get(key)
     if value is None or value == "":
@@ -182,6 +188,12 @@ def upload_recording(annotid):
     if clip_index is None:
         return jsonify({"msg": "clip_index is required"}), 400
 
+    # Optional so the single-recorder batches (set1 import) keep uploading exactly
+    # as they did; form A's two-question layout always sends it.
+    question_key = request.form.get("question_key") or None
+    if question_key is not None and question_key not in ALLOWED_QUESTION_KEYS:
+        return jsonify({"msg": f"unknown question_key {question_key}"}), 400
+
     # Check the declared size before reading, so an oversized upload is rejected
     # without pulling it into memory.
     max_size = app.config["MAX_RECORDING_SIZE_BYTES"]
@@ -194,12 +206,13 @@ def upload_recording(annotid):
     if len(payload) > max_size:
         return jsonify({"msg": f"recording exceeds {max_size} bytes"}), 413
 
-    # Every path component is built from integers, so nothing the client sends can
-    # escape the recordings directory.
+    # Every path component is built from integers or from the whitelist above, so
+    # nothing the client sends can escape the recordings directory.
+    question_suffix = f"_{question_key}" if question_key else ""
     relative_path = os.path.join(
         f"task_{annot.task_id}",
         f"annot_{annot.id}",
-        f"clip_{clip_index:04d}_{int(time.time() * 1000)}.{extension}",
+        f"clip_{clip_index:04d}{question_suffix}_{int(time.time() * 1000)}.{extension}",
     )
     absolute_path = os.path.join(app.config["RECORDINGS_PATH"], relative_path)
     os.makedirs(os.path.dirname(absolute_path), exist_ok=True)
@@ -210,6 +223,8 @@ def upload_recording(annotid):
         task_id=annot.task_id,
         annotation_id=annot.id,
         clip_index=clip_index,
+        question_key=question_key,
+        clip_number=_optional_int(request.form, "clip_number"),
         batch_item_id=_optional_int(request.form, "batch_item_id"),
         media_src=request.form.get("media_src"),
         path=relative_path,
@@ -221,6 +236,24 @@ def upload_recording(annotid):
     app.session.commit()
 
     return jsonify(recording.to_dict())
+
+
+# stream one recording back, so the annotator can replay what they said for this
+# clip and for the previous one.
+#
+# RECORDINGS_PATH is deliberately outside the folder /api/media serves, so this is
+# the only way the audio leaves the box. The path is read from the row rather than
+# from the request, so nothing here is client-controlled.
+@bp.route("/recordings/<rid>/audio")
+def fetch_recording_audio(rid):
+    recording = app.session.query(Recording).get(int(rid))
+    if recording is None:
+        return jsonify({"msg": "not found"}), 404
+    return send_from_directory(
+        app.config["RECORDINGS_PATH"],
+        recording.path,
+        mimetype=recording.mime,
+    )
 
 
 # all recordings for a task, so the client can restore its state after a reload
@@ -312,6 +345,13 @@ class Recording(Base):
 
     # index of the clip within the task's flattened media list
     clip_index: Mapped[int]
+    # Which form-A question this take answers, one of ALLOWED_QUESTION_KEYS. Null
+    # for the single-recorder batches that predate the two-question layout.
+    question_key: Mapped[Optional[str]]
+    # 1-based position of the clip within its batch item's ladder, copied from the
+    # spec so "the take for the previous clip" can be found without re-deriving
+    # the flattening.
+    clip_number: Mapped[Optional[int]]
     batch_item_id: Mapped[Optional[int]]
     # the clip the annotator was looking at, for joining back to the source media
     media_src: Mapped[Optional[str]]

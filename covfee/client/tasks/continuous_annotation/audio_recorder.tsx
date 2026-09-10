@@ -13,6 +13,7 @@ import React, {
 
 import { nodeContext } from "../../journey/node_context"
 import { fetcher } from "../../utils"
+import { RecordingPlayer } from "./recording_player"
 
 /**
  * Metadata for one recording, as returned by the server after the upload.
@@ -22,6 +23,8 @@ export type RecordingMeta = {
   task_id: number
   annotation_id: number
   clip_index: number
+  question_key: string | null
+  clip_number: number | null
   batch_item_id: number | null
   media_src: string | null
   path: string
@@ -48,6 +51,18 @@ type Props = {
   batchItemId?: number | null
   mediaSrc?: string | null
   disabled?: boolean
+  /**
+   * Which form-A question this recorder answers. Sent with the upload so the two
+   * takes a clip carries can be told apart.
+   */
+  questionKey?: string
+  /** 1-based position of the clip within its batch item's ladder. */
+  clipNumber?: number | null
+  /**
+   * URL of a take already on the server for this question and clip, used to
+   * offer playback after a page reload when no local blob exists any more.
+   */
+  savedPlaybackUrl?: string | null
   onRecordingSaved?: (meta: RecordingMeta) => void
   /**
    * Fires whenever a take starts or stops. The parent uses it to keep the submit
@@ -85,6 +100,9 @@ const AudioRecorder = forwardRef<AudioRecorderHandle, Props>((props, ref) => {
     batchItemId,
     mediaSrc,
     disabled,
+    questionKey,
+    clipNumber,
+    savedPlaybackUrl,
     onRecordingSaved,
     onRecordingStateChange,
   } = props
@@ -97,6 +115,9 @@ const AudioRecorder = forwardRef<AudioRecorderHandle, Props>((props, ref) => {
     null,
   )
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  // Object URL for the take just captured, so replaying it costs no server round
+  // trip. After a reload there is no blob left and savedPlaybackUrl takes over.
+  const [localPlaybackUrl, setLocalPlaybackUrl] = useState<string | null>(null)
   // A take that was captured but could not be uploaded. Kept so the annotator can
   // retry instead of having to speak the answer again.
   const [pendingUpload, setPendingUpload] = useState<{
@@ -123,6 +144,8 @@ const AudioRecorder = forwardRef<AudioRecorderHandle, Props>((props, ref) => {
     clipIndex: number
     batchItemId?: number | null
     mediaSrc?: string | null
+    questionKey?: string
+    clipNumber?: number | null
     startedAt: number
   } | null>(null)
 
@@ -176,6 +199,12 @@ const AudioRecorder = forwardRef<AudioRecorderHandle, Props>((props, ref) => {
       }
       if (take.mediaSrc) {
         formData.append("media_src", take.mediaSrc)
+      }
+      if (take.questionKey) {
+        formData.append("question_key", take.questionKey)
+      }
+      if (take.clipNumber !== undefined && take.clipNumber !== null) {
+        formData.append("clip_number", String(take.clipNumber))
       }
       formData.append("duration_s", durationSeconds.toFixed(3))
       formData.append("started_at", String(take.startedAt))
@@ -270,6 +299,8 @@ const AudioRecorder = forwardRef<AudioRecorderHandle, Props>((props, ref) => {
       clipIndex,
       batchItemId,
       mediaSrc,
+      questionKey,
+      clipNumber,
       startedAt,
     }
 
@@ -282,7 +313,16 @@ const AudioRecorder = forwardRef<AudioRecorderHandle, Props>((props, ref) => {
     timerRef.current = setInterval(() => {
       setElapsedSeconds((Date.now() - startedAt) / 1000)
     }, 250)
-  }, [annotationId, batchItemId, clipIndex, clearTimer, getStream, mediaSrc])
+  }, [
+    annotationId,
+    batchItemId,
+    clipIndex,
+    clipNumber,
+    clearTimer,
+    getStream,
+    mediaSrc,
+    questionKey,
+  ])
 
   /**
    * Stops the recorder and uploads what was captured. Shared by the button and by
@@ -316,6 +356,12 @@ const AudioRecorder = forwardRef<AudioRecorderHandle, Props>((props, ref) => {
         message.error(msg)
         throw new Error(msg)
       }
+
+      // Playable straight away, whether or not the upload below succeeds.
+      setLocalPlaybackUrl((previous) => {
+        if (previous) URL.revokeObjectURL(previous)
+        return URL.createObjectURL(blob)
+      })
 
       return sendBlob(blob, durationSeconds)
     }, [clearTimer, onRecordingStateChange, sendBlob])
@@ -353,6 +399,10 @@ const AudioRecorder = forwardRef<AudioRecorderHandle, Props>((props, ref) => {
         setElapsedSeconds(0)
         setLastRecordedSeconds(null)
         setErrorMessage(null)
+        setLocalPlaybackUrl((previous) => {
+          if (previous) URL.revokeObjectURL(previous)
+          return null
+        })
       },
     }),
     [clearTimer, onRecordingStateChange, pendingUpload, sendBlob, stopAndUpload],
@@ -384,6 +434,9 @@ const AudioRecorder = forwardRef<AudioRecorderHandle, Props>((props, ref) => {
     return "Press to record your spoken answer for this clip."
   })()
 
+  // The local blob is preferred over the server copy: same audio, no round trip.
+  const playbackUrl = localPlaybackUrl ?? savedPlaybackUrl ?? null
+
   return (
     <Box mt="20px">
       <HStack spacing={4}>
@@ -396,6 +449,9 @@ const AudioRecorder = forwardRef<AudioRecorderHandle, Props>((props, ref) => {
         >
           {status === "recording" ? "■ Stop recording" : "● Start recording"}
         </ButtonChakra>
+        {playbackUrl && status !== "recording" && (
+          <RecordingPlayer src={playbackUrl} label="▶ Play my answer" />
+        )}
         {pendingUpload && status !== "uploading" && (
           <ButtonChakra
             colorScheme="orange"

@@ -24,12 +24,13 @@ import {
 // import Ingroupgallery_one from "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session1_cam6_10_2.png"
 // import Ingroupgallery_two from "https://covfee.ewi.tudelft.nl/P8wPkLamHiAMOvb29g9h3AFy8tXACT1e/art/session2_cam1_5_2.png"
 
-import { Answer_form_A } from "./answer_form_A"
 import {
-  AudioRecorder,
-  type AudioRecorderHandle,
-  type RecordingMeta,
-} from "./audio_recorder"
+  Answer_form_A,
+  FORM_A_QUESTIONS,
+  type FormAQuestionKey,
+} from "./answer_form_A"
+import type { SpokenQuestionAnswer } from "./spoken_question"
+import type { AudioRecorderHandle, RecordingMeta } from "./audio_recorder"
 import {
   ABORT_ONGOING_ANNOTATION_KEY,
   CHANGE_VIEW_NEXT_KEY,
@@ -47,7 +48,7 @@ import { slice } from "./slice"
 import type { AnnotationDataSpec, ContinuousAnnotationTaskSpec } from "./spec"
 import TaskProgress, { TaskAlreadyCompleted } from "./task_progress"
 
-type GestaltAnnotation = {
+export type GestaltAnnotation = {
   speaker_intention: string
   response: string
   annotation_type?: "A" | "B"
@@ -55,6 +56,15 @@ type GestaltAnnotation = {
   video_end_time?: number
   video_path?: string
   audio_path?: string
+  /**
+   * Only set when the task answers form A by speaking: per question, whether the
+   * interpretation changed since the previous clip and how confident the
+   * annotator is. The spoken audio itself is uploaded separately and lives in
+   * the recordings table; this is the structured half of the answer.
+   */
+  spoken_answers?: Record<string, SpokenQuestionAnswer>
+  clip_number?: number
+  clip_count?: number
 }
 
 interface Props extends CovfeeTaskProps<ContinuousAnnotationTaskSpec> {}
@@ -237,12 +247,32 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
   //------------------ Spoken answer recording ----------------- //
   //*************************************************************//
   const audioRecordingEnabled = props.spec.audioRecordingEnabled ?? false
-  const audioRecorderRef = useRef<AudioRecorderHandle>(null)
+
+  // One recorder per form-A question. The refs are stable across clips; the
+  // parent resets them when the clip changes.
+  const speakerIntentionRecorderRef = useRef<AudioRecorderHandle>(null)
+  const responseRecorderRef = useRef<AudioRecorderHandle>(null)
+  const recorderRefs = React.useMemo(
+    () => ({
+      speaker_intention: speakerIntentionRecorderRef,
+      response: responseRecorderRef,
+    }),
+    [],
+  )
+
+  const resetAllRecorders = useCallback(() => {
+    for (const { key } of FORM_A_QUESTIONS) {
+      recorderRefs[key]?.current?.reset()
+    }
+  }, [recorderRefs])
+
   const [recordingsByClip, setRecordingsByClip] = useState<
     Record<number, RecordingMeta[]>
   >({})
-  const [isRecordingInProgress, setIsRecordingInProgress] = useState(false)
-
+  // Which questions currently have a take running, so submit can stop and flush
+  // them rather than refusing to advance.
+  const [recordingInProgressByQuestion, setRecordingInProgressByQuestion] =
+    useState<Record<string, boolean>>({})
   const registerRecording = useCallback((meta: RecordingMeta) => {
     setRecordingsByClip((prev) => ({
       ...prev,
@@ -250,15 +280,43 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     }))
   }, [])
 
+  /** URL the server streams one stored take from. */
+  const recordingAudioUrl = useCallback(
+    (meta: RecordingMeta | undefined | null) =>
+      meta
+        ? Constants.base_url +
+          node.customApiBase +
+          `/recordings/${meta.id}/audio`
+        : null,
+    [node.customApiBase],
+  )
+
+  /**
+   * Most recent take for one clip and question. Takes accumulate -- a clip can
+   * be re-recorded -- and the last one is the answer that counts.
+   */
+  const latestRecording = useCallback(
+    (clipIndex: number, questionKey: string): RecordingMeta | null => {
+      const takes = (recordingsByClip[clipIndex] ?? []).filter(
+        (take) => take.question_key === questionKey,
+      )
+      return takes.length > 0 ? takes[takes.length - 1] : null
+    },
+    [recordingsByClip],
+  )
+
   const submitFreeTextToServer = async () => {
     // The recording belongs to the clip being left, so it has to be stopped and
     // uploaded before any of the advancing logic below runs. A failed upload aborts
     // the submit rather than silently dropping what the annotator said.
-    if (audioRecordingEnabled && audioRecorderRef.current) {
+    if (audioRecordingEnabled) {
       try {
-        // On success the recorder reports the take through onRecordingSaved, so
-        // there is nothing to register here.
-        await audioRecorderRef.current.stopAndFlush()
+        // On success each recorder reports its take through onRecordingSaved, so
+        // there is nothing to register here. Sequential rather than concurrent:
+        // two uploads racing on one eventlet worker is the slower path.
+        for (const { key } of FORM_A_QUESTIONS) {
+          await recorderRefs[key]?.current?.stopAndFlush()
+        }
       } catch (error) {
         console.error("Not advancing: the recording could not be saved.", error)
         return
@@ -284,7 +342,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
       const nextBatchItemId =
         props.spec.annotations[nextMediaIndex]?.batch_item_id ?? nextMediaIndex
       nextCurrMediaIndex()
-      audioRecorderRef.current?.reset()
+      resetAllRecorders()
       if (
         answerForm === "A" &&
         currentBatchItemId < sectionOneItemCount &&
@@ -352,7 +410,7 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     setNoIntentionSeen(false)
     // Covers navigation that does not go through submitFreeTextToServer (e.g. the
     // sidebar), so a clip never opens with a recording still running.
-    audioRecorderRef.current?.reset()
+    resetAllRecorders()
   }, [currMediaIndex])
 
   const allChecked = audioToggles.every(Boolean)
@@ -445,8 +503,94 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
     number | null
   >(UNINITIALIZED_ACTION_ANNOTATION_START_TIME)
   const [selectedCamViewIndex, setSelectedCamViewIndex] = useState(0)
-  const hasRecordingForCurrentClip =
-    (recordingsByClip[selectedCamViewIndex] ?? []).length > 0
+
+  // Position of the current clip within its batch item's ladder. Falls back to a
+  // lone clip for the batches whose spec predates clip_number.
+  const currentClipNumber =
+    props.spec.annotations[currMediaIndex]?.clip_number ?? 1
+  const currentClipCount = props.spec.annotations[currMediaIndex]?.clip_count
+
+  // The structured half of the spoken answers for the clip on screen. Cleared on
+  // every clip change, since each clip is judged on its own.
+  const [spokenAnswers, setSpokenAnswers] = useState<
+    Record<string, SpokenQuestionAnswer>
+  >({})
+
+  useEffect(() => {
+    setSpokenAnswers({})
+    setRecordingInProgressByQuestion({})
+  }, [currMediaIndex])
+
+  const handleSpokenAnswerChange = useCallback(
+    (key: FormAQuestionKey, value: SpokenQuestionAnswer) => {
+      setSpokenAnswers((prev) => {
+        const next = { ...prev, [key]: value }
+        // Mirrored into the annotation so it rides along with the same
+        // data_json post the typed form uses; the audio is uploaded separately.
+        setGestaltAnnotation((annotation) => ({
+          ...annotation,
+          spoken_answers: next,
+          clip_number: currentClipNumber,
+          clip_count: currentClipCount,
+        }))
+        return next
+      })
+    },
+    [currentClipCount, currentClipNumber],
+  )
+
+  const handleQuestionRecordingStateChange = useCallback(
+    (key: FormAQuestionKey, recording: boolean) =>
+      setRecordingInProgressByQuestion((prev) => ({ ...prev, [key]: recording })),
+    [],
+  )
+
+  // A take still running counts as present: submit stops it, uploads it, and
+  // only then advances.
+  const missingRecordings = FORM_A_QUESTIONS.filter(
+    ({ key }) =>
+      latestRecording(selectedCamViewIndex, key) === null &&
+      !recordingInProgressByQuestion[key],
+  ).map(({ key }) => key)
+
+  const savedPlaybackUrls = React.useMemo(
+    () =>
+      Object.fromEntries(
+        FORM_A_QUESTIONS.map(({ key }) => [
+          key,
+          recordingAudioUrl(latestRecording(selectedCamViewIndex, key)),
+        ]),
+      ),
+    [latestRecording, recordingAudioUrl, selectedCamViewIndex],
+  )
+
+  // The same question's take on the previous clip of this item. Guarded on the
+  // batch item so the last clip of item N never plays into item N+1.
+  const previousPlaybackUrls = React.useMemo(() => {
+    const previousIndex = selectedCamViewIndex - 1
+    const previousBatchItemId =
+      props.spec.annotations[previousIndex]?.batch_item_id
+    if (
+      currentClipNumber <= 1 ||
+      previousIndex < 0 ||
+      previousBatchItemId !== currentBatchItemId
+    ) {
+      return {}
+    }
+    return Object.fromEntries(
+      FORM_A_QUESTIONS.map(({ key }) => [
+        key,
+        recordingAudioUrl(latestRecording(previousIndex, key)),
+      ]),
+    )
+  }, [
+    currentBatchItemId,
+    currentClipNumber,
+    latestRecording,
+    props.spec.annotations,
+    recordingAudioUrl,
+    selectedCamViewIndex,
+  ])
   const [activeAnnotationDataArray, setActiveAnnotationDataArray] =
     React.useState<ActionAnnotationDataArray>({
       buffer: [],
@@ -1497,28 +1641,25 @@ const ContinuousAnnotationTask: React.FC<Props> = (props) => {
               )}
             </div>
             <div>
-              {answerForm === "A" && audioRecordingEnabled && (
-                <AudioRecorder
-                  ref={audioRecorderRef}
+              {answerForm === "A" && (
+                <Answer_form_A
+                  spokenAnswers={audioRecordingEnabled}
+                  clipNumber={currentClipNumber}
+                  clipCount={currentClipCount}
+                  answers={spokenAnswers}
+                  onAnswerChange={handleSpokenAnswerChange}
+                  recorderRefs={recorderRefs}
                   annotationId={
-                    annotationsDataMirror[selectedCamViewIndex].id
+                    annotationsDataMirror?.[selectedCamViewIndex]?.id
                   }
                   clipIndex={selectedCamViewIndex}
                   batchItemId={currentBatchItemId}
                   mediaSrc={current_video_src}
-                  disabled={videoLengthMismatch}
+                  savedPlaybackUrls={savedPlaybackUrls}
+                  previousPlaybackUrls={previousPlaybackUrls}
                   onRecordingSaved={registerRecording}
-                  onRecordingStateChange={setIsRecordingInProgress}
-                />
-              )}
-              {answerForm === "A" && (
-                <Answer_form_A
-                  recordingRequired={audioRecordingEnabled}
-                  // A take still running counts: pressing submit stops, uploads
-                  // and only then advances.
-                  hasRecording={
-                    hasRecordingForCurrentClip || isRecordingInProgress
-                  }
+                  onRecordingStateChange={handleQuestionRecordingStateChange}
+                  missingRecordings={missingRecordings}
                   videoLengthMismatch={videoLengthMismatch}
                   gestaltAnnotation={gestaltAnnotation}
                   setGestaltAnnotation={setGestaltAnnotation}

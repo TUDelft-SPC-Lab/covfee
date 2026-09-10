@@ -8,8 +8,10 @@ class ContinuousAnnotationTaskSpec(CovfeeTask):
     media: List[Any]
     name: str
     userCanAdd: bool
-    # When true, form A shows a microphone record/stop button for every clip and a
-    # recording must be captured before the clip can be submitted.
+    # When true, form A answers each of its two questions with a spoken recording
+    # instead of typed text: per question a record/stop button, a confidence
+    # rating, and (from the second clip of an item on) whether the interpretation
+    # changed. Both recordings must be captured before the clip can be submitted.
     audioRecordingEnabled: bool
     # When specified: True, means audio on is mandatory, False means audio off (muted) is mandatory.
     audioRequirement: bool
@@ -63,8 +65,10 @@ class ContinuousAnnotationTaskSpec(CovfeeTask):
         3. name : str
         4. userCanAdd : bool
         5. audioRecordingEnabled : bool
-            - When true, form A shows a microphone record/stop button for every clip and a
-recording must be captured before the clip can be submitted.
+            - When true, form A answers each of its two questions with a spoken recording
+instead of typed text: per question a record/stop button, a confidence
+rating, and (from the second clip of an item on) whether the interpretation
+changed. Both recordings must be captured before the clip can be submitted.
         6. audioRequirement : bool
             - When specified: True, means audio on is mandatory, False means audio off (muted) is mandatory.
         7. countdown : float

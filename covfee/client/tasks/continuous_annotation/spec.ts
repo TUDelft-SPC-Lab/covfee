@@ -9,6 +9,14 @@ export interface AnnotationDataSpec {
   conversation_floor?: number[]
   AB_test?: "A" | "B"
   batch_item_id?: number
+  /**
+   * 1-based position of this clip within its batch item's clip ladder, and the
+   * length of that ladder. Shown to the annotator ("Clip 3 of 10") and used to
+   * decide whether the "has your interpretation changed" question applies, which
+   * it does not for the first clip of an item.
+   */
+  clip_number?: number
+  clip_count?: number
 }
 export interface MediaSpec {
   type: "video/mp4"
@@ -44,8 +52,10 @@ export interface ContinuousAnnotationTaskSpec extends BaseTaskSpec {
    */
   sectionOneItemCount?: number
   /**
-   * When true, form A shows a microphone record/stop button for every clip and a
-   * recording must be captured before the clip can be submitted.
+   * When true, form A answers each of its two questions with a spoken recording
+   * instead of typed text: per question a record/stop button, a confidence
+   * rating, and (from the second clip of an item on) whether the interpretation
+   * changed. Both recordings must be captured before the clip can be submitted.
    * @default false
    */
   audioRecordingEnabled?: boolean
