@@ -44,16 +44,19 @@ export const AppProvider: React.FC<Props> = (props) => {
   const getSocket = () => {
     if (args.admin) {
       console.log("IO: connect: /admin")
-      return io("/admin")
+      return io("/admin", { path: Constants.socketio_path })
     } else {
       if (routeParams.journeyId) {
         console.log("IO: connect", {
           auth: { journeyId: routeParams.journeyId },
         })
-        return io({ auth: { journeyId: routeParams.journeyId } })
+        return io({
+          path: Constants.socketio_path,
+          auth: { journeyId: routeParams.journeyId },
+        })
       } else {
         console.log("IO: connect", {})
-        return io()
+        return io({ path: Constants.socketio_path })
       }
     }
   }
@@ -61,10 +64,10 @@ export const AppProvider: React.FC<Props> = (props) => {
   const getChocket = () => {
     if (args.admin) {
       console.log("IO: connect: /admin_chat")
-      return io("/admin_chat")
+      return io("/admin_chat", { path: Constants.socketio_path })
     } else {
       console.log("IO: connect: /chat")
-      return io("/chat")
+      return io("/chat", { path: Constants.socketio_path })
     }
   }
 

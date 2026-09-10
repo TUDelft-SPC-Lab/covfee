@@ -64,7 +64,9 @@ def create_app_and_socketio(
     from .socketio.socket import socketio
 
     # important: here, set socketio json implementation too
-    socketio.init_app(app, manage_session=True, json=app.json)
+    socketio.init_app(
+        app, manage_session=True, json=app.json, path=config["SOCKETIO_PATH"]
+    )
 
     app.register_blueprint(frontend, url_prefix="/")
     from .rest_api import api, auth

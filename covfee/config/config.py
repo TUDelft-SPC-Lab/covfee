@@ -45,6 +45,15 @@ class Config(flask.Config):
         if app_path == "":
             app_path = "/"
 
+        # Socket.IO's handshake path defaults to "/socket.io" and is resolved by
+        # the client as an absolute path from the domain root (not relative to
+        # BASE_URL). Deriving it from app_path keeps multiple covfee instances
+        # deployed under different sub-paths of the same domain from colliding
+        # on the same Socket.IO endpoint.
+        socketio_path = (
+            "/socket.io" if app_path == "/" else app_path.rstrip("/") + "/socket.io"
+        )
+
         self.update(
             # copy over secret key
             JWT_SECRET_KEY=self["COVFEE_SECRET_KEY"],
@@ -58,6 +67,7 @@ class Config(flask.Config):
             LOGIN_URL=self["BASE_URL"] + "/admin#login",
             API_URL=self["BASE_URL"] + "/api",
             AUTH_URL=self["BASE_URL"] + "/auth",
+            SOCKETIO_PATH=socketio_path,
             # Set the cookie paths, so that you are only sending your access token
             # cookie to the access endpoints, and only sending your refresh token
             # to the refresh endpoint. Technically this is optional, but it is in
@@ -83,6 +93,7 @@ class Config(flask.Config):
             "base_url": self["BASE_URL"],
             "api_url": self["API_URL"],
             "auth_url": self["AUTH_URL"],
+            "socketio_path": self["SOCKETIO_PATH"],
             "admin": {
                 "unsafe_mode_on": self.get("UNSAFE_MODE_ON", False),
                 "home_url": self["ADMIN_URL"],
